@@ -67,18 +67,11 @@ const deleteProduct = async (req, res) => {
         res.status(500).json({error: e.message});
     }
 };
-const testError = (req, res, next) => {
-    const error = new Error('Error test');
-    error.status = 500;
-    next(error);
-}
-
 module.exports = {
     getAllProducts,
     getProductDeleted,
     getProductById,
     createProduct,
     updateProduct,
-    deleteProduct,
-    testError
+    deleteProduct
 };

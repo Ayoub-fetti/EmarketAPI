@@ -4,7 +4,6 @@ const {getAllProducts, getProductById, createProduct, updateProduct, deleteProdu
 const router = express.Router();
 router.get('/', getAllProducts);
 router.get('/deleted', getProductDeleted);
-router.get('/test-error', testError);
 router.get('/:id', getProductById);
 router.post('/', createProduct);
 router.put('/:id', updateProduct);
