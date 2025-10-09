@@ -31,7 +31,7 @@ const createUser = async (req, res) => {
             return res.status(400).json({error: 'Email not available'});
         }
         const user = new User({ fullName, email, password, role});
-        await user.save;
+        await user.save();
         const userResponse = user.toObject();
         delete userResponse.password;
 

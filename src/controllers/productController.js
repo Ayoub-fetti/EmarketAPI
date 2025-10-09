@@ -8,6 +8,14 @@ const getAllProducts = async (req, res) => {
         res.status(500).json({error: e.message});
     }
 };
+const getProductDeleted = async (req, res) => {
+    try {
+        const products = await Product.find({ isDeleted: { $ne: false } });
+        res.json(products);
+    } catch (e) {
+        res.status(500).json({error: e.message});
+    }
+};
 
 const getProductById = async (req, res) => {
     try {
@@ -59,11 +67,18 @@ const deleteProduct = async (req, res) => {
         res.status(500).json({error: e.message});
     }
 };
+const testError = (req, res, next) => {
+    const error = new Error('Error test');
+    error.status = 500;
+    next(error);
+}
 
 module.exports = {
     getAllProducts,
+    getProductDeleted,
     getProductById,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    testError
 };
