@@ -1,5 +1,8 @@
 const express = require('express');
 const {getAllCategories, getCategoryById, createCategory, updateCategory, deleteCategory, getCategoriesDeleted} = require('../controllers/categoryController');
+const validate = require('../middlewares/validation');
+const { createCategorySchema, updateCategorySchema } = require('../validations/categoryValidation');
+const { mongoIdSchema } = require('../validations/commonValidation');
 
 const router = express.Router();
 
@@ -20,7 +23,6 @@ const router = express.Router();
  *       201:
  *         description: list of all categories
  */
-router.get('/', getAllCategories);
 
 /**
  * @swagger
@@ -32,7 +34,6 @@ router.get('/', getAllCategories);
  *       200:
  *         description: list of deleted categories
  */
-router.get('/deleted', getCategoriesDeleted);
 
 /**
  * @swagger
@@ -56,7 +57,6 @@ router.get('/deleted', getCategoriesDeleted);
  *       404:
  *         description: Category not found
  */
-router.get('/:id', getCategoryById);
 
 /**
  * @swagger
@@ -81,7 +81,6 @@ router.get('/:id', getCategoryById);
  *       201:
  *         description: Category created
  */
-router.post('/', createCategory);
 
 /**
  * @swagger
@@ -111,7 +110,6 @@ router.post('/', createCategory);
  *       404:
  *         description: Category not found
  */
-router.put('/:id', updateCategory);
 
 /**
  * @swagger
@@ -135,6 +133,12 @@ router.put('/:id', updateCategory);
  *       404:
  *         description: Category not found
  */
-router.delete('/:id', deleteCategory);
+router.get('/', getAllCategories);
+router.get('/deleted', getCategoriesDeleted);
+router.get('/:id', validate(mongoIdSchema), getCategoryById);
+router.post('/', validate(createCategorySchema), createCategory);
+router.put('/:id', validate(mongoIdSchema), validate(updateCategorySchema), updateCategory);
+router.delete('/:id', validate(mongoIdSchema), deleteCategory);
+
 
 module.exports = router;

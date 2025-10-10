@@ -1,5 +1,8 @@
 const express = require('express');
 const {getAllUsers, getUserById, createUser,updateUser, deleteUser} = require('../controllers/userController');
+const validate = require('../middlewares/validation');
+const { createUserSchema, updateUserSchema } = require('../validations/userValidation');
+const { mongoIdSchema } = require('../validations/commonValidation');
 
 const router = express.Router();
 
@@ -20,8 +23,6 @@ const router = express.Router();
  *       201:
  *         description: list of all users
  */
-router.get('/', getAllUsers);
-router.get('/:id', getUserById);
 /**
  * @swagger
  * /api/users/:
@@ -46,7 +47,6 @@ router.get('/:id', getUserById);
  *       201:
  *         description: User created
  */
-router.post('/', createUser);
 /**
  * @swagger
  * /api/users/{id}:
@@ -74,7 +74,6 @@ router.post('/', createUser);
  *       404:
  *         description: User not found
  */
-router.put('/:id', updateUser);
 
 /**
  * @swagger
@@ -98,6 +97,11 @@ router.put('/:id', updateUser);
  *       404:
  *         description: User not found
  */
-router.delete('/:id', deleteUser);
+router.get('/', getAllUsers);
+router.get('/:id', validate(mongoIdSchema), getUserById);
+router.post('/', validate(createUserSchema), createUser);
+router.put('/:id', validate(mongoIdSchema), validate(updateUserSchema), updateUser);
+router.delete('/:id', validate(mongoIdSchema), deleteUser);
+
 
 module.exports = router;

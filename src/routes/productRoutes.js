@@ -1,6 +1,8 @@
 const express = require('express');
 const {getAllProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductDeleted, searchProducts} = require('../controllers/productController');
-
+const validate = require('../middlewares/validation');
+const { createProductSchema, updateProductSchema, searchProductSchema } = require('../validations/productValidation');
+const { mongoIdSchema } = require('../validations/commonValidation');
 const router = express.Router();
 
 /**
@@ -20,7 +22,6 @@ const router = express.Router();
  *       201:
  *         description: list of all products
  */
-router.get('/', getAllProducts);
 
 /**
  * @swagger
@@ -32,7 +33,6 @@ router.get('/', getAllProducts);
  *       200:
  *         description: search results
  */
-router.get('/search', searchProducts);
 
 /**
  * @swagger
@@ -44,7 +44,6 @@ router.get('/search', searchProducts);
  *       200:
  *         description: list of deleted products
  */
-router.get('/deleted', getProductDeleted);
 
 /**
  * @swagger
@@ -68,7 +67,6 @@ router.get('/deleted', getProductDeleted);
  *       404:
  *         description: Product not found
  */
-router.get('/:id', getProductById);
 
 /**
  * @swagger
@@ -95,7 +93,6 @@ router.get('/:id', getProductById);
  *       201:
  *         description: Product created
  */
-router.post('/', createProduct);
 
 /**
  * @swagger
@@ -136,7 +133,6 @@ router.post('/', createProduct);
  *       404:
  *         description: Product not found
  */
-router.put('/:id', updateProduct);
 
 /**
  * @swagger
@@ -160,6 +156,13 @@ router.put('/:id', updateProduct);
  *       404:
  *         description: Product not found
  */
-router.delete('/:id', deleteProduct);
+
+router.get('/', getAllProducts);
+router.get('/search', validate(searchProductSchema), searchProducts);
+router.get('/deleted', getProductDeleted);
+router.get('/:id', validate(mongoIdSchema), getProductById);
+router.post('/', validate(createProductSchema), createProduct);
+router.put('/:id', validate(mongoIdSchema), validate(updateProductSchema), updateProduct);
+router.delete('/:id', validate(mongoIdSchema), deleteProduct);
 
 module.exports = router;
