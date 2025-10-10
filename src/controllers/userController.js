@@ -41,6 +41,9 @@ const createUser = async (req, res) => {
     }
 };
 
+// todo : update user function
+// todo : validation
+
 // delete user
 const deleteUser = async (req, res) => {
     try {
