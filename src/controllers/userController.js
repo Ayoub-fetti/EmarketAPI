@@ -42,6 +42,18 @@ const createUser = async (req, res) => {
 };
 
 // todo : update user function
+
+const updateUser = async (req, res) => {
+    try {
+        const user = await  User.findByIdAndUpdate({_id: req.params.id, isDeleted: {$ne: true}}, req.body, {new: true, runValidators: true});
+        if (!user) {
+            return res.status(404).json({error: 'User not found'});
+        }
+        res.json(user);
+    } catch (e) {
+        res.status(500).json({error: e.message});
+    }
+};
 // todo : validation
 
 // delete user
@@ -57,4 +69,4 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = {getAllUsers, getUserById, createUser, deleteUser};
+module.exports = {getAllUsers, getUserById, createUser, updateUser, deleteUser};

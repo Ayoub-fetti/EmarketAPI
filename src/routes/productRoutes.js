@@ -119,6 +119,17 @@ router.post('/', createProduct);
  *         application/json:
  *           schema:
  *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: {
+ *                                 "title" : "iphone 18 pro max",
+ *                                "description": "iphone 17 pro max , made in usa california , available in our store",
+ *                                "price": 800,
+ *                                "stock" : 100,
+ *                                "category" : "phones",
+ *                                "imageUrl": "https://www.mobileana.com/wp-content/uploads/2025/06/Apple-iPhone-17-Pro-Max-Cosmic-Orange.webp"
+ *                             }
  *     responses:
  *       200:
  *         description: Product updated successfully

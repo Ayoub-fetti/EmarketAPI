@@ -1,5 +1,5 @@
 const express = require('express');
-const {getAllUsers, getUserById, createUser, deleteUser} = require('../controllers/userController');
+const {getAllUsers, getUserById, createUser,updateUser, deleteUser} = require('../controllers/userController');
 
 const router = express.Router();
 
@@ -47,6 +47,34 @@ router.get('/:id', getUserById);
  *         description: User created
  */
 router.post('/', createUser);
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Update users with ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: User ID to update
+ *         schema:
+ *           type: object
+ *           properties:
+ *              name:
+ *                 type: string
+ *                 example: {
+ *                                 "fullName" : "ayoub fetti updated",
+ *                                "email" : "ayoub.updated@email.com",
+ *                                "password" : "newpassword123"
+ *                             }
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       404:
+ *         description: User not found
+ */
+router.put('/:id', updateUser);
 
 /**
  * @swagger
