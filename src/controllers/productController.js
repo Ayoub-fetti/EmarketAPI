@@ -67,11 +67,39 @@ const deleteProduct = async (req, res) => {
         res.status(500).json({error: e.message});
     }
 };
+const searchProducts = async (req, res) => {
+    try {
+        const { title, category, minPrice, maxPrice, inStock } = req.query;
+        let filter = { isDeleted: { $ne: true } };
+
+        if (title) {
+            filter.title = { $regex: title, $options: 'i' };
+        }
+        if (category) {
+            filter.category = category;
+        }
+        if (minPrice || maxPrice) {
+            filter.price = {};
+            if (minPrice) filter.price.$gte = Number(minPrice);
+            if (maxPrice) filter.price.$lte = Number(maxPrice);
+        }
+        if (inStock === 'true') {
+            filter.stock = { $gt: 0 };
+        }
+
+        const products = await Product.find(filter).populate('category');
+        res.json(products);
+    } catch (e) {
+        res.status(500).json({error: e.message});
+    }
+};
+
 module.exports = {
     getAllProducts,
     getProductDeleted,
     getProductById,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    searchProducts
 };
