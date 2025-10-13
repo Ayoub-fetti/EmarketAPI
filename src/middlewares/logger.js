@@ -9,7 +9,6 @@ const logger = (req, res, next) => {
     };
 
     writeLog('info', 'HTTP Request', logData);
-    console.log(`${req.method} ${req.url} - ${new Date().toLocaleString()}`);
     next();
 };
 

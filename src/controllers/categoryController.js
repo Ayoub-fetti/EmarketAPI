@@ -42,9 +42,7 @@ const createCategory = async (req, res) => {
 
 const updateCategory = async (req, res) => {
     try {
-        const category = await Category.findByIdAndUpdate(
-            {_id: req.params.id, isDeleted: {$ne: true}}, req.body, {new: true, runValidators: true}
-        );
+        const category = await Category.findByIdAndUpdate({_id: req.params.id, isDeleted: {$ne: true}}, req.body, {new: true, runValidators: true});
         if (!category) {
             return res.status(404).json({error: 'Category not found'});
         }
@@ -56,11 +54,7 @@ const updateCategory = async (req, res) => {
 
 const deleteCategory = async (req, res) => {
     try {
-        const category = await Category.findOneAndUpdate(
-            { _id: req.params.id, isDeleted: { $ne: true } },
-            { isDeleted: true, deletedAt: new Date() },
-            { new: true }
-        );
+        const category = await Category.findOneAndUpdate({ _id: req.params.id, isDeleted: { $ne: true } }, { isDeleted: true, deletedAt: new Date() }, { new: true });
         if (!category) {
             return res.status(404).json({error: 'Category not found'});
         }
