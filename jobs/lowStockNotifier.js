@@ -1,15 +1,15 @@
 // jobs/lowStockNotifier.js
-import cron from 'node-cron';
-import Cart from '../models/Cart.js';
-import { notificationEmitter } from '../events/notificationEmitter.js';
+import cron from "node-cron";
+import Cart from "../models/Cart.js";
+import { notificationEmitter } from "../events/notificationEmitter.js";
 
-cron.schedule('* * * * *', async () => {
+cron.schedule("* * * * *", async () => {
   try {
-    console.log('Job lowStockNotification démarré...');
+    console.log("Job lowStockNotification démarré...");
 
-    const carts = await Cart.find({}, 'items userId').populate(
-      'items.productId',
-      'title stock'
+    const carts = await Cart.find({}, "items userId").populate(
+      "items.productId",
+      "title stock",
     );
 
     for (const cart of carts) {
@@ -19,7 +19,7 @@ cron.schedule('* * * * *', async () => {
 
         // Stock critique et pas encore notifié
         if (product.stock <= 5 && !item.lowStockNotified) {
-          notificationEmitter.emit('lowStock', {
+          notificationEmitter.emit("lowStock", {
             userId: cart.userId,
             product,
           });
@@ -34,8 +34,8 @@ cron.schedule('* * * * *', async () => {
       await cart.save();
     }
 
-    console.log('Job lowStockNotification exécuté !');
+    console.log("Job lowStockNotification exécuté !");
   } catch (err) {
-    console.error('Erreur job lowStockNotification :', err);
+    console.error("Erreur job lowStockNotification :", err);
   }
 });

@@ -1,5 +1,5 @@
-import Review from '../models/Review.js';
-import * as reviewService from '../services/reviewService.js';
+import Review from "../models/Review.js";
+import * as reviewService from "../services/reviewService.js";
 
 // Créer un avis
 export const createReview = async (req, res, next) => {
@@ -10,7 +10,7 @@ export const createReview = async (req, res, next) => {
     // Vérifier toutes les conditions
     const { canReview, reason } = await reviewService.canUserReview(
       userId,
-      productId
+      productId,
     );
     if (!canReview) {
       return res.status(403).json({ error: reason });
@@ -31,7 +31,7 @@ export const createReview = async (req, res, next) => {
 
     res
       .status(201)
-      .json({ message: 'Review created successfully', data: review });
+      .json({ message: "Review created successfully", data: review });
   } catch (error) {
     next(error);
   }
@@ -42,14 +42,14 @@ export const getProductReviews = async (req, res, next) => {
   try {
     const { productId } = req.params;
     const { page = 1, limit = 10 } = req.query;
-    const isAdmin = req.user?.role === 'admin';
+    const isAdmin = req.user?.role === "admin";
 
     const filter = { product: productId };
     if (!isAdmin) {
       //filter.status = "approved";
     }
     const reviews = await Review.find(filter)
-      .populate('user', 'fullname avatar')
+      .populate("user", "fullname avatar")
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip((page - 1) * limit);
@@ -76,7 +76,7 @@ export const getUserReviews = async (req, res, next) => {
     const userId = req.user.id;
 
     const reviews = await Review.find({ user: userId })
-      .populate('product', 'title images price')
+      .populate("product", "title images price")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ data: reviews });
@@ -96,9 +96,9 @@ export const updateReview = async (req, res, next) => {
       {
         ...(rating && { rating }),
         ...(comment && { comment }),
-        status: 'pending',
+        status: "pending",
       },
-      { new: true }
+      { new: true },
     );
 
     // Recalculer la note moyenne du produit
@@ -106,7 +106,7 @@ export const updateReview = async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: 'Review updated successfully', data: review });
+      .json({ message: "Review updated successfully", data: review });
   } catch (error) {
     next(error);
   }
@@ -137,11 +137,11 @@ export const moderateReview = async (req, res, next) => {
     const review = await Review.findByIdAndUpdate(
       id,
       { status },
-      { new: true }
+      { new: true },
     );
 
     if (!review) {
-      return res.status(404).json({ error: 'Review not found' });
+      return res.status(404).json({ error: "Review not found" });
     }
 
     // Recalculer la note moyenne si approuvé/rejeté
@@ -149,7 +149,7 @@ export const moderateReview = async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: 'Review moderated successfully', data: review });
+      .json({ message: "Review moderated successfully", data: review });
   } catch (error) {
     next(error);
   }

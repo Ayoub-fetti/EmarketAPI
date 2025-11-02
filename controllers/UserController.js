@@ -1,7 +1,7 @@
-import User from '../models/User.js';
-import path from 'path';
-import fs from 'fs';
-import bcrypt from 'bcryptjs';
+import User from "../models/User.js";
+import path from "path";
+import fs from "fs";
+import bcrypt from "bcryptjs";
 
 export const createUser = async (req, res, next) => {
   try {
@@ -9,7 +9,7 @@ export const createUser = async (req, res, next) => {
     await user.save();
 
     res.status(201).json({
-      message: 'User created successfully',
+      message: "User created successfully",
       data: {
         user,
       },
@@ -38,11 +38,11 @@ export const updateUser = async (req, res, next) => {
     });
 
     if (!updatedUser) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     res.status(200).json({
-      message: 'User updated',
+      message: "User updated",
       data: {
         updatedUser,
       },
@@ -58,10 +58,10 @@ export const deleteUser = async (req, res, next) => {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
 
     if (!deletedUser) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json({ message: 'User deleted successfully' });
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -74,7 +74,7 @@ export const getUsers = async (req, res, next) => {
     let totalUsers;
     let skip;
     let users;
-    if (req.user.role === 'admin') {
+    if (req.user.role === "admin") {
       limit = parseInt(req.query.limit) || 10;
       skip = (page - 1) * limit;
       users = await User.find({ deletedAt: null }).skip(skip).limit(limit);
@@ -82,17 +82,17 @@ export const getUsers = async (req, res, next) => {
     } else {
       limit = 10;
       skip = (page - 1) * limit;
-      users = await User.find({ role: 'seller', deletedAt: null })
+      users = await User.find({ role: "seller", deletedAt: null })
         .skip(skip)
         .limit(limit);
       totalUsers = await User.countDocuments({
-        role: 'seller',
+        role: "seller",
         deletedAt: null,
       });
     }
 
     res.status(200).json({
-      message: 'Users retrieved successfully',
+      message: "Users retrieved successfully",
       data: {
         users,
         totalUsers,
@@ -111,11 +111,11 @@ export const getUserById = async (req, res, next) => {
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     res.status(200).json({
-      message: 'User retrieved successfully',
+      message: "User retrieved successfully",
       data: { user },
     });
   } catch (error) {
@@ -127,10 +127,10 @@ export const getUserById = async (req, res, next) => {
 export const softDeleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     await user.softDelete();
-    res.status(200).json({ message: 'User soft deleted' });
+    res.status(200).json({ message: "User soft deleted" });
   } catch (error) {
     next(error);
   }
@@ -140,10 +140,10 @@ export const softDeleteUser = async (req, res, next) => {
 export const restoreUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     await user.restore();
-    res.status(200).json({ message: 'User restored' });
+    res.status(200).json({ message: "User restored" });
   } catch (error) {
     next(error);
   }
@@ -155,7 +155,7 @@ export const getDeletedUsers = async (req, res, next) => {
     const users = await User.find().deleted();
     res
       .status(200)
-      .json({ message: 'Users retrieved successfully', data: users });
+      .json({ message: "Users retrieved successfully", data: users });
   } catch (error) {
     next(error);
   }
@@ -164,23 +164,23 @@ export const getDeletedUsers = async (req, res, next) => {
 export const deleteAvatar = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     if (!user.avatar) {
-      return res.status(400).json({ message: 'No avatar found for this user' });
+      return res.status(400).json({ message: "No avatar found for this user" });
     }
 
     // Construire le chemin complet vers le fichier sur le serveur
     // Assure-toi que `user.avatar` contient bien le chemin relatif depuis 'public'
-    const avatarPath = path.join('public', user.avatar);
+    const avatarPath = path.join("public", user.avatar);
 
     try {
       await fs.unlink(avatarPath);
-      console.log('Avatar file deleted:', avatarPath);
+      console.log("Avatar file deleted:", avatarPath);
     } catch {
       console.warn(
-        'Avatar file not found on server, skipping deletion:',
-        avatarPath
+        "Avatar file not found on server, skipping deletion:",
+        avatarPath,
       );
     }
 
@@ -190,7 +190,7 @@ export const deleteAvatar = async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: 'Avatar deleted successfully', data: user });
+      .json({ message: "Avatar deleted successfully", data: user });
   } catch (error) {
     next(error);
   }
@@ -199,11 +199,11 @@ export const deleteAvatar = async (req, res, next) => {
 export const changeRole = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     user.role = req.body.role;
     await user.save();
-    res.status(200).json({ message: 'Role changed successfully', data: user });
+    res.status(200).json({ message: "Role changed successfully", data: user });
   } catch (error) {
     next(error);
   }
@@ -212,17 +212,17 @@ export const changeRole = async (req, res, next) => {
 export const searchSellers = async (req, res, next) => {
   try {
     const { search } = req.query;
-    let filter = { role: 'seller', deletedAt: null };
+    let filter = { role: "seller", deletedAt: null };
 
     if (search) {
       filter.$or = [
-        { fullname: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
+        { fullname: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
       ];
     }
 
     const sellers = await User.find(filter);
-    res.status(200).json({ message: 'Sellers found', data: sellers });
+    res.status(200).json({ message: "Sellers found", data: sellers });
   } catch (error) {
     next(error);
   }
@@ -237,7 +237,7 @@ export const filterUsersByRole = async (req, res, next) => {
         .status(404)
         .json({ message: `no usesr found with role ${role}` });
     res.status(200).json({
-      message: 'Users found',
+      message: "Users found",
       data: { count: users.length, users },
     });
   } catch (error) {

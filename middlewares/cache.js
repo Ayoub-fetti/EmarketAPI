@@ -1,9 +1,9 @@
 // middlewares/cache.js
-import cacheService from '../services/cacheService.js';
+import cacheService from "../services/cacheService.js";
 
 export const cacheMiddleware = (prefix, ttl = 300) => {
   return async (req, res, next) => {
-    if (req.method !== 'GET') {
+    if (req.method !== "GET") {
       return next();
     }
 
@@ -37,7 +37,7 @@ export const cacheMiddleware = (prefix, ttl = 300) => {
 
       next();
     } catch (error) {
-      console.error('Cache middleware error:', error);
+      console.error("Cache middleware error:", error);
       next();
     }
   };

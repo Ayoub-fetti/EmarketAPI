@@ -1,49 +1,49 @@
-import express from 'express';
-import * as CategoryController from '../controllers/CategoryController.js';
-import validate from '../middlewares/validate.js';
-import { categorySchema } from '../validations/categorySchema.js';
-import { authorizeRoles } from '../middlewares/roles.js';
-import { isAuthenticated } from '../middlewares/auth.js';
+import express from "express";
+import * as CategoryController from "../controllers/CategoryController.js";
+import validate from "../middlewares/validate.js";
+import { categorySchema } from "../validations/categorySchema.js";
+import { authorizeRoles } from "../middlewares/roles.js";
+import { isAuthenticated } from "../middlewares/auth.js";
 
 const router = express.Router();
 
 router.use(isAuthenticated);
 
 router.post(
-  '/',
+  "/",
   validate(categorySchema),
-  authorizeRoles('seller', 'admin'),
-  CategoryController.createCategory
+  authorizeRoles("seller", "admin"),
+  CategoryController.createCategory,
 );
-router.get('/', CategoryController.getCategories);
+router.get("/", CategoryController.getCategories);
 router.get(
-  '/deleted',
-  authorizeRoles('admin'),
-  CategoryController.getDeletedCategories
+  "/deleted",
+  authorizeRoles("admin"),
+  CategoryController.getDeletedCategories,
 );
 
 router.patch(
-  '/:id',
+  "/:id",
   validate(categorySchema),
-  authorizeRoles('admin'),
-  CategoryController.updateCategory
+  authorizeRoles("admin"),
+  CategoryController.updateCategory,
 );
 router.delete(
-  '/:id',
-  authorizeRoles('admin'),
-  CategoryController.deleteCategory
+  "/:id",
+  authorizeRoles("admin"),
+  CategoryController.deleteCategory,
 );
-router.get('/:id', CategoryController.getCategoryById);
+router.get("/:id", CategoryController.getCategoryById);
 
 router.delete(
-  '/:id/soft',
-  authorizeRoles('admin'),
-  CategoryController.softDeleteCategory
+  "/:id/soft",
+  authorizeRoles("admin"),
+  CategoryController.softDeleteCategory,
 );
 router.patch(
-  '/:id/restore',
-  authorizeRoles('admin'),
-  CategoryController.restoreCategory
+  "/:id/restore",
+  authorizeRoles("admin"),
+  CategoryController.restoreCategory,
 );
 
 export default router;

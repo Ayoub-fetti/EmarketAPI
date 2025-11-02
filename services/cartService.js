@@ -1,5 +1,5 @@
-import Cart from '../models/Cart.js';
-import Product from '../models/Product.js';
+import Cart from "../models/Cart.js";
+import Product from "../models/Product.js";
 
 class CartService {
   // Get cart by userId or sessionId
@@ -14,7 +14,7 @@ class CartService {
 
     // check if product exists
     const product = await Product.findById(productId);
-    if (!product) throw new Error('Product not found');
+    if (!product) throw new Error("Product not found");
 
     // Find the cart for this user/session
     let cart = await Cart.findOne(identifier);
@@ -26,77 +26,77 @@ class CartService {
         ...identifier, // could be { userId } or { sessionId }
         items: [{ productId, quantity }],
       });
-      return { cart, message: 'Cart created and item added' };
+      return { cart, message: "Cart created and item added" };
     }
 
     // Check if product is already in the cart
     const itemIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
+      (item) => item.productId.toString() === productId,
     );
 
     if (itemIndex > -1) {
       // if product exist increment quantity
       cart.items[itemIndex].quantity += quantity;
       await cart.save();
-      return { cart, message: 'Product quantity updated in cart' };
+      return { cart, message: "Product quantity updated in cart" };
     } else {
       // add new item if product doesn't exist
       cart.items.push({ productId, quantity });
       await cart.save();
-      return { cart, message: 'Product added to cart' };
+      return { cart, message: "Product added to cart" };
     }
   }
 
   // Update cart item quantity
   static async updateItemQuantity(identifier, productId, quantity) {
     const cart = await Cart.findOne(identifier);
-    if (!cart) throw new Error('Cart not found');
+    if (!cart) throw new Error("Cart not found");
 
     const itemIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
+      (item) => item.productId.toString() === productId,
     );
 
-    if (itemIndex === -1) throw new Error('Product not in cart');
+    if (itemIndex === -1) throw new Error("Product not in cart");
 
     cart.items[itemIndex].quantity = quantity;
     await cart.save();
 
-    return { cart, message: 'Cart item quantity updated' };
+    return { cart, message: "Cart item quantity updated" };
   }
 
   // Remove cart item
   static async removeItem(identifier, productId) {
     const cart = await Cart.findOne(identifier);
-    if (!cart) throw new Error('Cart not found');
+    if (!cart) throw new Error("Cart not found");
 
     const itemIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
+      (item) => item.productId.toString() === productId,
     );
 
-    if (itemIndex === -1) throw new Error('Product not in cart');
+    if (itemIndex === -1) throw new Error("Product not in cart");
 
     // Remove item
     cart.items.splice(itemIndex, 1);
     await cart.save();
 
-    return { cart, message: 'Product removed from cart' };
+    return { cart, message: "Product removed from cart" };
   }
 
   // Clear cart
   static async clearCart(identifier) {
     const cart = await Cart.findOne(identifier);
-    if (!cart) throw new Error('Cart not found');
+    if (!cart) throw new Error("Cart not found");
 
     cart.items = []; // remove all items
     await cart.save();
 
-    return { cart, message: 'Cart cleared successfully' };
+    return { cart, message: "Cart cleared successfully" };
   }
 
   // merge cart
   static async mergeCarts(userId, sessionId) {
     if (!userId || !sessionId)
-      throw new Error('UserId and sessionId are required');
+      throw new Error("UserId and sessionId are required");
 
     const guestCart = await Cart.findOne({ sessionId });
     if (!guestCart) return; // nothing to merge
@@ -114,7 +114,7 @@ class CartService {
     // Merge items
     for (const guestItem of guestCart.items) {
       const index = userCart.items.findIndex(
-        (item) => item.productId.toString() === guestItem.productId.toString()
+        (item) => item.productId.toString() === guestItem.productId.toString(),
       );
 
       if (index > -1) {

@@ -1,15 +1,15 @@
-import Cart from '../models/Cart.js';
-import Order from '../models/Order.js';
-import StockService from './StockService.js';
-import DiscountService from './discountService.js';
+import Cart from "../models/Cart.js";
+import Order from "../models/Order.js";
+import StockService from "./StockService.js";
+import DiscountService from "./discountService.js";
 
 class OrderService {
-  static async createOrder(userId, couponCodes, session = null ) {
+  static async createOrder(userId, couponCodes, session = null) {
     const cart = await Cart.findOne({ userId })
-      .populate('items.productId')
+      .populate("items.productId")
       .session(session);
 
-    if (!cart || !cart.items.length) throw new Error('Cart is empty');
+    if (!cart || !cart.items.length) throw new Error("Cart is empty");
 
     // Check & decrease stock
     for (const item of cart.items) {
@@ -20,7 +20,7 @@ class OrderService {
     // Calculate total
     const totalAmount = cart.items.reduce(
       (sum, i) => sum + i.productId.price * i.quantity,
-      0
+      0,
     );
 
     // Validate coupons
@@ -47,22 +47,21 @@ class OrderService {
     const finalAmount = Math.max(totalAmount - totalDiscount, 0);
 
     // Create order
-    const [order] = await Order.create(
-      [
-        {
-          userId,
-          items: cart.items.map((i) => ({
-            productId: i.productId._id,
-            quantity: i.quantity,
-            price: i.productId.price,
-          })),
-          totalAmount,
-          discount: totalDiscount,
-          finalAmount,
-          appliedCoupons: appliedCouponIds,
-          status: 'pending',
-        },
-      ]);
+    const [order] = await Order.create([
+      {
+        userId,
+        items: cart.items.map((i) => ({
+          productId: i.productId._id,
+          quantity: i.quantity,
+          price: i.productId.price,
+        })),
+        totalAmount,
+        discount: totalDiscount,
+        finalAmount,
+        appliedCoupons: appliedCouponIds,
+        status: "pending",
+      },
+    ]);
 
     // Mark coupons as used
     for (const c of validCoupons) {

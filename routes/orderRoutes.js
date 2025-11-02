@@ -1,48 +1,48 @@
-import express from 'express';
-import * as OrderController from '../controllers/orderController.js';
-import { isAuthenticated, isAdmin } from '../middlewares/auth.js';
-import { authorizeRoles } from '../middlewares/roles.js';
-import { isAdminOrOwner } from '../middlewares/adminOrOwne.js';
-import { getLimiter, modifyLimiter } from '../middlewares/rateLimiter.js';
+import express from "express";
+import * as OrderController from "../controllers/orderController.js";
+import { isAuthenticated, isAdmin } from "../middlewares/auth.js";
+import { authorizeRoles } from "../middlewares/roles.js";
+import { isAdminOrOwner } from "../middlewares/adminOrOwne.js";
+import { getLimiter, modifyLimiter } from "../middlewares/rateLimiter.js";
 
 const router = express.Router();
 
 router.use(isAuthenticated);
 
-router.get('/', getLimiter,isAdmin, OrderController.getOrders);
-router.get('/deleted', isAdmin, getLimiter, OrderController.getDeletedOrders);
+router.get("/", getLimiter, isAdmin, OrderController.getOrders);
+router.get("/deleted", isAdmin, getLimiter, OrderController.getDeletedOrders);
 router.get(
-  '/:userId',
+  "/:userId",
   isAuthenticated,
   getLimiter,
   isAdminOrOwner,
-  OrderController.getUserOrders
+  OrderController.getUserOrders,
 );
 
 router.post(
-  '/',
-  authorizeRoles('user'),
+  "/",
+  authorizeRoles("user"),
   modifyLimiter,
-  OrderController.createOrder
+  OrderController.createOrder,
 );
 router.patch(
-  '/:id/status',
-  authorizeRoles('user'),
+  "/:id/status",
+  authorizeRoles("user"),
   modifyLimiter,
-  OrderController.updateOrderStatus
+  OrderController.updateOrderStatus,
 );
 
 router.delete(
-  '/:id/soft',
+  "/:id/soft",
   isAdmin,
   modifyLimiter,
-  OrderController.softDeleteOrder
+  OrderController.softDeleteOrder,
 );
 router.patch(
-  '/:id/restore',
+  "/:id/restore",
   isAdmin,
   modifyLimiter,
-  OrderController.restoreOrder
+  OrderController.restoreOrder,
 );
 
 export default router;

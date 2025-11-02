@@ -1,6 +1,6 @@
-import Order from '../models/Order.js';
-import User from '../models/User.js';
-import { faker } from '@faker-js/faker';
+import Order from "../models/Order.js";
+import User from "../models/User.js";
+import { faker } from "@faker-js/faker";
 
 /**
  * Creates one or more random orders in the database.
@@ -12,8 +12,8 @@ export const orderFactory = async (count = 1, overrides = {}) => {
   const orders = [];
 
   // Fetch users
-  const users = await User.find({}, '_id');
-  if (!users.length) throw new Error('No users found — seed users first!');
+  const users = await User.find({}, "_id");
+  if (!users.length) throw new Error("No users found — seed users first!");
 
   for (let i = 0; i < count; i++) {
     // Pick random user
@@ -34,13 +34,13 @@ export const orderFactory = async (count = 1, overrides = {}) => {
           quantity,
           price,
         };
-      }
+      },
     );
 
     // Compute totals
     const totalAmount = items.reduce(
       (sum, item) => sum + item.price * item.quantity,
-      0
+      0,
     );
     const discount = faker.number.float({ min: 0, max: 0.3, precision: 0.01 }); // up to 30% discount
     const finalAmount = Number((totalAmount * (1 - discount)).toFixed(2));
@@ -51,7 +51,7 @@ export const orderFactory = async (count = 1, overrides = {}) => {
       items,
       totalAmount,
       finalAmount,
-      status: faker.helpers.arrayElement(['pending', 'shipped', 'delivered']),
+      status: faker.helpers.arrayElement(["pending", "shipped", "delivered"]),
       appliedCoupons: [],
       ...overrides,
     });

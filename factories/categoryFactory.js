@@ -1,5 +1,5 @@
-import Category from '../models/Category.js';
-import { faker } from '@faker-js/faker';
+import Category from "../models/Category.js";
+import { faker } from "@faker-js/faker";
 
 /**
  * Creates one or more unique categories in the database.
@@ -11,7 +11,7 @@ export const categoryFactory = async (count = 1, overrides = {}) => {
   // Generate unique category names
   const uniqueNames = faker.helpers.uniqueArray(
     faker.commerce.department,
-    count
+    count,
   );
 
   // Create all categories
@@ -21,7 +21,7 @@ export const categoryFactory = async (count = 1, overrides = {}) => {
         name: overrides.name || name,
         ...overrides,
       });
-    })
+    }),
   );
 
   return categories;

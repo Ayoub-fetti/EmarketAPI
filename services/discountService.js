@@ -1,9 +1,9 @@
-import Coupon from '../models/Coupon.js';
-import Order from '../models/Order.js';
+import Coupon from "../models/Coupon.js";
+import Order from "../models/Order.js";
 class DiscountService {
   // calcule la réduction
   calculateDiscount(coupon, totalAmount) {
-    if (coupon.type === 'percentage') {
+    if (coupon.type === "percentage") {
       return totalAmount * (coupon.value / 100);
     }
     return Math.min(coupon.value, totalAmount);
@@ -13,16 +13,16 @@ class DiscountService {
     const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
 
     if (!coupon) {
-      return { valid: false, message: 'Coupon not found' };
+      return { valid: false, message: "Coupon not found" };
     }
     // coupon active ??
-    if (coupon.status !== 'active') {
-      return { valid: false, message: 'Coupon is inactive' };
+    if (coupon.status !== "active") {
+      return { valid: false, message: "Coupon is inactive" };
     }
     // coupon expired ??
     const now = new Date();
     if (now < coupon.startDate || now > coupon.expirationDate) {
-      return { valid: false, message: 'Coupon is expired or not yet active' };
+      return { valid: false, message: "Coupon is expired or not yet active" };
     }
     // max purchase
     if (totalAmount < coupon.minimumPurchase) {
@@ -33,14 +33,14 @@ class DiscountService {
     }
     // global uses disponible
     if (coupon.maxUsage && coupon.usedBy.length >= coupon.maxUsage) {
-      return { valid: false, message: 'Coupon usage limit reached' };
+      return { valid: false, message: "Coupon usage limit reached" };
     }
     // maw uses per user
     const userUsage = coupon.usedBy.find(
-      (usage) => usage.user.toString() === userId
+      (usage) => usage.user.toString() === userId,
     );
     if (userUsage && userUsage.usageCount >= coupon.maxUsagePerUser) {
-      return { valid: false, message: 'User usage limit reached' };
+      return { valid: false, message: "User usage limit reached" };
     }
     return { valid: true, coupon };
   }
@@ -48,7 +48,7 @@ class DiscountService {
   async applyCouponToOrder(couponCode, userId) {
     const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
     const existingUsage = coupon.usedBy.find(
-      (usage) => usage.user.toString() === userId
+      (usage) => usage.user.toString() === userId,
     );
 
     if (existingUsage) {
@@ -67,7 +67,7 @@ class DiscountService {
   // verifie si l'utilisateur peut utiliser le coupon
   async canUserUseCoupon(couponId, userId) {
     const coupon = await Coupon.findById(couponId);
-    if (!coupon || coupon.status !== 'active') {
+    if (!coupon || coupon.status !== "active") {
       return false;
     }
     const now = new Date();
@@ -78,7 +78,7 @@ class DiscountService {
       return false;
     }
     const userUsage = coupon.usedBy.find(
-      (usage) => usage.user.toString() === userId
+      (usage) => usage.user.toString() === userId,
     );
     if (userUsage && userUsage.usageCount >= coupon.maxUsagePerUser) {
       return false;

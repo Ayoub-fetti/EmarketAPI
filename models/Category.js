@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
-import softDeletePlugin from './plugins/softDeletePlugin.js';
+import mongoose from "mongoose";
+import softDeletePlugin from "./plugins/softDeletePlugin.js";
 
 const categorySchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Category name is required'],
+    required: [true, "Category name is required"],
     unique: true,
     trim: true,
   },
@@ -20,6 +20,6 @@ const categorySchema = new mongoose.Schema({
 
 categorySchema.plugin(softDeletePlugin);
 
-const Category = mongoose.model('Category', categorySchema);
+const Category = mongoose.model("Category", categorySchema);
 
 export default Category;

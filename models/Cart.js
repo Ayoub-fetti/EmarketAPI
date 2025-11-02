@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
-import softDeletePlugin from './plugins/softDeletePlugin.js';
+import mongoose from "mongoose";
+import softDeletePlugin from "./plugins/softDeletePlugin.js";
 
 const cartSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       default: null,
       index: true,
     },
@@ -18,7 +18,7 @@ const cartSchema = new mongoose.Schema(
       {
         productId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Product',
+          ref: "Product",
           required: true,
         },
         quantity: { type: Number, required: true, min: 1 },
@@ -27,7 +27,7 @@ const cartSchema = new mongoose.Schema(
     ],
     deletedAt: { type: Date, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // ✅ This ensures one cart per user OR one per session
@@ -35,4 +35,4 @@ cartSchema.index({ userId: 1, sessionId: 1 }, { unique: true, sparse: true });
 
 cartSchema.plugin(softDeletePlugin);
 
-export default mongoose.model('Cart', cartSchema);
+export default mongoose.model("Cart", cartSchema);

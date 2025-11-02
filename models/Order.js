@@ -1,18 +1,18 @@
-import mongoose from 'mongoose';
-import softDeletePlugin from './plugins/softDeletePlugin.js';
+import mongoose from "mongoose";
+import softDeletePlugin from "./plugins/softDeletePlugin.js";
 
 const orderSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     items: [
       {
         productId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Product',
+          ref: "Product",
           required: true,
         },
         quantity: { type: Number, required: true },
@@ -27,18 +27,18 @@ const orderSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ['pending', 'shipped', 'delivered', 'cancelled'],
-      default: 'pending',
+      enum: ["pending", "shipped", "delivered", "cancelled"],
+      default: "pending",
     },
-    appliedCoupons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' }],
+    appliedCoupons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
     deletedAt: {
       type: Date,
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 orderSchema.plugin(softDeletePlugin);
 
-export default mongoose.model('Order', orderSchema);
+export default mongoose.model("Order", orderSchema);

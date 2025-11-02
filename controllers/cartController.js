@@ -1,14 +1,14 @@
-import CartService from '../services/cartService.js';
-import Cart from '../models/Cart.js';
+import CartService from "../services/cartService.js";
+import Cart from "../models/Cart.js";
 
-import crypto from 'crypto';
+import crypto from "crypto";
 
 function getCartIdentifier(req) {
   if (req.user) return { userId: req.user.id };
-  let sessionId = req.headers['session-id'];
+  let sessionId = req.headers["session-id"];
 
   if (!sessionId) {
-    sessionId = crypto.randomBytes(16).toString('hex');
+    sessionId = crypto.randomBytes(16).toString("hex");
   }
   return { sessionId };
 }
@@ -18,20 +18,20 @@ export const getCart = async (req, res, next) => {
     const identifier = getCartIdentifier(req);
 
     const cart = await Cart.findOne(identifier).populate(
-      'items.productId',
-      'title price images'
+      "items.productId",
+      "title price images",
     );
 
     if (!cart) {
       return res.status(404).json({
         success: false,
-        message: 'Cart not found',
+        message: "Cart not found",
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Cart retrieved successfully',
+      message: "Cart retrieved successfully",
       data: cart,
     });
   } catch (error) {
@@ -47,7 +47,7 @@ export const addToCart = async (req, res, next) => {
     const { cart, message } = await CartService.addItem(
       identifier,
       productId,
-      quantity
+      quantity,
     );
     res.status(cart.createdAt === cart.updatedAt ? 201 : 200).json({
       success: true,
@@ -67,7 +67,7 @@ export const updateCartItemQuantity = async (req, res, next) => {
     const { cart, message } = await CartService.updateItemQuantity(
       identifier,
       productId,
-      quantity
+      quantity,
     );
     return res.status(200).json({
       success: true,
@@ -86,7 +86,7 @@ export const removeCartItem = async (req, res, next) => {
 
     const { cart, message } = await CartService.removeItem(
       identifier,
-      productId
+      productId,
     );
     return res.status(200).json({
       success: true,

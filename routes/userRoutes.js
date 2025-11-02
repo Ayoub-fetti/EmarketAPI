@@ -1,87 +1,87 @@
-import express from 'express';
-import * as userController from '../controllers/UserController.js';
-import validate from '../middlewares/validate.js';
-import { userSchema } from '../validations/userSchema.js';
-import { checkOwnership } from '../middlewares/ownershipMiddleware.js';
-import { createUpload } from '../config/multerConfig.js';
-import { isAuthenticated } from '../middlewares/auth.js';
-import { authorizeRoles } from '../middlewares/roles.js';
+import express from "express";
+import * as userController from "../controllers/UserController.js";
+import validate from "../middlewares/validate.js";
+import { userSchema } from "../validations/userSchema.js";
+import { checkOwnership } from "../middlewares/ownershipMiddleware.js";
+import { createUpload } from "../config/multerConfig.js";
+import { isAuthenticated } from "../middlewares/auth.js";
+import { authorizeRoles } from "../middlewares/roles.js";
 
 const router = express.Router();
 router.use(isAuthenticated);
 
 router.get(
-  '/filter',
+  "/filter",
   isAuthenticated,
-  authorizeRoles('admin'),
-  userController.filterUsersByRole
+  authorizeRoles("admin"),
+  userController.filterUsersByRole,
 );
-router.get('/sellers', userController.searchSellers);
+router.get("/sellers", userController.searchSellers);
 router.post(
-  '/',
+  "/",
   validate(userSchema),
   isAuthenticated,
-  authorizeRoles('admin'),
-  userController.createUser
+  authorizeRoles("admin"),
+  userController.createUser,
 );
 router.get(
-  '/',
+  "/",
   isAuthenticated,
-  authorizeRoles('admin'),
-  userController.getUsers
+  authorizeRoles("admin"),
+  userController.getUsers,
 );
 router.get(
-  '/deleted',
+  "/deleted",
   isAuthenticated,
-  authorizeRoles('admin'),
-  userController.getDeletedUsers
+  authorizeRoles("admin"),
+  userController.getDeletedUsers,
 );
 
 router.get(
-  '/:id',
+  "/:id",
   isAuthenticated,
-  authorizeRoles('admin'),
-  userController.getUserById
+  authorizeRoles("admin"),
+  userController.getUserById,
 );
 // router.patch("/:id",isAuthenticated,createUpload("avatars", "avatar", 1), validate(userSchema),checkOwnership, userController.updateUser);
 router.patch(
-  '/:id',
+  "/:id",
   isAuthenticated,
-  createUpload('avatars', 'avatar', 1),
+  createUpload("avatars", "avatar", 1),
   checkOwnership,
-  userController.updateUser
+  userController.updateUser,
 );
 router.delete(
-  '/:id',
+  "/:id",
   isAuthenticated,
-  authorizeRoles('admin'),
-  userController.deleteUser
+  authorizeRoles("admin"),
+  userController.deleteUser,
 );
 
 router.delete(
-  '/:id/soft',
+  "/:id/soft",
   isAuthenticated,
-  authorizeRoles('admin'),
-  userController.softDeleteUser
+  authorizeRoles("admin"),
+  userController.softDeleteUser,
 );
 router.patch(
-  '/:id/restore',
+  "/:id/restore",
   isAuthenticated,
-  authorizeRoles('admin'),
-  userController.restoreUser
+  authorizeRoles("admin"),
+  userController.restoreUser,
 );
 
 router.delete(
-  '/:id/avatar',
+  "/:id/avatar",
   isAuthenticated,
   checkOwnership,
-  userController.deleteAvatar
+  userController.deleteAvatar,
 );
 router.put(
-  '/:id/role',
+  "/:id/role",
   isAuthenticated,
-  authorizeRoles('admin'),
-  userController.changeRole
+  authorizeRoles("admin"),
+  userController.changeRole,
 );
 
 export default router;

@@ -1,4 +1,4 @@
-import Category from '../models/Category.js';
+import Category from "../models/Category.js";
 
 export const createCategory = async (req, res, next) => {
   try {
@@ -7,7 +7,7 @@ export const createCategory = async (req, res, next) => {
 
     res
       .status(201)
-      .json({ message: 'Category created successfully', category });
+      .json({ message: "Category created successfully", category });
   } catch (error) {
     next(error);
   }
@@ -18,16 +18,16 @@ export const updateCategory = async (req, res, next) => {
     const updatedCategory = await Category.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedCategory) {
-      return res.status(404).json({ error: 'Category not found' });
+      return res.status(404).json({ error: "Category not found" });
     }
 
     res
       .status(200)
-      .json({ message: 'Category updated', updatedCategory: updatedCategory });
+      .json({ message: "Category updated", updatedCategory: updatedCategory });
   } catch (error) {
     next(error);
   }
@@ -39,10 +39,10 @@ export const deleteCategory = async (req, res, next) => {
     const deletedCategory = await Category.findByIdAndDelete(req.params.id);
 
     if (!deletedCategory) {
-      return res.status(404).json({ error: 'Category not found' });
+      return res.status(404).json({ error: "Category not found" });
     }
 
-    res.status(200).json({ message: 'Category deleted successfully' });
+    res.status(200).json({ message: "Category deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -62,7 +62,7 @@ export const getCategoryById = async (req, res, next) => {
     const category = await Category.findById(req.params.id);
 
     if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
+      return res.status(404).json({ error: "Category not found" });
     }
 
     res.status(200).json(category);
@@ -75,12 +75,12 @@ export const getCategoryById = async (req, res, next) => {
 export const softDeleteCategory = async (req, res, next) => {
   try {
     const category = await Category.findById(req.params.id);
-    if (!category) return res.status(404).json({ error: 'Category not found' });
+    if (!category) return res.status(404).json({ error: "Category not found" });
 
     category.deletedAt = new Date();
     await category.save();
 
-    res.status(200).json({ message: 'Category soft deleted' });
+    res.status(200).json({ message: "Category soft deleted" });
   } catch (error) {
     next(error);
   }
@@ -90,12 +90,12 @@ export const softDeleteCategory = async (req, res, next) => {
 export const restoreCategory = async (req, res, next) => {
   try {
     const category = await Category.findById(req.params.id);
-    if (!category) return res.status(404).json({ error: 'Category not found' });
+    if (!category) return res.status(404).json({ error: "Category not found" });
 
     category.deletedAt = null;
     await category.save();
 
-    res.status(200).json({ message: 'Category restored' });
+    res.status(200).json({ message: "Category restored" });
   } catch (error) {
     next(error);
   }

@@ -1,15 +1,15 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const reviewSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     product: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
+      ref: "Product",
       required: true,
     },
     rating: {
@@ -24,13 +24,13 @@ const reviewSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'],
-      default: 'pending',
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // index unique sur (user+product)
@@ -39,11 +39,11 @@ reviewSchema.index({ user: 1, product: 1 }, { unique: true });
 // static method pour calculer la moyenne des notes
 reviewSchema.statics.calculateAverageRating = async function (productId) {
   const result = await this.aggregate([
-    { $match: { product: productId, status: 'approved' } },
+    { $match: { product: productId, status: "approved" } },
     {
       $group: {
         _id: null,
-        averageRating: { $avg: '$rating' },
+        averageRating: { $avg: "$rating" },
         totalReviews: { $sum: 1 },
       },
     },
@@ -57,4 +57,4 @@ reviewSchema.statics.calculateAverageRating = async function (productId) {
     : { averageRating: 0, totalReviews: 0 };
 };
 
-export default mongoose.model('Review', reviewSchema);
+export default mongoose.model("Review", reviewSchema);

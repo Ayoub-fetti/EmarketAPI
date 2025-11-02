@@ -1,22 +1,22 @@
-import Product from '../models/Product.js';
-import User from '../models/User.js';
-import Category from '../models/Category.js';
-import mongoose from 'mongoose';
-import { faker } from '@faker-js/faker';
+import Product from "../models/Product.js";
+import User from "../models/User.js";
+import Category from "../models/Category.js";
+import mongoose from "mongoose";
+import { faker } from "@faker-js/faker";
 
 export const productFactory = async (count = 1, overrides = {}) => {
   const products = [];
 
-  const users = await User.find({}, '_id role').lean();
-  if (!users.length) throw new Error('No users found — seed users first!');
+  const users = await User.find({}, "_id role").lean();
+  if (!users.length) throw new Error("No users found — seed users first!");
 
-  const sellers = users.filter((u) => u.role === 'seller');
+  const sellers = users.filter((u) => u.role === "seller");
   if (!sellers.length)
-    throw new Error('No sellers found — seed sellers first!');
+    throw new Error("No sellers found — seed sellers first!");
 
-  const categories = await Category.find({}, '_id').lean();
+  const categories = await Category.find({}, "_id").lean();
   if (!categories.length)
-    throw new Error('No categories found — seed categories first!');
+    throw new Error("No categories found — seed categories first!");
 
   for (let i = 0; i < count; i++) {
     let sellerId = overrides.seller_id || overrides.sellerId;
@@ -46,7 +46,7 @@ export const productFactory = async (count = 1, overrides = {}) => {
     const price =
       overrides.price ??
       Number(
-        faker.number.float({ min: 5, max: 500, precision: 0.01 }).toFixed(2)
+        faker.number.float({ min: 5, max: 500, precision: 0.01 }).toFixed(2),
       );
     let ex_price = overrides.ex_price ?? undefined;
     if (ex_price == null && faker.datatype.boolean() && price > 5) {
@@ -65,7 +65,7 @@ export const productFactory = async (count = 1, overrides = {}) => {
       ex_price,
       stock: overrides.stock ?? faker.number.int({ min: 0, max: 200 }),
       categories: categoryIds.map((c) =>
-        typeof c === 'string' ? mongoose.Types.ObjectId(c) : c
+        typeof c === "string" ? mongoose.Types.ObjectId(c) : c,
       ),
       primaryImage:
         overrides.primaryImage ||
@@ -76,10 +76,10 @@ export const productFactory = async (count = 1, overrides = {}) => {
           ? overrides.secondaryImages
           : Array.from(
               { length: faker.number.int({ min: 0, max: 3 }) },
-              () => `/uploads/products/${faker.string.uuid()}.webp`
+              () => `/uploads/products/${faker.string.uuid()}.webp`,
             ),
       published:
-        typeof overrides.published === 'boolean'
+        typeof overrides.published === "boolean"
           ? overrides.published
           : faker.datatype.boolean(),
       seller_id: overrides.seller_id || overrides.sellerId || sellerId,

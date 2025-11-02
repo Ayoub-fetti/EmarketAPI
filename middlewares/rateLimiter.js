@@ -1,5 +1,5 @@
-import rateLimit from 'express-rate-limit';
-const skipIfTest = process.env.NODE_ENV === 'test';
+import rateLimit from "express-rate-limit";
+const skipIfTest = process.env.NODE_ENV === "test";
 
 const attempts = new Map();
 const reviewAttempts = new Map();
@@ -18,10 +18,10 @@ export const couponRateLimit = (req, res, next) => {
   const recentAttempts = userAttempts.filter((time) => now - time < windowMs);
 
   if (recentAttempts.length >= maxAttempts) {
-    logFailedValidation(req, 'Rate limit exceeded');
+    logFailedValidation(req, "Rate limit exceeded");
     return res
       .status(429)
-      .json({ error: 'Too many attempts. Try again later.' });
+      .json({ error: "Too many attempts. Try again later." });
   }
 
   userAttempts.push(now);
@@ -45,7 +45,7 @@ export const reviewRateLimit = (req, res, next) => {
   if (recentAttempts.length >= maxAttempts) {
     return res
       .status(429)
-      .json({ error: 'Too many review attempts. Maximum 3 reviews per hour.' });
+      .json({ error: "Too many review attempts. Maximum 3 reviews per hour." });
   }
 
   userAttempts.push(now);
@@ -58,7 +58,7 @@ export const reviewRateLimit = (req, res, next) => {
 export const getLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 60,
-  message: 'Too many requests. Try again later.',
+  message: "Too many requests. Try again later.",
   skip: () => skipIfTest,
 });
 
@@ -66,14 +66,14 @@ export const getLimiter = rateLimit({
 export const modifyLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 5,
-  message: 'Too many modifications. Try again later.',
+  message: "Too many modifications. Try again later.",
   skip: () => skipIfTest,
 });
 
 const logFailedValidation = (req, reason) => {
   const logEntry = `[${new Date().toISOString()}] COUPON_VALIDATION_FAILED - IP: ${req.ip}, Code: ${req.body?.code}, Reason: ${reason}\n`;
-  import('fs').then((fs) => {
-    fs.appendFile('./logs/coupon-failures.log', logEntry, () => {});
+  import("fs").then((fs) => {
+    fs.appendFile("./logs/coupon-failures.log", logEntry, () => {});
   });
 };
 
@@ -93,7 +93,7 @@ export const productRateLimit = (req, res, next) => {
   if (recentAttempts.length >= maxAttempts) {
     return res
       .status(429)
-      .json({ error: 'Too many product requests. Try again later.' });
+      .json({ error: "Too many product requests. Try again later." });
   }
 
   userAttempts.push(now);

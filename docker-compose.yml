@@ -3,13 +3,11 @@ services:
     image: mongo:latest
     container_name: mongo_container
     ports:
-      - '27018:27017'
+      - "27018:27017"
     volumes:
       - mongotestdata:/data/db
     networks:
       - app-network
-    environment:
-      DB_URI: mongodb://mongo:27017/my_database
     restart: always
 
   api:
@@ -19,21 +17,27 @@ services:
     image: emarket-api-image
     container_name: express_container
     ports:
-      - '8000:8000'
+      - "8000:8000"
     depends_on:
       - mongo
+      - redis
     volumes:
       - .:/app
       - /app/node_modules
     networks:
       - app-network
+    environment:
+      - NODE_ENV=production
+      - DB_URI=mongodb://mongo:27017/emarket_db
+      - JWT_SECRET=8cc10252c3b380e9714e77c9791a175199073d684a1255ab7be96160141c17c3370c3a34e3fc6d776741b3da7b033e9a4192b0d97e42ef69905e318218005638
+      - REDIS_URL=redis://redis:6379
 
   mongo-express:
     image: mongo-express
     container_name: mongo_express
     restart: always
     ports:
-      - '8081:8081'
+      - "8081:8081"
     environment:
       - ME_CONFIG_MONGODB_SERVER=mongo
       - ME_CONFIG_MONGODB_PORT=27017
@@ -41,11 +45,12 @@ services:
       - mongo
     networks:
       - app-network
+
   redis:
     image: redis:7
     container_name: redis_container
     ports:
-      - '6378:6379'
+      - "6378:6379"
     networks:
       - app-network
 

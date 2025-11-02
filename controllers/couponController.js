@@ -1,4 +1,4 @@
-import Coupon from '../models/Coupon.js';
+import Coupon from "../models/Coupon.js";
 
 const logFailedValidation = (req, reason) => {
   console.log(`[Coupon Validation Failed] ${reason} - IP: ${req.ip}`);
@@ -6,12 +6,10 @@ const logFailedValidation = (req, reason) => {
 
 export const createCoupon = async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin' && req.user.role !== 'seller') {
-      return res
-        .status(403)
-        .json({
-          error: `Access denied: admin and seller only : ${req.user.role}`,
-        });
+    if (req.user.role !== "admin" && req.user.role !== "seller") {
+      return res.status(403).json({
+        error: `Access denied: admin and seller only : ${req.user.role}`,
+      });
     }
     const coupon = new Coupon({
       ...req.body,
@@ -20,7 +18,7 @@ export const createCoupon = async (req, res, next) => {
     await coupon.save();
     res
       .status(201)
-      .json({ message: 'Coupon created successfully', data: coupon });
+      .json({ message: "Coupon created successfully", data: coupon });
   } catch (e) {
     next(e);
   }
@@ -32,12 +30,12 @@ export const getAllCoupons = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     let filter = {};
-    if (req.user.role === 'seller') {
+    if (req.user.role === "seller") {
       filter.createdBy = req.user.id;
     }
     const coupons = await Coupon.find(filter)
       .notDeleted()
-      .populate('createdBy', 'fullname email')
+      .populate("createdBy", "fullname email")
       .skip(skip)
       .limit(limit);
     const total = await Coupon.countDocuments(filter);
@@ -57,17 +55,17 @@ export const getAllCoupons = async (req, res, next) => {
 export const getCouponById = async (req, res, next) => {
   try {
     const coupon = await Coupon.findById(req.params.id).populate(
-      'createdBy',
-      'fullname email'
+      "createdBy",
+      "fullname email",
     );
     if (!coupon) {
-      return res.status(404).json({ error: 'Coupon not found' });
+      return res.status(404).json({ error: "Coupon not found" });
     }
     if (
-      req.user.role !== 'admin' &&
+      req.user.role !== "admin" &&
       coupon.createdBy._id.toString() !== req.user.id
     ) {
-      return res.status(403).json({ error: 'Access denied' });
+      return res.status(403).json({ error: "Access denied" });
     }
     res.status(200).json({ data: coupon });
   } catch (e) {
@@ -79,20 +77,20 @@ export const updateCoupon = async (req, res, next) => {
     const coupon = await Coupon.findById(req.params.id);
 
     if (!coupon) {
-      return res.status(404).json({ error: 'Coupon not found' });
+      return res.status(404).json({ error: "Coupon not found" });
     }
     if (
-      req.user.role !== 'admin' &&
+      req.user.role !== "admin" &&
       coupon.createdBy._id.toString() !== req.user.id
     ) {
-      return res.status(403).json({ error: 'Access denied' });
+      return res.status(403).json({ error: "Access denied" });
     }
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
-    res.status(200).json({ message: 'Coupon updated', data: updatedCoupon });
+    res.status(200).json({ message: "Coupon updated", data: updatedCoupon });
   } catch (e) {
     next(e);
   }
@@ -101,16 +99,16 @@ export const deleteCoupon = async (req, res, next) => {
   try {
     const coupon = await Coupon.findById(req.params.id);
     if (!coupon) {
-      return res.status(404).json({ error: 'Coupon not found' });
+      return res.status(404).json({ error: "Coupon not found" });
     }
     if (
-      req.user.role !== 'admin' &&
+      req.user.role !== "admin" &&
       coupon.createdBy._id.toString() !== req.user.id
     ) {
-      return res.status(403).json({ error: 'Access denied' });
+      return res.status(403).json({ error: "Access denied" });
     }
     await coupon.softDelete();
-    res.status(204).json({ message: 'Coupon deleted' });
+    res.status(204).json({ message: "Coupon deleted" });
   } catch (e) {
     next(e);
   }
@@ -124,37 +122,37 @@ export const validateCoupon = async (req, res, next) => {
     if (!code || !purchaseAmount) {
       return res
         .status(400)
-        .json({ error: 'Code and purchase amount are required' });
+        .json({ error: "Code and purchase amount are required" });
     }
 
     const coupon = await Coupon.findOne({
       code: code.toUpperCase(),
-      status: 'active',
+      status: "active",
     }).notDeleted();
 
     if (!coupon) {
-      logFailedValidation(req, 'Invalid coupon code');
-      return res.status(400).json({ error: 'Invalid coupon code' });
+      logFailedValidation(req, "Invalid coupon code");
+      return res.status(400).json({ error: "Invalid coupon code" });
     }
 
     const now = new Date();
     if (now < coupon.startDate || now > coupon.expirationDate) {
-      logFailedValidation(req, 'Coupon expired or not active');
+      logFailedValidation(req, "Coupon expired or not active");
       return res
         .status(400)
-        .json({ error: 'Coupon has expired or not yet active' });
+        .json({ error: "Coupon has expired or not yet active" });
     }
 
     if (purchaseAmount < coupon.minimumPurchase) {
-      logFailedValidation(req, 'Minimum purchase not met');
+      logFailedValidation(req, "Minimum purchase not met");
       return res.status(400).json({
         error: `Minimum purchase amount is ${coupon.minimumPurchase}`,
       });
     }
 
     if (coupon.maxUsage && coupon.usedBy.length >= coupon.maxUsage) {
-      logFailedValidation(req, 'Usage limit reached');
-      return res.status(400).json({ error: 'Coupon usage limit reached' });
+      logFailedValidation(req, "Usage limit reached");
+      return res.status(400).json({ error: "Coupon usage limit reached" });
     }
 
     // Only check user usage if userId is provided
@@ -164,13 +162,13 @@ export const validateCoupon = async (req, res, next) => {
         .reduce((total, usage) => total + usage.usageCount, 0);
 
       if (userUsage >= coupon.maxUsagePerUser) {
-        logFailedValidation(req, 'User usage limit reached');
-        return res.status(400).json({ error: 'User usage limit reached' });
+        logFailedValidation(req, "User usage limit reached");
+        return res.status(400).json({ error: "User usage limit reached" });
       }
     }
 
     let discountAmount = 0;
-    if (coupon.type === 'percentage') {
+    if (coupon.type === "percentage") {
       discountAmount = (purchaseAmount * coupon.value) / 100;
     } else {
       discountAmount = coupon.value;
@@ -186,8 +184,8 @@ export const validateCoupon = async (req, res, next) => {
       },
     });
   } catch (error) {
-    logFailedValidation(req, 'Server error');
-    console.error('Error in validationCoupon:', error);
+    logFailedValidation(req, "Server error");
+    console.error("Error in validationCoupon:", error);
     next(error);
   }
 };

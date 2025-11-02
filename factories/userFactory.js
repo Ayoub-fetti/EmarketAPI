@@ -1,5 +1,5 @@
-import User from '../models/User.js';
-import { faker } from '@faker-js/faker';
+import User from "../models/User.js";
+import { faker } from "@faker-js/faker";
 
 /**
  * Creates one or more users in the database.
@@ -14,8 +14,8 @@ export const userFactory = async (count = 1, overrides = {}) => {
     const user = await User.create({
       fullname: faker.person.fullName(),
       email: faker.internet.email().toLowerCase(),
-      password: '123456',
-      role: 'user',
+      password: "123456",
+      role: "user",
       avatar: null,
       ...overrides,
     });

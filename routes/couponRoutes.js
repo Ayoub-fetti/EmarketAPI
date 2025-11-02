@@ -1,10 +1,10 @@
-import express from 'express';
-import * as couponController from '../controllers/couponController.js';
-import validate from '../middlewares/validate.js';
-import { couponSchema } from '../validations/couponSchema.js';
-import { isAuthenticated } from '../middlewares/auth.js';
-import { authorizeRoles } from '../middlewares/roles.js';
-import { couponRateLimit } from '../middlewares/rateLimiter.js';
+import express from "express";
+import * as couponController from "../controllers/couponController.js";
+import validate from "../middlewares/validate.js";
+import { couponSchema } from "../validations/couponSchema.js";
+import { isAuthenticated } from "../middlewares/auth.js";
+import { authorizeRoles } from "../middlewares/roles.js";
+import { couponRateLimit } from "../middlewares/rateLimiter.js";
 
 const router = express.Router();
 
@@ -125,10 +125,10 @@ router.use(isAuthenticated);
  *         description: Access denied
  */
 router.post(
-  '/',
-  authorizeRoles('admin', 'seller'),
+  "/",
+  authorizeRoles("admin", "seller"),
   validate(couponSchema),
-  couponController.createCoupon
+  couponController.createCoupon,
 );
 
 /**
@@ -155,9 +155,9 @@ router.post(
  *         description: Access denied
  */
 router.get(
-  '/',
-  authorizeRoles('admin', 'seller'),
-  couponController.getAllCoupons
+  "/",
+  authorizeRoles("admin", "seller"),
+  couponController.getAllCoupons,
 );
 
 /**
@@ -190,9 +190,9 @@ router.get(
  *         description: Coupon not found
  */
 router.get(
-  '/:id',
-  authorizeRoles('admin', 'seller'),
-  couponController.getCouponById
+  "/:id",
+  authorizeRoles("admin", "seller"),
+  couponController.getCouponById,
 );
 
 /**
@@ -262,10 +262,10 @@ router.get(
  *         description: Coupon not found
  */
 router.put(
-  '/:id',
-  authorizeRoles('admin', 'seller'),
+  "/:id",
+  authorizeRoles("admin", "seller"),
   validate(couponSchema),
-  couponController.updateCoupon
+  couponController.updateCoupon,
 );
 
 /**
@@ -291,9 +291,9 @@ router.put(
  *         description: Coupon not found
  */
 router.delete(
-  '/:id',
-  authorizeRoles('admin', 'seller'),
-  couponController.deleteCoupon
+  "/:id",
+  authorizeRoles("admin", "seller"),
+  couponController.deleteCoupon,
 );
 /**
  * @swagger
@@ -341,6 +341,6 @@ router.delete(
  *       429:
  *         description: Rate limit exceeded
  */
-router.post('/validate', couponRateLimit, couponController.validateCoupon);
+router.post("/validate", couponRateLimit, couponController.validateCoupon);
 
 export default router;

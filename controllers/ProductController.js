@@ -1,18 +1,8 @@
-import Product from '../models/Product.js';
-import fs from 'fs';
-import path from 'path';
-import { notificationEmitter } from '../events/notificationEmitter.js';
-import User from '../models/User.js';
-import cacheService from '../services/cacheService.js';
-
-// helper function for invalide cache
-const invalidateProductCache = async () => {
-  await Promise.all([
-    cacheService.del('products:*'),
-    cacheService.del('search:*'),
-    cacheService.del('published:*'),
-  ]);
-};
+import Product from "../models/Product.js";
+import fs from "fs";
+import path from "path";
+import { notificationEmitter } from "../events/notificationEmitter.js";
+import User from "../models/User.js";
 
 export const createProduct = async (req, res, next) => {
   try {
@@ -28,18 +18,18 @@ export const createProduct = async (req, res, next) => {
       }
       if (req.files.secondaryImages) {
         data.secondaryImages = req.files.secondaryImages.map(
-          (f) => `/uploads/products/${f.filename}`
+          (f) => `/uploads/products/${f.filename}`,
         );
       }
     }
     const product = new Product(data);
     await product.save();
 
-    const users = await User.find({ role: 'user' }, '_id');
-    console.log('Users to notify:', users);
+    const users = await User.find({ role: "user" }, "_id");
+    console.log("Users to notify:", users);
     const usersToNotify = users.map((u) => u._id);
 
-    notificationEmitter.emit('newProduct', {
+    notificationEmitter.emit("newProduct", {
       sellerId: req.user.id,
       productName: product.title,
       usersToNotify,
@@ -48,7 +38,7 @@ export const createProduct = async (req, res, next) => {
     // await invalidateProductCache();
     res
       .status(201)
-      .json({ message: 'Product created successfully', data: product });
+      .json({ message: "Product created successfully", data: product });
   } catch (error) {
     if (req.files) {
       const allFiles = [
@@ -56,7 +46,7 @@ export const createProduct = async (req, res, next) => {
         ...(req.files.secondaryImages || []),
       ];
       allFiles.forEach((f) => {
-        const p = path.join('uploads', 'products', f.filename);
+        const p = path.join("uploads", "products", f.filename);
         fs.existsSync(p) && fs.unlinkSync(p);
       });
     }
@@ -77,11 +67,11 @@ export const updateProduct = async (req, res, next) => {
           ...(req.files.secondaryImages || []),
         ];
         allFiles.forEach((f) => {
-          const p = path.join('uploads', 'products', f.filename);
+          const p = path.join("uploads", "products", f.filename);
           fs.existsSync(p) && fs.unlinkSync(p);
         });
       }
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(404).json({ error: "Product not found" });
     }
 
     if (req.files) {
@@ -90,7 +80,7 @@ export const updateProduct = async (req, res, next) => {
       }
       if (req.files.secondaryImages) {
         updates.secondaryImages = req.files.secondaryImages.map(
-          (f) => `/uploads/products/${f.filename}`
+          (f) => `/uploads/products/${f.filename}`,
         );
       }
     }
@@ -101,15 +91,15 @@ export const updateProduct = async (req, res, next) => {
 
     if (updates.primaryImage && previousPrimaryImages) {
       const p = path.join(
-        'uploads',
-        'products',
-        path.basename(previousPrimaryImages)
+        "uploads",
+        "products",
+        path.basename(previousPrimaryImages),
       );
       fs.existsSync(p) && fs.unlinkSync(p);
     }
     if (updates.secondaryImages && previousSecondaryImages.length > 0) {
       previousSecondaryImages.forEach((imgPath) => {
-        const p = path.join('uploads', 'products', path.basename(imgPath));
+        const p = path.join("uploads", "products", path.basename(imgPath));
         fs.existsSync(p) && fs.unlinkSync(p);
       });
     }
@@ -117,11 +107,11 @@ export const updateProduct = async (req, res, next) => {
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       updates,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedProduct) {
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(404).json({ error: "Product not found" });
     }
 
     //Événement pour le stock faible
@@ -129,9 +119,7 @@ export const updateProduct = async (req, res, next) => {
     //   notificationEmitter.emit("stockUpdated", { productId: updatedProduct._id, newStock: updates.stock });
     // }
     /////////////////////////////////////////
-
-    await invalidateProductCache();
-    res.status(200).json({ message: 'Product updated', data: updatedProduct });
+    res.status(200).json({ message: "Product updated", data: updatedProduct });
   } catch (error) {
     if (req.files) {
       const allFiles = [
@@ -139,7 +127,7 @@ export const updateProduct = async (req, res, next) => {
         ...(req.files.secondaryImages || []),
       ];
       allFiles.forEach((f) => {
-        const p = path.join('uploads', 'products', f.filename);
+        const p = path.join("uploads", "products", f.filename);
         fs.existsSync(p) && fs.unlinkSync(p);
       });
     }
@@ -153,10 +141,10 @@ export const deleteProduct = async (req, res, next) => {
     const deletedProduct = await Product.findByIdAndDelete(req.params.id);
 
     if (!deletedProduct) {
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(404).json({ error: "Product not found" });
     }
 
-    res.status(200).json({ message: 'Product deleted successfully' });
+    res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -164,7 +152,7 @@ export const deleteProduct = async (req, res, next) => {
 
 export const getProducts = async (req, res, next) => {
   try {
-    const Products = await Product.find().notDeleted().populate('categories');
+    const Products = await Product.find().notDeleted().populate("categories");
     res.status(200).json({ data: Products });
   } catch (error) {
     next(error);
@@ -176,7 +164,7 @@ export const getPublishedProducts = async (req, res, next) => {
     const Products = await Product.find()
       .notDeleted()
       .isPublished()
-      .populate('categories');
+      .populate("categories");
     res.status(200).json({ data: Products });
   } catch (error) {
     next(error);
@@ -188,7 +176,7 @@ export const getProductById = async (req, res, next) => {
     const product = await Product.findById(req.params.id);
 
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(404).json({ error: "Product not found" });
     }
 
     res.status(200).json(product);
@@ -201,10 +189,10 @@ export const getProductById = async (req, res, next) => {
 export const softDeleteProduct = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ error: 'Product not found' });
+    if (!product) return res.status(404).json({ error: "Product not found" });
 
     await product.softDelete();
-    res.status(200).json({ message: 'Product soft deleted' });
+    res.status(200).json({ message: "Product soft deleted" });
   } catch (error) {
     next(error);
   }
@@ -214,10 +202,10 @@ export const softDeleteProduct = async (req, res, next) => {
 export const restoreProduct = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ error: 'Product not found' });
+    if (!product) return res.status(404).json({ error: "Product not found" });
 
     await product.restore(); // <-- helper
-    res.status(200).json({ message: 'Product restored' });
+    res.status(200).json({ message: "Product restored" });
   } catch (error) {
     next(error);
   }
@@ -243,14 +231,14 @@ export const searchProducts = async (req, res) => {
       maxPrice,
       page = 1,
       limit = 10,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
+      sortBy = "createdAt",
+      sortOrder = "desc",
       fields,
     } = req.query;
 
     const limitNum = Math.min(100, Math.max(1, limit));
     const skip = (page - 1) * limitNum;
-    const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+    const sort = { [sortBy]: sortOrder === "asc" ? 1 : -1 };
 
     const filter = {};
 
@@ -260,7 +248,7 @@ export const searchProducts = async (req, res) => {
 
     if (categories) {
       const arr = categories
-        .split(',')
+        .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
       if (arr.length) filter.categories = { $in: arr };
@@ -277,15 +265,15 @@ export const searchProducts = async (req, res) => {
     // Choose fields to return
     const projection = fields
       ? fields
-          .split(',')
+          .split(",")
           .map((f) => f.trim())
-          .join(' ')
-      : '';
+          .join(" ")
+      : "";
 
     // Fetch results + total count in parallel for better response time
     const [products, total] = await Promise.all([
       Product.find(filter)
-        .populate('categories')
+        .populate("categories")
         .sort(sort)
         .skip(skip)
         .limit(limitNum)
@@ -307,10 +295,10 @@ export const searchProducts = async (req, res) => {
       data: products,
     });
   } catch (err) {
-    console.error('Search error:', err);
+    console.error("Search error:", err);
     return res
       .status(500)
-      .json({ error: 'Server error while searching products' });
+      .json({ error: "Server error while searching products" });
   }
 };
 
@@ -319,11 +307,11 @@ export const getProductsBySeller = async (req, res, next) => {
     const sellerId = req.params.sellerId;
     const products = await Product.find({ seller_id: sellerId })
       .notDeleted()
-      .populate('categories');
+      .populate("categories");
     if (!products || products.length === 0) {
       return res
         .status(404)
-        .json({ message: 'No products found for this seller' });
+        .json({ message: "No products found for this seller" });
     }
     res.status(200).json({ products });
   } catch (error) {
@@ -334,10 +322,10 @@ export const getProductsBySeller = async (req, res, next) => {
 export const publishProduct = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ error: 'Product not found' });
+    if (!product) return res.status(404).json({ error: "Product not found" });
     product.published = true;
     await product.save();
-    res.status(200).json({ message: 'Product published' });
+    res.status(200).json({ message: "Product published" });
   } catch (error) {
     next(error);
   }
