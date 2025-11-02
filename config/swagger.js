@@ -9,7 +9,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "https://mern-api-demo-cyahfefug2adezcy.francecentral-01.azurewebsites.net/api",
+        url: process.env.SWAGGER_SERVER_URL,
       },
     ],
     components: {

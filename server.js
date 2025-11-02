@@ -58,7 +58,7 @@ app.get("/", (req, res) => {
 
 // swager documentation
 const specs = swaggerJsDoc(swaggerOptions);
-app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(specs, {explorer: true}));
 
 // routes
 app.use("/api/users", userRoutes);
