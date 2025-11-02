@@ -1,159 +1,172 @@
-# 📊 E-MARKET API
+# E-Market API 🛒
 
-## 📖 Contexte du Projet
+Une API REST complète pour une plateforme e-commerce construite avec Node.js, Express.js et MongoDB.
 
-L’entreprise souhaite concevoir une **plateforme e-commerce** évolutive, capable de gérer des produits, des utilisateurs et des commandes.
+## 📋 Table des matières
 
-Avant d’aborder la logique métier complète, il faut d’abord **établir les fondations techniques du backend** :
+- [Fonctionnalités](#fonctionnalités)
+- [Technologies utilisées](#technologies-utilisées)
+- [Prérequis](#prérequis)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Utilisation](#utilisation)
+- [API Documentation](#api-documentation)
+- [Tests](#tests)
+- [Déploiement](#déploiement)
+- [Structure du projet](#structure-du-projet)
+- [Contribution](#contribution)
 
-- Un **serveur Express** fonctionnel,
-- Une **connexion à la base MongoDB**,
-- Et les **routes initiales** pour les produits et les utilisateurs.
+## ✨ Fonctionnalités
 
-Ce premier projet marque le passage vers un vrai développement **backend orienté API REST**, avec une première approche de la **persistance de données** et de la **structuration professionnelle du code** (routes, contrôleurs, modèles, middlewares).
+- 🔐 **Authentification & Autorisation** (JWT)
+- 👥 **Gestion des utilisateurs** (CRUD, rôles)
+- 📦 **Gestion des produits** (CRUD, upload d'images)
+- 🏷️ **Gestion des catégories**
+- 🛒 **Panier d'achat** (authentifié et invité)
+- 📝 **Système de commandes**
+- ⭐ **Système d'avis et notes**
+- 🎫 **Système de coupons de réduction**
+- 🚀 **Cache Redis** pour les performances
+- 📊 **Logging avancé** avec Winston
+- 🔒 **Rate limiting** et sécurité
+- 📚 **Documentation Swagger**
+- ✅ **Tests unitaires et d'intégration**
 
-L’objectif est de disposer d’un **serveur stable et modulaire** qui servira de base aux fonctionnalités plus avancées (CRUD complet, authentification JWT, gestion des commandes, etc.) prévues dans les briefs suivants du sprint.
+## 🛠️ Technologies utilisées
 
----
+### Backend
 
-## 🛠️ Installation et Configuration
+- **Node.js** - Runtime JavaScript
+- **Express.js** - Framework web
+- **MongoDB** - Base de données NoSQL
+- **Mongoose** - ODM pour MongoDB
+- **Redis** - Cache en mémoire
 
-### Prérequis
-- Node.js (version 14 ou supérieure)
-- MongoDB (installé localement ou via un service cloud comme MongoDB Atlas)
-- Un éditeur de code (ex. : VS Code)
+### Authentification & Sécurité
 
-### Étapes d'Installation
-1. **Cloner le dépôt** :
-   ```
-   git clone https://github.com/Sala7-dine/E-Market-API.git
-   cd E-Market-API
-   ```
+- **JWT** - JSON Web Tokens
+- **bcryptjs** - Hachage des mots de passe
+- **Rate limiting** - Protection contre les attaques
 
-2. **Installer les dépendances** :
-   ```
-   npm install 
-   ```
+### Outils de développement
 
-3. **Configurer les variables d'environnement** :
-   Créez un fichier `.env` à la racine du projet avec les variables suivantes :
-   ```
-   PORT=3000
-   MONGO_URI=mongodb://localhost:27017/emarketdb
-   ```
+- **Nodemon** - Rechargement automatique
+- **Swagger** - Documentation API
+- **Winston** - Logging
+- **Multer** - Upload de fichiers
+- **Yup** - Validation des données
 
-4. **Lancer le serveur** :
-   ```
-   npm start 
-   ```
-   Le serveur sera accessible à `http://localhost:3000`.
+### Tests
 
-5. **Documentation Swagger** :
-   Accédez à la documentation de l'API via `http://localhost:3000/api-docs`.
+- **Mocha** - Framework de test
+- **Chai** - Assertions
+- **Supertest** - Tests HTTP
+- **C8** - Couverture de code
 
----
+## 📋 Prérequis
 
-## 📦 Fonctionnalités Minimales
+- Node.js (v16 ou supérieur)
+- MongoDB (v4.4 ou supérieur)
+- Redis (v6 ou supérieur)
+- npm ou yarn
 
-### 🛍️ Gestion des Produits (`/products`)
+## 🚀 Installation
 
-Les produits sont les éléments centraux de la plateforme. Chaque produit est stocké dans MongoDB avec les champs suivants :
+### 1. Cloner le repository
 
-| Champ       | Type    | Obligatoire | Description                          |
-|-------------|---------|-------------|--------------------------------------|
-| `title`     | String  | ✅          | Nom du produit                       |
-| `description` | String | ✅          | Brève description du produit         |
-| `price`     | Number  | ✅          | Prix du produit (en DH)              |
-| `stock`     | Number  | ✅          | Quantité disponible                  |
-| `category`  | String  | ✅          | Catégorie du produit (ex : "Électronique", "Mode") |
-| `imageUrl`  | String  | ❌          | Lien de l’image du produit           |
-| `createdAt` | Date    | Auto       | Date de création (gérée par Mongoose)|
+```
+git clone https://github.com/ElFirdaous28/E-Market-API-2.git
+cd E-Market-API-2
+npm install
+cp .env.example .env
+```
 
-#### Routes pour les Produits
-| Méthode | Route             | Description                          |
-|---------|-------------------|--------------------------------------|
-| GET     | `/products`       | Renvoie la liste de tous les produits |
-| GET     | `/products/:id`   | Renvoie les détails d’un produit spécifique |
-| POST    | `/products`       | Ajoute un nouveau produit (avec validation) |
-| PUT     | `/products/:id`   | Met à jour un produit existant       |
-| DELETE  | `/products/:id`   | Supprime un produit                  |
+## ⚙️ Configuration
 
-**Règles et Validations** :
-- Vérification des types (`price` et `stock` doivent être numériques).
-- Erreurs gérées proprement (produit non trouvé, champ manquant, id invalide).
-- Pas de persistance d’image réelle pour l’instant (simple URL simulée).
+### Éditer le fichier .env avec vos paramètres :
 
-### 👥 Gestion des Utilisateurs (`/users`)
+```
+# Server
+PORT=3000
 
-Les utilisateurs sont enregistrés dans la base pour simuler les comptes de la future plateforme e-commerce.
+# Database (MongoDB)
+DB_URI=mongodb://127.0.0.1:27017/emarket_db
+DB_URI=mongodb://127.0.0.1:27017/emarket_test_db
 
-| Champ       | Type    | Obligatoire | Description                          |
-|-------------|---------|-------------|--------------------------------------|
-| `fullname`  | String  | ✅          | Nom complet de l’utilisateur         |
-| `email`     | String  | ✅          | Email unique                         |
-| `password`  | String  | ✅          | Mot de passe (non chiffré pour l’instant) |
-| `role`      | String  | ❌          | Valeur par défaut : `"user"` (peut être `"admin"`) |
-| `createdAt` | Date    | Auto       | Date d’inscription                   |
+# JWT
+JWT_SECRET=votre_jwt_secret_super_securise
 
-#### Routes pour les Utilisateurs
-| Méthode | Route             | Description                          |
-|---------|-------------------|--------------------------------------|
-| GET     | `/users`          | Renvoie la liste des utilisateurs    |
-| GET     | `/users/:id`      | Renvoie les informations d’un utilisateur spécifique |
-| POST    | `/users`          | Crée un utilisateur après vérification de l’unicité de l’email |
-| DELETE  | `/users/:id`      | Supprime un utilisateur (optionnel, bonus) |
+# Redis
+REDIS_URL=redis://localhost:6379
 
-**Règles et Validations** :
-- Vérification que `email` n’existe pas déjà avant insertion.
-- Champs obligatoires : `fullname`, `email`, `password`.
-- Structure prête pour intégrer le chiffrement et l’authentification JWT dans le **brief suivant**.
+```
 
---- 
+### Services requis
 
-- **Relation entre Produits et Catégories** : Création d'une collection `categories` séparée, avec association via `ObjectId`.
+MongoDB
 
-  | Champ       | Type    | Obligatoire | Description                          |
-      |-------------|---------|-------------|--------------------------------------|
-  | `name`      | String  | ✅          | Nom de la catégorie                  |
-  | `description` | String | ❌         | Description de la catégorie          |
+```
+# Installation sur Ubuntu/Debian
+sudo apt-get install mongodb
 
-  Routes CRUD pour les catégories :
-  | Méthode | Route             | Description                          |
-  |---------|-------------------|--------------------------------------|
-  | GET     | `/categories`     | Liste des catégories                 |
-  | POST    | `/categories`     | Ajoute une catégorie                 |
-  | PUT     | `/categories/:id` | Met à jour une catégorie             |
-  | DELETE  | `/categories/:id` | Supprime une catégorie               |
+# Démarrer MongoDB
+sudo systemctl start mongodb
+sudo systemctl enable mongodb
+```
 
-- **Recherche Filtrée** : Route `GET /products/search` avec critères (catégorie, nom, prix min/max).
+Redis
 
+```
+# Installation sur Ubuntu/Debian
+sudo apt-get install redis-server
 
----
+# Démarrer Redis
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+```
 
-## ⚙️ Middlewares et Structure
+## 🎯 Utilisation
 
-- **Middleware `logger`** : Journalise la méthode, l’URL et la date de chaque requête.
-- **Middleware `errorHandler`** : Capture et renvoie les erreurs au format JSON.
-- **Middleware `notFound`** : Message JSON standard pour les routes inexistantes.
+```
+# Démarrer en mode développement
+npm run devStart
 
-Le projet suit une architecture MVC simplifiée :
-- **Modèles** : Définition des schémas Mongoose (ex. : `Product.js`, `User.js`).
-- **Contrôleurs** : Logique métier (ex. : `productController.js`).
-- **Routes** : Définition des endpoints (ex. : `productRoutes.js`).
+# Initialiser la base de données avec des données de test
+npm run seed
 
----
+# Réinitialiser la base de données
+npm run reset-db
+```
 
-## 🚨 Contraintes et Exigences Techniques
+## 📚 API Documentation
 
-### Technologies Utilisées
-| Technologie | Description                          |
-|-------------|--------------------------------------|
-| Node.js     | Runtime JavaScript                   |
-| Express.js  | Framework web pour API REST          |
-| MongoDB     | Base de données NoSQL                |
-| Mongoose    | ODM pour MongoDB                     |
-| Dotenv      | Gestion des variables d’environnement|
-| Swagger     | Documentation API (OpenAPI)          |
+La documentation Swagger est disponible à l'adresse :
 
+```
+http://localhost:3000/api/docs
+```
 
----
+## 🧪 Tests
+
+Exécuter tous les tests
+
+```
+# Tests unitaires
+npm test
+
+# Tests d'intégration
+npm run test:integration
+
+# Tous les tests
+npm run test:all
+
+# Tests avec couverture de code
+npm run coverage
+```
+
+## 👥 Auteurs
+
+- **ElFirdaous28**
+- **Ayoub-fetti**
+- **samirakibous**
+- **wassim205**
