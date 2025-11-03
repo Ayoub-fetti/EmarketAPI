@@ -4,10 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'backend/**'
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     services:
       mongo:
         image: mongo:latest
@@ -24,6 +29,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
+          cache-dependency-path: backend/package-lock.json
       - run: npm ci
       - name: Run tests
         env:
@@ -47,8 +53,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./dockerfile
+          context: ./backend
+          file: ./backend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/emarket-api-image:latest
 
@@ -60,8 +66,6 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-# command to create credentials in azure ssh 
-#az ad sp create-for-rbac --name "github-actions-deploy" --role contributor --scopes /subscriptions/<subscriptionID>/resourceGroups/mern-rg-francecentral --sdk-auth
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with: 
