@@ -1,0 +1,12 @@
+.env
+.env.development
+.env.test
+.env.production
+/node_modules
+/logs/
+# Ignorer tout le contenu du dossier uploads
+public/uploads/
+# Mais garder le dossier uploads lui-même
+!public/
+uploads/products/
+/coverage
