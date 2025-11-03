@@ -1,40 +1,68 @@
 services:
-  mongo:
-    image: mongo:latest
-    container_name: mongo_container
-    ports:
-      - "27018:27017"
-    volumes:
-      - mongotestdata:/data/db
-    networks:
-      - app-network
-    restart: always
-
-  api:
+  # Backend API
+  backend:
     build:
-      context: .
-      dockerfile: dockerfile
-    image: emarket-api-image
-    container_name: express_container
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: emarket_backend
     ports:
       - "8000:8000"
-    depends_on:
-      - mongo
-      - redis
-    volumes:
-      - .:/app
-      - /app/node_modules
-    networks:
-      - app-network
     environment:
       - NODE_ENV=production
       - DB_URI=mongodb://mongo:27017/emarket_db
       - JWT_SECRET=8cc10252c3b380e9714e77c9791a175199073d684a1255ab7be96160141c17c3370c3a34e3fc6d776741b3da7b033e9a4192b0d97e42ef69905e318218005638
-      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
 
+  # Frontend React
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: emarket_frontend
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     - REACT_APP_API_URL=http://localhost:3000/api
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+
+  # MongoDB
+  mongo:
+    image: mongo:latest
+    container_name: emarket_mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+    restart: always
+
+  # Redis
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: emarket_redis
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - app-network
+  #   restart: always
+
+  # MongoDB Admin Interface
   mongo-express:
     image: mongo-express
-    container_name: mongo_express
+    container_name: emarket_mongo_express
     restart: always
     ports:
       - "8081:8081"
@@ -46,16 +74,9 @@ services:
     networks:
       - app-network
 
-  redis:
-    image: redis:7
-    container_name: redis_container
-    ports:
-      - "6378:6379"
-    networks:
-      - app-network
-
 volumes:
-  mongotestdata:
+  mongo_data:
 
 networks:
   app-network:
+    driver: bridge
