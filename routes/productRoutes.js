@@ -26,7 +26,6 @@ router.post(
   authorizeRoles("seller"),
   productController.createProduct,
 );
-//router.get('/',productRateLimit,cacheMiddleware('products', 600),productController.getProducts);
 router.get("/", productController.getProducts);
 router.get("/published", productController.getPublishedProducts);
 router.get("/deleted", productController.getDeletedProducts);
