@@ -1,6 +1,6 @@
-# E-Market API 🛒
+# E-Market 🛒
 
-Une API REST complète pour une plateforme e-commerce construite avec Node.js, Express.js et MongoDB.
+Une plateforme e-commerce complète avec API REST (Node.js/Express) et interface utilisateur (React).
 
 ## 📋 Table des matières
 
@@ -31,6 +31,7 @@ Une API REST complète pour une plateforme e-commerce construite avec Node.js, E
 - 🔒 **Rate limiting** et sécurité
 - 📚 **Documentation Swagger**
 - ✅ **Tests unitaires et d'intégration**
+- 🎨 **Interface utilisateur moderne** (React)
 
 ## 🛠️ Technologies utilisées
 
@@ -41,6 +42,14 @@ Une API REST complète pour une plateforme e-commerce construite avec Node.js, E
 - **MongoDB** - Base de données NoSQL
 - **Mongoose** - ODM pour MongoDB
 - **Redis** - Cache en mémoire
+
+### Frontend
+
+- **React** - Bibliothèque UI
+- **React Router** - Navigation
+- **Vite** - Build tool
+- **Tailwind CSS** - Framework CSS
+- **Axios** - Client HTTP
 
 ### Authentification & Sécurité
 
@@ -74,31 +83,54 @@ Une API REST complète pour une plateforme e-commerce construite avec Node.js, E
 
 ### 1. Cloner le repository
 
+```bash
+git clone https://github.com/Ayoub-fetti/EmarketAPI.git
+cd EmarketAPI
 ```
-git clone https://github.com/ElFirdaous28/E-Market-API-2.git
-cd E-Market-API-2
+
+### 2. Installation Backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
+
+### 3. Installation Frontend
+
+```bash
+cd ../frontend
 npm install
 cp .env.example .env
 ```
 
 ## ⚙️ Configuration
 
-### Éditer le fichier .env avec vos paramètres :
+### Backend (.env)
 
-```
+```env
 # Server
 PORT=3000
 
 # Database (MongoDB)
 DB_URI=mongodb://127.0.0.1:27017/emarket_db
-DB_URI=mongodb://127.0.0.1:27017/emarket_test_db
+DB_URI_TEST=mongodb://127.0.0.1:27017/emarket_test_db
 
 # JWT
 JWT_SECRET=votre_jwt_secret_super_securise
 
 # Redis
 REDIS_URL=redis://localhost:6379
+```
 
+### Frontend (.env)
+
+```env
+# Backend API URL
+VITE_API_URL=http://localhost:3000/api
+
+# Frontend URL
+VITE_FRONTEND_URL=http://localhost:5173
 ```
 
 ### Services requis
@@ -127,30 +159,56 @@ sudo systemctl enable redis-server
 
 ## 🎯 Utilisation
 
-```
-# Démarrer en mode développement
+### Démarrer le Backend
+
+```bash
+cd backend
 npm run devStart
+```
 
-# Initialiser la base de données avec des données de test
+### Démarrer le Frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+### URLs d'accès
+
+- **Frontend** : http://localhost:5173
+- **Backend API** : http://localhost:3000/api
+- **Documentation Swagger** : http://localhost:3000/api/docs
+
+### Initialiser les données
+
+```bash
+cd backend
 npm run seed
-
-# Réinitialiser la base de données
-npm run reset-db
 ```
 
-## 📚 API Documentation
-
-La documentation Swagger est disponible à l'adresse :
+## 📁 Structure du projet
 
 ```
-http://localhost:3000/api/docs
+E-Market/
+├── backend/          # API REST (Node.js/Express)
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   └── ...
+└── frontend/         # Interface utilisateur (React)
+    ├── src/
+    │   ├── components/
+    │   ├── pages/
+    │   ├── services/
+    │   └── routes/
+    └── ...
 ```
 
 ## 🧪 Tests
 
-Exécuter tous les tests
+```bash
+cd backend
 
-```
 # Tests unitaires
 npm test
 
