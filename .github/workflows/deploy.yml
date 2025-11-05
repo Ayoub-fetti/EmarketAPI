@@ -65,6 +65,7 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
+        # command to create credentials in azure ssh az ad sp create-for-rbac --name "github-actions-deploy" --role contributor --scopes /subscriptions/982615cc-beee-4683-9715-0099c5f570b8/resourceGroups/mern-rg-francecentral --sdk-auth
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
