@@ -38,8 +38,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
-// console.log(config);
-
+app.use('/uploads', express.static('uploads'));
 const PORT = config.port;
 // console.log(process.env);
 

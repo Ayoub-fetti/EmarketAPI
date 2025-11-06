@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -10,23 +11,25 @@ export default function Register() {
         password: ''
     });
     const [error, setError] = useState('');
+    const {login} = useAuth()
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await authService.register(formData);
-            navigate('/login');
+            const response = await authService.register(formData);
+            login(response.data.token, response.data.user);
+            navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');
         }
     };
 
     return (
-        <div>
+        <div className='grid justify-center'>
             <h2>Register</h2>
             {error && <div className="text-red-500 mb-4">{error}</div>}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className='grid justify-center'>
                 <input
                     type="text"
                     placeholder="Full Name"

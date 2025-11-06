@@ -33,7 +33,7 @@ router.get("/search", productRateLimit, productController.searchProducts);
 
 // Get seller's products
 router.get(
-  "/:sellerId",
+  "/seller/:sellerId",
   isAuthenticated,
   productController.getProductsBySeller,
 );

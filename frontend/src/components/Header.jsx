@@ -9,13 +9,13 @@ export default function Header() {
 
     const handleLogout = () => {
         logout();
-        navigate('/login');
+        navigate('/');
     };
 
     return (
         <header className="bg-blue-600 text-white p-4">
             <nav className="flex justify-between items-center">
-                <Link to="/" className="text-xl font-bold">E-Market</Link>
+                <Link to="/" className="text-xl font-bold">FETTY</Link>
                 <div className="space-x-4">
                     <Link to="/products">Products</Link>
                     {isAuthenticated() ? (

@@ -25,10 +25,10 @@ export default function Login() {
     };
 
     return (
-        <div>
-            <h2>Login</h2>
+        <div className='grid justify-center'>
+            <h2 className=''>Login</h2>
             {error && <div className="text-red-500 mb-4">{error}</div>}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className='grid justify-center'>
                 <input
                     type="email"
                     placeholder="Email"
