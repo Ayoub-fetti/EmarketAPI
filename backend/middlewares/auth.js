@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET;
 
 // Check if the user is logged in
 export const isAuthenticated = (req, res, next) => {
   try {
+    const JWT_SECRET = process.env.JWT_SECRET;
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -12,12 +12,16 @@ export const isAuthenticated = (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
+    console.log("JWT_SECRET:", JWT_SECRET ? "exists" : "missing");
+    console.log("Token:", token.substring(0, 20) + "...");
+    
     const decoded = jwt.verify(token, JWT_SECRET);
+    console.log("Decoded:", decoded);
 
-    req.user = decoded; // contains { id, role, iat, exp }
-
+    req.user = decoded;
     next();
-  } catch {
+  } catch (error) {
+    console.log("JWT Error:", error.message);
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };

@@ -10,14 +10,18 @@ const JWT_EXPIRES_IN = "7d"; // Token validity\
 // Register
 export const register = async (req, res, next) => {
   try {
-    const { fullname, email, password } = req.body;
+    const { fullname, email: email, password, role } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email }).notDeleted();
     if (existingUser)
       return res.status(400).json({ message: "Email already in use" });
 
-    const user = new User({ fullname, email, password });
+    const user = new User({
+       fullname, 
+       email: email.toLowerCase(), 
+       password,
+       role: role === 'seller' ? "seller" : "user"});
     await user.save();
 
     // generate token
@@ -52,9 +56,27 @@ export const register = async (req, res, next) => {
 // Login
 export const login = async (req, res, next) => {
   try {
+    console.log("Login request body", req.body);
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    // Debug: Check all users with this email
+    const allUsers = await User.find({ email: email.toLowerCase() });
+    console.log("All users with this email:", allUsers);
+
+    // Debug: Check users with notDeleted
+    const activeUsers = await User.find({ email: email.toLowerCase() }).notDeleted();
+    console.log("Active users with this email:", activeUsers);
+
+    // Debug: Check users with explicit deletedAt filter
+    const explicitFilter = await User.find({ 
+      email: email.toLowerCase(), 
+      deletedAt: null 
+    });
+    console.log("Users with explicit deletedAt filter:", explicitFilter);
+
+    const user = await User.findOne({ email: email.toLowerCase(), deletedAt: null });
+    console.log("Final user found:", user);
+    
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -89,3 +111,4 @@ export const login = async (req, res, next) => {
     next(error);
   }
 };
+

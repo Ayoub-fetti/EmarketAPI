@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import config from "./config/config.js";
@@ -28,11 +29,16 @@ import swaggerOptions from "./config/swagger.js";
 const env = process.env.NODE_ENV || "development"; // Default to development
 dotenv.config({ path: `./.env.${env}` });
 const uri = process.env.DB_URI;
-//dotenv.config();
-const app = express();
-app.use(express.json());
-// console.log(config);
 
+const app = express();
+
+// Configuration CORS
+app.use(cors({
+    origin: '*'
+}));
+
+app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 const PORT = config.port;
 // console.log(process.env);
 

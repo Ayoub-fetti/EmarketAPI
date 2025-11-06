@@ -35,7 +35,6 @@ jobs:
         env:
           DB_URI: mongodb://localhost:27017/MY_TEST_DATABASE
           JWT_SECRET: 8cc10252c3b380e9714e77c9791a175199073d684a1255ab7be96160141c17c3370c3a34e3fc6d776741b3da7b033e9a4192b0d97e42ef69905e318218005638
-          REDIS_URL: redis://localhost:6379
           NODE_ENV: test
           PORT: 3001
         run: npm test

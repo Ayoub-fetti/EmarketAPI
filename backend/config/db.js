@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Cart from "../models/Cart.js";
 
+
 //dotenv.config();
 const env = process.env.NODE_ENV || "development"; // Default to development
 dotenv.config({ path: `./.env.${env}` });

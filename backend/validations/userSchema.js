@@ -16,4 +16,9 @@ export const userSchema = yup.object({
     .string()
     .required("Password is required")
     .min(6, "Password must be at least 6 characters"),
+  role: yup
+    .string()
+    .oneOf(["user", "seller"], "Role must be either 'user' or 'seller'")
+    .optional()
+
 });
