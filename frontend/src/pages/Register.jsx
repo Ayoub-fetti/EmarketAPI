@@ -8,7 +8,8 @@ export default function Register() {
     const [formData, setFormData] = useState({
         fullname: '',
         email: '',
-        password: ''
+        password: '',
+        role: ''
     });
     const [error, setError] = useState('');
     const {login} = useAuth()
@@ -19,7 +20,7 @@ export default function Register() {
         try {
             const response = await authService.register(formData);
             login(response.data.token, response.data.user);
-            navigate('/');
+            navigate('/products');
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');
         }
@@ -51,6 +52,20 @@ export default function Register() {
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                     required
                 />
+                {/* <input 
+                type="text" 
+                value={formData.role}
+                placeholder='Role'
+                onChange={(e) => setFormData({...formData, role: e.target.value})}
+                /> */}
+                <select 
+                value={formData.role}
+                onChange={(e) => setFormData({...formData, role: e.target.value})}
+                >
+                 <option value="">Select role</option>
+                 <option value="user">User</option>
+                 <option value="seller">Seller</option>
+                </select>
                 <button type="submit">
                     Register
                 </button>

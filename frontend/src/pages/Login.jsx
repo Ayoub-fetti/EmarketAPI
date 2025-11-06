@@ -18,7 +18,7 @@ export default function Login() {
         try {
             const response = await authService.login(formData);
             login(response.data.token, response.data.user);
-            navigate('/');
+            navigate('/products');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
         }

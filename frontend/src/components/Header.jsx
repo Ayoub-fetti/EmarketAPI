@@ -17,6 +17,7 @@ export default function Header() {
             <nav className="flex justify-between items-center">
                 <Link to="/" className="text-xl font-bold">FETTY</Link>
                 <div className="space-x-4">
+                    <Link to="/">Home</Link>
                     <Link to="/products">Products</Link>
                     {isAuthenticated() ? (
                         <>
