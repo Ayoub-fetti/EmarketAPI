@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { productService } from "../services/productService";
 
-
 export default function Home() {
-
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,7 +12,7 @@ export default function Home() {
     const fetchProducts = async () => {
       try {
           setLoading(true);
-          const data = await productService.getProducts();
+          const data = await productService.getPublishedProducts();
           setProducts(data.data);
           await new Promise(resolve => setTimeout(resolve, 1000))
       } catch {
@@ -24,6 +23,10 @@ export default function Home() {
     };
     fetchProducts();
   }, []);
+
+  const handleProductClick = (productId) => {
+    navigate(`/products/${productId}`);
+  };
 
   if (loading) {
     return (
@@ -44,15 +47,17 @@ export default function Home() {
     );
   }
 
-
-
  return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Bienvenue sur FETTY</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {products.map((product) => (
-          <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div 
+            key={product._id} 
+            className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => handleProductClick(product._id)}
+          >
             <img 
               src={product.primaryImage ? `http://localhost:3000${product.primaryImage}` : '/placeholder.jpg'}
               alt={product.name}
@@ -71,5 +76,4 @@ export default function Home() {
       </div>
     </div>
   );
-  
 }
