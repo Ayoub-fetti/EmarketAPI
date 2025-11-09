@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -11,7 +12,6 @@ export default function Register() {
         password: '',
         role: ''
     });
-    const [error, setError] = useState('');
     const [errors, setErrors] = useState('');
     const {login} = useAuth()
     const navigate = useNavigate();
@@ -21,17 +21,17 @@ export default function Register() {
         try {
             const response = await authService.register(formData);
             login(response.data.token, response.data.user);
+            toast.success('Inscription réussie !');
             navigate('/products');
         } catch (err) {
-            setError(err.response?.data?.message || 'Registration failed');
             setErrors(err.response?.data?.errors || {});
+            toast.error("Erreur lors de l'inscription");
         }
     };
 
     return (
         <div className='grid justify-center'>
             <h2>Register</h2>
-            {error && <div className="text-red-500 mb-4">{error}</div>}
             <form onSubmit={handleSubmit} className='grid justify-center'>
                 <input
                     type="text"

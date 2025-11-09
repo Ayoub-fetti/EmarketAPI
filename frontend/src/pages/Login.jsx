@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
+import { toast } from 'react-toastify';
 
 export default function Login() {
     const [formData, setFormData] = useState({
@@ -9,7 +10,6 @@ export default function Login() {
         password: ''
     });
     const [errors, setErrors] = useState('');
-    const [error, setError] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -21,17 +21,17 @@ export default function Login() {
         try {
             const response = await authService.login(formData);
             login(response.data.token, response.data.user);
+            toast.success('Connexion réussie !');
             navigate(from, {replace: true});
         } catch (err) {
             setErrors(err.response?.data?.errors || {});
-            setError(err.response?.data?.message || "Login failed");
+            toast.error("Erreur de connexion");
         }
     };
 
     return (
         <div className='grid justify-center'>
             <h2 className=''>Login</h2>
-                {error && <div className='text-red-500'>{error}</div>}
             <form onSubmit={handleSubmit} className='grid justify-center'>
                 <input
                     type="email"
