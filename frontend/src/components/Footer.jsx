@@ -1,6 +1,15 @@
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 text-white p-4 text-center fixed bottom-0 lerft-0 w-full">
+    <footer className=" text-black text-center bottom-0 lerft-0 w-full mt-10">
+      <div className="grid justify-center border-b">
+      <h1 className="text-black font-bold text-2xl">Empowering your digital lifestyle with the best devices at great prices.</h1>
+      <button className="mb-2">Contact Us</button>
+      <nav>
+        <div className="">
+
+        </div>
+      </nav>
+      </div>
       <p>&copy; 2025 FETTY. Tous droits réservés.</p>
     </footer>
   )
