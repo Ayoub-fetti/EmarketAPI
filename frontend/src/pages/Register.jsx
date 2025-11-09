@@ -12,6 +12,7 @@ export default function Register() {
         role: ''
     });
     const [error, setError] = useState('');
+    const [errors, setErrors] = useState('');
     const {login} = useAuth()
     const navigate = useNavigate();
 
@@ -23,6 +24,7 @@ export default function Register() {
             navigate('/products');
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');
+            setErrors(err.response?.data?.errors || {});
         }
     };
 
@@ -36,28 +38,25 @@ export default function Register() {
                     placeholder="Full Name"
                     value={formData.fullname}
                     onChange={(e) => setFormData({...formData, fullname: e.target.value})}
-                    required
-                />
+                    
+                    />
+                    {errors.fullname && <div className="text-red-500 mb-4">{errors.fullname}</div>}
                 <input
                     type="email"
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    required
-                />
+                    
+                    />
+                    {errors.email && <div className="text-red-500 mb-4">{errors.email}</div>}
                 <input
                     type="password"
                     placeholder="Password"
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    required
-                />
-                {/* <input 
-                type="text" 
-                value={formData.role}
-                placeholder='Role'
-                onChange={(e) => setFormData({...formData, role: e.target.value})}
-                /> */}
+                    
+                    />
+                    {errors.password && <div className="text-red-500 mb-4">{errors.password}</div>}
                 <select 
                 value={formData.role}
                 onChange={(e) => setFormData({...formData, role: e.target.value})}

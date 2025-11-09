@@ -153,7 +153,10 @@ export function Details () {
                             </div>
                             <div>
                                 <span className="font-medium">ID Vendeur:</span>
-                                <p className="break-all">{product.seller_id?.fullname || 'Nom non disponible'}</p>
+                                <p className="break-all">
+                                    {product.seller_id?.fullname 
+                                    ? product.seller_id?.fullname.charAt(0).toUpperCase() + product.seller_id?.fullname.slice(1)
+                                    : 'Nom non disponible'}</p>
                             </div>
                             <div>
                                 <span className="font-medium">Créé le:</span>
