@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { productService } from "../services/productService";
+import Loader from "../components/Loader";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export default function Home() {
           setLoading(true);
           const data = await productService.getPublishedProducts();
           setProducts(data.data);
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          await new Promise(resolve => setTimeout(resolve, 2000))
       } catch {
         setError('Erreur lors du chargement du produits');
       } finally {
@@ -28,15 +29,9 @@ export default function Home() {
     navigate(`/products/${productId}`);
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-4">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </div>
-    );
-  }
+    if (loading) {
+      return (<Loader/>);
+    }
     if (error) {
     return (
       <div className="container mx-auto p-4">
