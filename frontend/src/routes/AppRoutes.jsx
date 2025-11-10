@@ -6,6 +6,7 @@ import Login from '../pages/Login'
 import Register from '../pages/Register' 
 import { Details } from '../pages/Details'
 import ProtectedRoute from '../components/ProtectedRoute'
+import NotFound from '../pages/NotFound'
 
 export default function AppRoutes() {
   return (
@@ -17,6 +18,7 @@ export default function AppRoutes() {
         <Route path="products/:id" element={<Details />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="*" element={<NotFound/>} />
         {/* private route */}
       <Route path='#' element={<ProtectedRoute>#</ProtectedRoute>}/>
       </Route>
