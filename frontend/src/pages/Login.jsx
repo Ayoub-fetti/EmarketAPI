@@ -1,48 +1,54 @@
-// frontend/src/pages/Login.jsx
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
+import { toast } from 'react-toastify';
 
 export default function Login() {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
-    const [error, setError] = useState('');
+    const [errors, setErrors] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const from = location.state?.from?.pathname || '/products';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await authService.login(formData);
             login(response.data.token, response.data.user);
-            navigate('/products');
+            toast.success('Connexion réussie !');
+            navigate(from, {replace: true});
         } catch (err) {
-            setError(err.response?.data?.message || 'Login failed');
+            setErrors(err.response?.data?.errors || {});
+            toast.error("Erreur de connexion");
         }
     };
 
     return (
         <div className='grid justify-center'>
             <h2 className=''>Login</h2>
-            {error && <div className="text-red-500 mb-4">{error}</div>}
             <form onSubmit={handleSubmit} className='grid justify-center'>
                 <input
                     type="email"
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    required
+                    
                 />
+                {errors.email && <div className='text-red-500'>{errors.email}</div>}
                 <input
                     type="password"
                     placeholder="Password"
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    required
-                />
+                    
+                    />
+                    {errors.password && <div className='text-red-500'>{errors.password}</div>}
                 <button type="submit">
                     Login
                 </button>

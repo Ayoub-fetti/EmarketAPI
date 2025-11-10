@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import softDeletePlugin from "./plugins/softDeletePlugin.js";
-// import publishedPlugin from "./plugins/publishedPlugin.js";
 import publishedPlugin from "./plugins/publishedPlugin.js";
 const productSchema = new mongoose.Schema({
   title: {

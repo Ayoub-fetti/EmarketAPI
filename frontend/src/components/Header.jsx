@@ -13,9 +13,11 @@ export default function Header() {
     };
 
     return (
-        <header className="bg-blue-600 text-white p-4">
+        <header className=" text-black p-4">
             <nav className="flex justify-between items-center">
-                <Link to="/" className="text-xl font-bold">FETTY</Link>
+            <Link to="/" className="flex items-center gap-1 text-xl font-bold">
+            FETTY<span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#D43601' }}></span>
+            </Link>
                 <div className="space-x-4">
                     <Link to="/">Home</Link>
                     <Link to="/products">Products</Link>
