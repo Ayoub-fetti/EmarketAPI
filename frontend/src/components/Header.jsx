@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Button from './Button';
 
 export default function Header() {
     const { user, logout, isAuthenticated } = useAuth();
@@ -24,9 +25,7 @@ export default function Header() {
                     {isAuthenticated() ? (
                         <>
                             <span>Welcome, {user.fullname}</span>
-                            <button onClick={handleLogout} className="bg-red-500 px-3 py-1 rounded">
-                                Logout
-                            </button>
+                            <Button variant='danger' size="sm" onClick={handleLogout}>Logout</Button>
                         </>
                     ) : (
                         <>

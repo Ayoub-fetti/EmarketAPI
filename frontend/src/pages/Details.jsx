@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { productService } from "../services/productService";
 import { useParams} from "react-router-dom";
 import Loader from "../components/Loader";
+import Button from "../components/Button";
 
 export function Details () {
     const { id } = useParams();
@@ -164,9 +165,12 @@ export function Details () {
                         </div>
 
                         {product.stock > 0 && (
-                            <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                                Ajouter au panier
-                            </button>
+                            // <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            //     Ajouter au panier
+                            // </button>
+                            <Button variant="outline" style={{ backgroundColor: '#D43601' }}>
+                                Add To Cart
+                            </Button>
                         )}
                     </div>
                 </div>
