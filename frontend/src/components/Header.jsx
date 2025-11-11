@@ -72,7 +72,6 @@ export default function Header() {
           </form>
         )}
 
-        {/* Right side icons */}
         <div className="flex items-center gap-4 relative" ref={menuRef}>
           {/* Search icon */}
           <button
@@ -80,6 +79,13 @@ export default function Header() {
             className="p-2 hover:text-[#D43601] transition"
           >
             <Search size={22} />
+          </button>
+
+          {/* Cart icon */}
+          <button
+           className="p-2 hover:text-[#D43601] transition"
+          >
+            <i class="fa-solid fa-cart-shopping"></i>
           </button>
 
           {/* Burger icon */}

@@ -98,9 +98,9 @@ export function Details () {
                             </span>
                             {reviews && (
                                 <div className="flex items-center gap-2">
-                                    <div className="flex text-2xl text-yellow-400">
+                                    <div className="flex text-yellow-400">
                                         {[...Array(5)].map((_, i) => (
-                                            <span key={i}>{i < Math.floor(reviews.averageRating) ? '★' : '☆'}</span>
+                                            <span key={i}>{i < Math.floor(reviews.averageRating) ? <i class="fa-solid fa-star text-yellow-400"></i> : <i class="fa-solid fa-star text-gray-300"></i>}</span>
                                         ))}
                                     </div>
                                     <span className="text-sm text-gray-600">
@@ -197,12 +197,12 @@ export function Details () {
                     <div className="space-y-4">
                         {reviews.data.map((review) => (
                             <div key={review._id} className="border rounded-lg p-4">
-                                <div className="flex items-center justify-between mb-2">
+                                <div className="grid items-center justify-between mb-2">
                                     <div className="flex items-center gap-3">
                                         <span className="font-medium">{review.user.fullname}</span>
-                                        <div className="flex text-yellow-400">
+                                        <div className="flex">
                                             {[...Array(5)].map((_, i) => (
-                                                <span key={i}>{i < review.rating ? '★' : '☆'}</span>
+                                                <span key={i}>{i < review.rating ? <i class="fa-solid fa-star text-yellow-400"></i>  : <i class="fa-solid fa-star text-gray-300"></i>}</span>
                                             ))}
                                         </div>
                                     </div>
