@@ -1,29 +1,37 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { productService } from "../services/productService";
 import { categoryService } from "../services/categoryService";
 import Loader from "../components/Loader";
 
 export default function Home() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-    const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [productsData, categoriesData] = await Promise.all([
-          productService.getPublishedProducts(),
-          categoryService.getCategories()
-        ]);
-        setProducts(productsData.data);
+        const categoriesData = await categoryService.getCategories();
         setCategories(categoriesData.categories);
+        
+        const urlSearchQuery = searchParams.get('search');
+        if (urlSearchQuery) {
+          setSearchQuery(urlSearchQuery);
+          const searchData = await productService.searchProducts({ title: urlSearchQuery });
+          setProducts(searchData.data);
+        } else {
+          const productsData = await productService.getPublishedProducts();
+          setProducts(productsData.data);
+        }
       } catch {
         setError('Erreur lors du chargement des données');
       } finally {
@@ -31,7 +39,7 @@ export default function Home() {
       }
     };
     fetchData();
-  }, []);
+  }, [searchParams]);
 
   const handleFilter = async () => {
     try {
@@ -39,7 +47,8 @@ export default function Home() {
       const filters = {
         categories: selectedCategories,
         minPrice: minPrice || undefined,
-        maxPrice: maxPrice || undefined
+        maxPrice: maxPrice || undefined,
+        title: searchQuery || undefined
       };
       
       const data = await productService.searchProducts(filters);
@@ -63,6 +72,7 @@ export default function Home() {
     setSelectedCategories([]);
     setMinPrice('');
     setMaxPrice('');
+    setSearchQuery('');
     try {
       setLoading(true);
       const data = await productService.getPublishedProducts();
@@ -94,13 +104,27 @@ export default function Home() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Bienvenue sur FETTY</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        {searchQuery ? `Search results for "${searchQuery}"` : 'Bienvenue sur FETTY'}
+      </h1>
       
       <section>
         {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-md mb-6">
           <h3 className="font-semibold mb-4">Filtres</h3>
           
+          {/* Search Input */}
+          <div className="mb-4">
+            <h4 className="font-medium mb-2">Recherche</h4>
+            <input
+              type="text"
+              placeholder="Rechercher des produits..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="border rounded px-3 py-2 w-full max-w-md"
+            />
+          </div>
+
           {/* Price Range */}
           <div className="mb-4">
             <h4 className="font-medium mb-2">Prix</h4>
@@ -187,7 +211,9 @@ export default function Home() {
       
       {products.length === 0 && (
         <div className="text-center py-8">
-          <p className="text-gray-500">Aucun produit trouvé</p>
+          <p className="text-gray-500">
+            {searchQuery ? `Aucun produit trouvé pour "${searchQuery}"` : 'Aucun produit trouvé'}
+          </p>
         </div>
       )}
     </div>
