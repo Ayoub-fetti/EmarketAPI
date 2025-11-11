@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { productService } from "../services/productService";
+import { reviewService } from "../services/reviewService";
 import { useParams} from "react-router-dom";
 import Loader from "../components/Loader";
 import Button from "../components/Button";
@@ -8,15 +9,20 @@ import Button from "../components/Button";
 export function Details () {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
+    const [reviews, setReviews] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     useEffect(() => {
-        const fetchProduct = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
-                const data = await productService.getProductById(id);
-                setProduct(data.data);
+                const [productData, reviewData] = await Promise.all([
+                    productService.getProductById(id),
+                    reviewService.getProductReviews(id)
+                ]);
+                setProduct(productData.data);
+                setReviews(reviewData);
                 await new Promise(resolve => setTimeout(resolve, 2000))
             } catch {
                 setError('Erreur lors du chargement du produit');
@@ -24,7 +30,7 @@ export function Details () {
                 setLoading(false);
             }
         };
-        fetchProduct();
+        fetchData();
     }, [id]);
 
     if (loading) {
@@ -82,7 +88,7 @@ export function Details () {
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">
                             {product.title}
                         </h1>
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="gap items-center gap-2 mb-4">
                             <span className={`px-2 py-1 rounded text-sm ${
                                 product.published 
                                     ? 'bg-green-100 text-green-800' 
@@ -90,6 +96,18 @@ export function Details () {
                             }`}>
                                 {product.published ? 'Publié' : 'Non publié'}
                             </span>
+                            {reviews && (
+                                <div className="flex items-center gap-2">
+                                    <div className="flex text-2xl text-yellow-400">
+                                        {[...Array(5)].map((_, i) => (
+                                            <span key={i}>{i < Math.floor(reviews.averageRating) ? '★' : '☆'}</span>
+                                        ))}
+                                    </div>
+                                    <span className="text-sm text-gray-600">
+                                        {reviews.averageRating.toFixed(1)} ({reviews.total} avis)
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -165,9 +183,6 @@ export function Details () {
                         </div>
 
                         {product.stock > 0 && (
-                            // <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                            //     Ajouter au panier
-                            // </button>
                             <Button variant="outline" style={{ backgroundColor: '#D43601' }}>
                                 Add To Cart
                             </Button>
@@ -175,6 +190,32 @@ export function Details () {
                     </div>
                 </div>
             </div>
+            {/* Reviews Section */}
+            {reviews && reviews.data.length > 0 && (
+                <div className="mt-12">
+                    <h2 className="text-2xl font-bold mb-6">Avis des clients</h2>
+                    <div className="space-y-4">
+                        {reviews.data.map((review) => (
+                            <div key={review._id} className="border rounded-lg p-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-3">
+                                        <span className="font-medium">{review.user.fullname}</span>
+                                        <div className="flex text-yellow-400">
+                                            {[...Array(5)].map((_, i) => (
+                                                <span key={i}>{i < review.rating ? '★' : '☆'}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <span className="text-sm text-gray-500">
+                                        {new Date(review.createdAt).toLocaleDateString('fr-FR')}
+                                    </span>
+                                </div>
+                                <p className="text-gray-700">{review.comment}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 

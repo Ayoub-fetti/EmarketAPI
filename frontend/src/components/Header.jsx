@@ -115,6 +115,7 @@ export default function Header() {
                   </span>
                   <div className="px-4">
                     <Button variant="danger" size="sm" onClick={handleLogout}>
+                      <i class="fa-solid fa-right-from-bracket mr-1"></i>
                       Logout
                     </Button>
                   </div>
