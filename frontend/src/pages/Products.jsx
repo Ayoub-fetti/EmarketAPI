@@ -1,38 +1,88 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { productService } from "../services/productService";
+import { categoryService } from "../services/categoryService";
 import Loader from "../components/Loader";
 
 export default function Home() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+    const [selectedCategories, setSelectedCategories] = useState([]);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-          setLoading(true);
-          const data = await productService.getPublishedProducts();
-          setProducts(data.data);
-          await new Promise(resolve => setTimeout(resolve, 2000))
+        setLoading(true);
+        const [productsData, categoriesData] = await Promise.all([
+          productService.getPublishedProducts(),
+          categoryService.getCategories()
+        ]);
+        setProducts(productsData.data);
+        setCategories(categoriesData.categories);
       } catch {
-        setError('Erreur lors du chargement du produits');
+        setError('Erreur lors du chargement des données');
       } finally {
         setLoading(false);
       }
     };
-    fetchProducts();
+    fetchData();
   }, []);
+
+  const handleFilter = async () => {
+    try {
+      setLoading(true);
+      const filters = {
+        categories: selectedCategories,
+        minPrice: minPrice || undefined,
+        maxPrice: maxPrice || undefined
+      };
+      
+      const data = await productService.searchProducts(filters);
+      setProducts(data.data);
+    } catch {
+      setError('Erreur lors du filtrage');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const clearFilters = async () => {
+    setSelectedCategories([]);
+    setMinPrice('');
+    setMaxPrice('');
+    try {
+      setLoading(true);
+      const data = await productService.getPublishedProducts();
+      setProducts(data.data);
+    } catch {
+      setError('Erreur lors du chargement');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleProductClick = (productId) => {
     navigate(`/products/${productId}`);
   };
 
-    if (loading) {
-      return (<Loader/>);
-    }
-    if (error) {
+  if (loading) {
+    return (<Loader/>);
+  }
+  
+  if (error) {
     return (
       <div className="container mx-auto p-4">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -42,10 +92,75 @@ export default function Home() {
     );
   }
 
- return (
+  return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Bienvenue sur FETTY</h1>
       
+      <section>
+        {/* Filters */}
+        <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+          <h3 className="font-semibold mb-4">Filtres</h3>
+          
+          {/* Price Range */}
+          <div className="mb-4">
+            <h4 className="font-medium mb-2">Prix</h4>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                placeholder="Prix min"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                className="border rounded px-3 py-1 w-24"
+              />
+              <span className="self-center">-</span>
+              <input
+                type="number"
+                placeholder="Prix max"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="border rounded px-3 py-1 w-24"
+              />
+              <span className="self-center">MAD</span>
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div className="mb-4">
+            <h4 className="font-medium mb-2">Catégories</h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {categories.map((category) => (
+                <label key={category._id} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(category._id)}
+                    onChange={() => handleCategoryChange(category._id)}
+                    className="mr-2"
+                  />
+                  {category.name}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Filter Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleFilter}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Filtrer
+            </button>
+            <button
+              onClick={clearFilters}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Effacer
+            </button>
+          </div>
+        </div>
+      </section>
+      
+      {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {products.map((product) => (
           <div 
@@ -69,6 +184,12 @@ export default function Home() {
           </div>
         ))}
       </div>
+      
+      {products.length === 0 && (
+        <div className="text-center py-8">
+          <p className="text-gray-500">Aucun produit trouvé</p>
+        </div>
+      )}
     </div>
   );
 }
