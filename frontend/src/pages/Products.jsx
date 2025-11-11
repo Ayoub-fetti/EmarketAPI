@@ -4,7 +4,7 @@ import { productService } from "../services/productService";
 import { categoryService } from "../services/categoryService";
 import Loader from "../components/Loader";
 
-export default function Home() {
+export default function Products() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
@@ -105,7 +105,7 @@ export default function Home() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">
-        {searchQuery ? `Search results for "${searchQuery}"` : 'Bienvenue sur FETTY'}
+        {searchQuery ? `Search results for "${searchQuery}"` : 'Bienvenue sur FastShop'}
       </h1>
       
       <section>
