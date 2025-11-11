@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import { toast } from 'react-toastify';
@@ -12,9 +12,12 @@ export default function Login() {
     const [errors, setErrors] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
-    const location = useLocation();
 
-    const from = location.state?.from?.pathname || '/products';
+    const getRedirectPath = (role) => {
+        if (role === 'admin') return '/admin';
+        if (role === 'seller') return '/seller';
+        return '/products';
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,7 +25,8 @@ export default function Login() {
             const response = await authService.login(formData);
             login(response.data.token, response.data.user);
             toast.success('Connexion réussie !');
-            navigate(from, {replace: true});
+            const targetPath = getRedirectPath(response.data.user?.role);
+            navigate(targetPath, { replace: true });
         } catch (err) {
             setErrors(err.response?.data?.errors || {});
             toast.error("Erreur de connexion");
