@@ -15,6 +15,11 @@ export default function Register() {
     const [errors, setErrors] = useState('');
     const {login} = useAuth()
     const navigate = useNavigate();
+    const getRedirectPath = (role) => {
+        if (role === 'admin') return '/admin';
+        if (role === 'seller') return '/seller';
+        return '/products';
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,7 +27,8 @@ export default function Register() {
             const response = await authService.register(formData);
             login(response.data.token, response.data.user);
             toast.success('Inscription réussie !');
-            navigate('/products');
+            const targetPath = getRedirectPath(response.data.user?.role);
+            navigate(targetPath, { replace: true });
         } catch (err) {
             setErrors(err.response?.data?.errors || {});
             toast.error("Erreur lors de l'inscription");
