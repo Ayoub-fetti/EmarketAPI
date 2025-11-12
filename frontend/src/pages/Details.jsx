@@ -128,7 +128,7 @@ export function Details () {
                                     </span>
                                     {product.ex_price && (
                                         <span className="text-lg text-gray-500 line-through">
-                                            {product.ex_price}€
+                                            {product.ex_price} MAD
                                         </span>
                                     )}
                                 </div>
@@ -161,10 +161,7 @@ export function Details () {
                         )}
 
                         <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                            <div>
-                                <span className="font-medium">ID Produit:</span>
-                                <p className="break-all">{product._id}</p>
-                            </div>
+
                             <div>
                                 <span className="font-medium">ID Vendeur:</span>
                                 <p className="break-all">
@@ -175,10 +172,6 @@ export function Details () {
                             <div>
                                 <span className="font-medium">Créé le:</span>
                                 <p>{new Date(product.createdAt).toLocaleDateString('fr-FR')}</p>
-                            </div>
-                            <div>
-                                <span className="font-medium">Version:</span>
-                                <p>v{product.__v}</p>
                             </div>
                         </div>
 

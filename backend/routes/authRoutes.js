@@ -11,7 +11,7 @@ router.post("/register", validate(userSchema), register);
 router.post("/login", validate(loginSchema), login);
 
 // Example of protected route
-router.get("/profile", isAuthenticated, isAdmin, (req, res) => {
+router.get("/profile", isAuthenticated, isAdmin (req, res) => {
   res.json({ message: `Welcome, user ${req.user.id}`, user: req.user });
 });
 

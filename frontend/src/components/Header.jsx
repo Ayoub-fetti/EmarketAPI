@@ -103,17 +103,16 @@ export default function Header() {
                 to="/"
                 onClick={() => setMenuOpen(false)}
                 className="px-4 py-2 w-full text-left hover:bg-gray-100"
-              >
+                >
                 Home
               </Link>
               <Link
                 to="/products"
                 onClick={() => setMenuOpen(false)}
                 className="px-4 py-2 w-full text-left hover:bg-gray-100"
-              >
+                >
                 Products
               </Link>
-
               {isAuthenticated() ? (
                 <>
                   <span className="px-4 text-sm text-gray-600">

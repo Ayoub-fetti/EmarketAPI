@@ -34,6 +34,7 @@ export default function AppRoutes() {
         <Route path="register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
       </Route>
+
       <Route
         path="/admin"
         element={
@@ -47,7 +48,7 @@ export default function AppRoutes() {
         <Route path="users" element={<AdminUsers />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="orders" element={<AdminOrders />} />
-        <Route path="*" element={<Navigate to="stats" replace />} />
+        <Route path="*" element={<NotFound/>} />
       </Route>
     </Routes>
   );
