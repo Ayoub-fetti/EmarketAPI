@@ -152,7 +152,10 @@ export const deleteProduct = async (req, res, next) => {
 
 export const getProducts = async (req, res, next) => {
   try {
-    const Products = await Product.find().notDeleted().populate({path: "categories", model:"Category"});
+    const Products = await Product.find()
+      .notDeleted()
+      .populate({ path: "categories", model: "Category" })
+      .populate("seller_id", "fullname email");
     res.status(200).json({ data: Products });
   } catch (error) {
     next(error);
@@ -164,7 +167,8 @@ export const getPublishedProducts = async (req, res, next) => {
     const Products = await Product.find()
       .notDeleted()
       .isPublished()
-      .populate({path:"categories", match: {}});
+      .populate({ path: "categories", match: {} })
+      .populate("seller_id", "fullname email");
     res.status(200).json({ data: Products });
   } catch (error) {
     next(error);
@@ -194,7 +198,12 @@ export const softDeleteProduct = async (req, res, next) => {
     if (!product) return res.status(404).json({ error: "Product not found" });
 
     await product.softDelete();
-    res.status(200).json({ message: "Product soft deleted" });
+    await product.populate({ path: "categories", model: "Category" });
+    await product.populate("seller_id", "fullname email");
+    res.status(200).json({
+      message: "Product soft deleted",
+      data: product.toObject(),
+    });
   } catch (error) {
     next(error);
   }
@@ -207,7 +216,12 @@ export const restoreProduct = async (req, res, next) => {
     if (!product) return res.status(404).json({ error: "Product not found" });
 
     await product.restore(); // <-- helper
-    res.status(200).json({ message: "Product restored" });
+    await product.populate({ path: "categories", model: "Category" });
+    await product.populate("seller_id", "fullname email");
+    res.status(200).json({
+      message: "Product restored",
+      data: product.toObject(),
+    });
   } catch (error) {
     next(error);
   }
@@ -216,7 +230,10 @@ export const restoreProduct = async (req, res, next) => {
 // Get all soft-deleted products
 export const getDeletedProducts = async (req, res, next) => {
   try {
-    const products = await Product.find().deleted();
+    const products = await Product.find()
+      .deleted()
+      .populate({ path: "categories", model: "Category" })
+      .populate("seller_id", "fullname email");
     res.status(200).json({ products });
   } catch (error) {
     next(error);
@@ -325,9 +342,16 @@ export const publishProduct = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: "Product not found" });
-    product.published = true;
+    product.published = !product.published;
     await product.save();
-    res.status(200).json({ message: "Product published" });
+    await product.populate({ path: "categories", model: "Category" });
+    await product.populate("seller_id", "fullname email");
+    res.status(200).json({
+      message: product.published
+        ? "Product published"
+        : "Product unpublished",
+      data: product.toObject(),
+    });
   } catch (error) {
     next(error);
   }
