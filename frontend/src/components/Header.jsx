@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 import { Search, Menu, X } from "lucide-react";
 import Button from "./Button";
 
 export default function Header() {
   const { user, logout, isAuthenticated } = useAuth();
+  const { getItemCount } = useCart();
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,7 +36,6 @@ export default function Header() {
     }
   };
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -48,7 +49,6 @@ export default function Header() {
   return (
     <header className="relative bg-white text-black px-4 py-3 shadow-md">
       <nav className="flex justify-between items-center relative">
-        {/* Logo */}
         <Link to="/" className="flex items-center gap-1 text-xl font-bold">
           FastShop
           <span
@@ -57,7 +57,6 @@ export default function Header() {
           ></span>
         </Link>
 
-        {/* Center Search Input */}
         {showSearch && (
           <form onSubmit={handleSearch} className="absolute left-1/2 transform -translate-x-1/2 w-1/2 max-w-md">
             <input
@@ -73,7 +72,6 @@ export default function Header() {
         )}
 
         <div className="flex items-center gap-4 relative" ref={menuRef}>
-          {/* Search icon */}
           <button
             onClick={() => setShowSearch(!showSearch)}
             className="p-2 hover:text-[#D43601] transition"
@@ -81,14 +79,18 @@ export default function Header() {
             <Search size={22} />
           </button>
 
-          {/* Cart icon */}
-          <button
-           className="p-2 hover:text-[#D43601] transition"
+          <Link
+            to="/cart"
+            className="p-2 hover:text-[#D43601] transition relative"
           >
-            <i class="fa-solid fa-cart-shopping"></i>
-          </button>
+            <i className="fa-solid fa-cart-shopping"></i>
+            {getItemCount() > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {getItemCount()}
+              </span>
+            )}
+          </Link>
 
-          {/* Burger icon */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="p-2 hover:text-[#D43601] transition"
@@ -96,7 +98,6 @@ export default function Header() {
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
-          {/* Dropdown panel */}
           {menuOpen && (
             <div className="absolute top-12 right-0 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-4 flex flex-col items-start space-y-2 z-50 animate-fadeIn">
               <Link
@@ -113,6 +114,13 @@ export default function Header() {
                 >
                 Products
               </Link>
+              {/* <Link
+                to="/cart"
+                onClick={() => setMenuOpen(false)}
+                className="px-4 py-2 w-full text-left hover:bg-gray-100"
+                >
+                Cart ({getItemCount()})
+              </Link> */}
               {isAuthenticated() ? (
                 <>
                   <span className="px-4 text-sm text-gray-600">
@@ -120,7 +128,7 @@ export default function Header() {
                   </span>
                   <div className="px-4">
                     <Button variant="danger" size="sm" onClick={handleLogout}>
-                      <i class="fa-solid fa-right-from-bracket mr-1"></i>
+                      <i className="fa-solid fa-right-from-bracket mr-1"></i>
                       Logout
                     </Button>
                   </div>

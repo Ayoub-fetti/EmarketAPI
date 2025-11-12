@@ -1,13 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { productService } from "../services/productService";
 import { reviewService } from "../services/reviewService";
-import { useParams} from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 import Loader from "../components/Loader";
 import Button from "../components/Button";
 
 export function Details () {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const { addToCart } = useCart();
     const [product, setProduct] = useState(null);
     const [reviews, setReviews] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -32,6 +34,11 @@ export function Details () {
         };
         fetchData();
     }, [id]);
+
+    const handleAddToCart = async () => {
+        await addToCart(product);
+        navigate('/cart');
+    };
 
     if (loading) {
         return (<Loader/>);
@@ -82,7 +89,6 @@ export function Details () {
                     )}
                 </div>
 
-                {/* Product Info Section */}
                 <div className="space-y-6">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -100,7 +106,7 @@ export function Details () {
                                 <div className="flex items-center gap-2">
                                     <div className="flex text-yellow-400">
                                         {[...Array(5)].map((_, i) => (
-                                            <span key={i}>{i < Math.floor(reviews.averageRating) ? <i class="fa-solid fa-star text-yellow-400"></i> : <i class="fa-solid fa-star text-gray-300"></i>}</span>
+                                            <span key={i}>{i < Math.floor(reviews.averageRating) ? <i className="fa-solid fa-star text-yellow-400"></i> : <i className="fa-solid fa-star text-gray-300"></i>}</span>
                                         ))}
                                     </div>
                                     <span className="text-sm text-gray-600">
@@ -161,7 +167,6 @@ export function Details () {
                         )}
 
                         <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-
                             <div>
                                 <span className="font-medium">ID Vendeur:</span>
                                 <p className="break-all">
@@ -176,14 +181,17 @@ export function Details () {
                         </div>
 
                         {product.stock > 0 && (
-                            <Button variant="outline" style={{ backgroundColor: '#D43601' }}>
+                            <Button 
+                                variant="outline" 
+                                style={{ backgroundColor: '#D43601' }}
+                                onClick={handleAddToCart}
+                            >
                                 Add To Cart
                             </Button>
                         )}
                     </div>
                 </div>
             </div>
-            {/* Reviews Section */}
             {reviews && reviews.data.length > 0 && (
                 <div className="mt-12">
                     <h2 className="text-2xl font-bold mb-6">Avis des clients</h2>
@@ -195,7 +203,7 @@ export function Details () {
                                         <span className="font-medium">{review.user.fullname}</span>
                                         <div className="flex">
                                             {[...Array(5)].map((_, i) => (
-                                                <span key={i}>{i < review.rating ? <i class="fa-solid fa-star text-yellow-400"></i>  : <i class="fa-solid fa-star text-gray-300"></i>}</span>
+                                                <span key={i}>{i < review.rating ? <i className="fa-solid fa-star text-yellow-400"></i>  : <i className="fa-solid fa-star text-gray-300"></i>}</span>
                                             ))}
                                         </div>
                                     </div>
@@ -211,5 +219,4 @@ export function Details () {
             )}
         </div>
     );
-
 }

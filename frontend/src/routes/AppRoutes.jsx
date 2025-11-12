@@ -5,6 +5,7 @@ import Products from '../pages/Products';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import { Details } from '../pages/Details';
+import Cart from '../components/Cart';
 import ProtectedRoute from '../components/ProtectedRoute';
 import NotFound from '../pages/NotFound';
 import AdminLayout from '../layouts/admin/AdminLayout';
@@ -22,6 +23,7 @@ export default function AppRoutes() {
         <Route index element={<Home />} />
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<Details />} />
+        <Route path='cart' element={<Cart/>}/>
         <Route path="login" element={<Login />} />
         <Route
           path="seller"

@@ -1,15 +1,16 @@
-import './App.css'
-import { BrowserRouter as Router} from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
+import { ToastContainer } from 'react-toastify';
 import AppRoutes from './routes/AppRoutes';
-import { AuthProvider } from './context/AuthContext'; 
-import { ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <AppRoutes/>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <AppRoutes />
         <ToastContainer
         position='top-right'
         autoClose={3000}
@@ -20,10 +21,10 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        />
-      </Router>
-    </AuthProvider>
-  )
+        />        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
