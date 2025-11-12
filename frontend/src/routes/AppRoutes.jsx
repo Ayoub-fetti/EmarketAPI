@@ -14,7 +14,7 @@ import AdminUsers from '../pages/admin/AdminUsers';
 import AdminProducts from '../pages/admin/AdminProducts';
 import AdminOrders from '../pages/admin/AdminOrders';
 // import SellerDashboard from '../pages/SellerDashboard';
-import Dashboard from "../layouts/seller/dashboard";
+import Dashboard from "../layouts/seller/Dashboard";
 import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
 import Orders from "../pages/seller/Orders";
@@ -32,14 +32,6 @@ export default function AppRoutes() {
         <Route path="products/:id" element={<Details />} />
         <Route path='cart' element={<Cart/>}/>
         <Route path="login" element={<Login />} />
-        {/* <Route
-          path="seller"
-          element={
-            <ProtectedRoute allowedRoles={["seller"]}>
-              <SellerDashboard />
-            </ProtectedRoute>
-          }
-        /> */}
         <Route path="register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
       </Route>
