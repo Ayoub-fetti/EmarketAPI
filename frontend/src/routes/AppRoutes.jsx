@@ -13,6 +13,7 @@ import AdminStats from '../pages/admin/AdminStats';
 import AdminUsers from '../pages/admin/AdminUsers';
 import AdminProducts from '../pages/admin/AdminProducts';
 import AdminOrders from '../pages/admin/AdminOrders';
+import AdminCategories from '../pages/admin/AdminCategories';
 // import SellerDashboard from '../pages/SellerDashboard';
 import Dashboard from "../layouts/seller/Dashboard";
 import Overview from "../pages/seller/Overview";
@@ -49,9 +50,10 @@ export default function AppRoutes() {
         <Route path="stats" element={<AdminStats />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="products" element={<AdminProducts />} />
+        <Route path="categories" element={<AdminCategories />} />
         <Route path="orders" element={<AdminOrders />} />
-        <Route path="*" element={<NotFound/>} />         
-    </Route>     
+        <Route path="*" element={<NotFound />} />
+      </Route>
       {/* Seller Dashboard Routes */}
         <Route
           path="/seller"
