@@ -62,5 +62,8 @@ export const clearCart = async () => {
   });
   return response.data;
 };
-
+export const validateCoupon = async (code, purchaseAmount, userId = null) => {
+  const response = await api.post('/coupons/validate', {code, purchaseAmount, userId});
+  return response.data;
+}
 

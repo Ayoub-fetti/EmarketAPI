@@ -1,6 +1,11 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { Trash2, Plus, Minus, ShoppingCart } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingCart, Tag } from "lucide-react";
 import Button from "./Button";
+import { validateCoupon } from "../services/cartService";
+import { createOrder } from "../services/orderService";
+import { toast } from "react-toastify";
 
 const Cart = () => {
   const {
@@ -10,11 +15,68 @@ const Cart = () => {
     removeFromCart,
     clearCart,
     getSubtotal,
-    getTax,
-    getTotal,
     getItemCount,
-    TAX_RATE,
   } = useCart();
+
+  const navigate = useNavigate();
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState("");
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [creatingOrder, setCreatingOrder] = useState(false);
+  const [orderError, setOrderError] = useState("");
+
+  const handleValidateCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Veuillez entrer un code promo");
+      return;
+    }
+
+    setValidatingCoupon(true);
+    setCouponError("");
+
+    try {
+      const userId = localStorage.getItem("userId");
+      const data = await validateCoupon(couponCode, getSubtotal(), userId);
+
+      if (data.valid) {
+        setAppliedCoupon(data.data);
+        setCouponError("");
+      }
+    } catch (error) {
+      setCouponError(error.response?.data?.error || "Code promo invalide");
+      setAppliedCoupon(null);
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  const handleCreateOrder = async () => {
+    setCreatingOrder(true);
+    setOrderError("");
+    try {
+      const coupons = appliedCoupon ? [appliedCoupon.code] : [];
+      await createOrder(coupons);
+      await clearCart();
+      toast.success("Commande créée avec succès!");
+      navigate("/orders");
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Erreurs lors de la creation de la commande";
+      setOrderError(errorMessage);
+    } finally {
+      setCreatingOrder(false);
+    }
+  };
+
+  const getFinalTotal = () => {
+    const total = getSubtotal();
+    if (appliedCoupon) {
+      return Math.max(0, total - appliedCoupon.discountAmount);
+    }
+    return total;
+  };
 
   if (loading) return <div className="p-4">Chargement...</div>;
 
@@ -105,25 +167,75 @@ const Cart = () => {
         <div className="bg-gray-50 p-6 rounded-lg h-fit">
           <h2 className="text-xl font-semibold mb-4">Résumé</h2>
 
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">Code promo</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                placeholder="PROMO2024"
+                className="flex-1 px-3 py-2 border rounded-lg"
+                disabled={appliedCoupon}
+              />
+              {!appliedCoupon ? (
+                <Button
+                  onClick={handleValidateCoupon}
+                  disabled={validatingCoupon}
+                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+                >
+                  {validatingCoupon ? "..." : "Appliquer"}
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    setAppliedCoupon(null);
+                    setCouponCode("");
+                  }}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                >
+                  Retirer
+                </Button>
+              )}
+            </div>
+            {couponError && (
+              <p className="text-red-600 text-sm mt-1">{couponError}</p>
+            )}
+            {appliedCoupon && (
+              <div className="flex items-center gap-2 mt-2 text-green-600 text-sm">
+                <Tag size={16} />
+                <span>Code appliqué: {appliedCoupon.code}</span>
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2 mb-4">
             <div className="flex justify-between">
               <span>Sous-total</span>
               <span>{getSubtotal().toFixed(2)}€</span>
             </div>
-            <div className="flex justify-between">
-              <span>TVA ({TAX_RATE * 100}%)</span>
-              <span>{getTax().toFixed(2)}€</span>
-            </div>
+            {appliedCoupon && (
+              <div className="flex justify-between text-green-600">
+                <span>Réduction</span>
+                <span>-{appliedCoupon.discountAmount.toFixed(2)}€</span>
+              </div>
+            )}
             <hr className="my-2" />
             <div className="flex justify-between font-semibold text-lg">
               <span>Total</span>
-              <span>{getTotal().toFixed(2)}€</span>
+              <span>{getFinalTotal().toFixed(2)}€</span>
             </div>
           </div>
 
-          <Button 
-          className="w-full bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700">
-            Commander
+          {orderError && (
+            <p className="text-red-600 text-sm mb-2">{orderError}</p>
+          )}
+          <Button
+            onClick={handleCreateOrder}
+            disabled={creatingOrder}
+            className="w-full bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700"
+          >
+            {creatingOrder ? "Création..." : "Commander"}
           </Button>
         </div>
       </div>
