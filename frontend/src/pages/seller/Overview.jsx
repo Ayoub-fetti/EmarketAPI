@@ -1,6 +1,24 @@
 import StatCard from "../../components/seller/StatCard";
+import RecentPayments from "../../components/seller/RecentPayments";
+import RecentOrders from "../../components/seller/RecentOrders";
 
 export default function Overview() {
+  // Données pour les paiements récents
+  const recentPayments = [
+    { id: "BD54B22D", date: "Mar 14, 2025 at 08:10", amount: "249.50 dh" },
+    { id: "BD54B22D", date: "Mar 14, 2025 at 08:10", amount: "249.50 dh" },
+    { id: "BD54B22D", date: "Mar 14, 2025 at 08:10", amount: "249.50 dh" },
+    { id: "BD54B22D", date: "Mar 14, 2025 at 08:10", amount: "249.50 dh" },
+  ];
+
+  // Données pour les commandes récentes
+  const recentOrders = [
+    { id: "BD54B22D", date: "Mar 20 2025", client: "adnane el falaki", status: "en attente" },
+    { id: "BD54B22D", date: "Mar 21 2025", client: "zaid boukab", status: "validée" },
+    { id: "BD54B22D", date: "Mar 21 2025", client: "zaid boukab", status: "validée" },
+    { id: "BD54B22D", date: "Mar 22 2025", client: "adel chemlal", status: "en route" },
+  ];
+
   return (
     <div className="p-8">
       {/* Page Header */}
@@ -48,6 +66,12 @@ export default function Overview() {
           isPositive={true}
           badge="ce-mois-ci"
         />
+      </div>
+
+      {/* Recent Activity Tables */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        <RecentPayments payments={recentPayments} />
+        <RecentOrders orders={recentOrders} />
       </div>
     </div>
   );
