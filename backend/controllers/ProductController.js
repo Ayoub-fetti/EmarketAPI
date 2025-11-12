@@ -152,7 +152,7 @@ export const deleteProduct = async (req, res, next) => {
 
 export const getProducts = async (req, res, next) => {
   try {
-    const Products = await Product.find().notDeleted().populate("categories");
+    const Products = await Product.find().notDeleted().populate({path: "categories", model:"Category"});
     res.status(200).json({ data: Products });
   } catch (error) {
     next(error);
@@ -164,7 +164,7 @@ export const getPublishedProducts = async (req, res, next) => {
     const Products = await Product.find()
       .notDeleted()
       .isPublished()
-      .populate("categories");
+      .populate({path:"categories", match: {}});
     res.status(200).json({ data: Products });
   } catch (error) {
     next(error);
@@ -174,7 +174,7 @@ export const getPublishedProducts = async (req, res, next) => {
 export const getProductById = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id)
-      .populate("categories")
+      .populate({path: "categories", match: {}})
       .populate("seller_id", "fullname")
 
     if (!product) {
@@ -275,7 +275,7 @@ export const searchProducts = async (req, res) => {
     // Fetch results + total count in parallel for better response time
     const [products, total] = await Promise.all([
       Product.find(filter)
-        .populate("categories")
+        .populate({path:"categories", match: {}})
         .sort(sort)
         .skip(skip)
         .limit(limitNum)
@@ -309,7 +309,7 @@ export const getProductsBySeller = async (req, res, next) => {
     const sellerId = req.params.sellerId;
     const products = await Product.find({ seller_id: sellerId })
       .notDeleted()
-      .populate("categories");
+      .populate({path: "categories", match: {}});
     if (!products || products.length === 0) {
       return res
         .status(404)

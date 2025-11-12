@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className=" text-black text-center bottom-0 lerft-0 w-full mt-10">
       <div className="grid justify-center border-b">
       <h1 className="text-black font-bold text-2xl">Empowering your digital lifestyle with the best devices at great prices.</h1>
-      <Button variant="outline" className="mb-2" style={{ backgroundColor: '#D43601' }}>Contact Us</Button>
+      <Button variant="outline" className="mb-2 bg-orange-600 hover:bg-orange-700">Contact Us</Button>
       <nav>
         <div className="">
 

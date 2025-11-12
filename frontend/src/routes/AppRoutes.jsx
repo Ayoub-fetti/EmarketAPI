@@ -5,6 +5,7 @@ import Products from '../pages/Products';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import { Details } from '../pages/Details';
+import Cart from '../components/Cart';
 import ProtectedRoute from '../components/ProtectedRoute';
 import NotFound from '../pages/NotFound';
 import AdminLayout from '../layouts/admin/AdminLayout';
@@ -29,6 +30,7 @@ export default function AppRoutes() {
         <Route index element={<Home />} />
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<Details />} />
+        <Route path='cart' element={<Cart/>}/>
         <Route path="login" element={<Login />} />
         {/* <Route
           path="seller"
@@ -40,7 +42,8 @@ export default function AppRoutes() {
         /> */}
         <Route path="register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
-       </Route>
+      </Route>
+
 
       <Route
         path="/admin"
@@ -55,8 +58,7 @@ export default function AppRoutes() {
         <Route path="users" element={<AdminUsers />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="orders" element={<AdminOrders />} />
-        <Route path="*" element={<Navigate to="stats" replace />} />
-         
+        <Route path="*" element={<NotFound/>} />         
     </Route>     
       {/* Seller Dashboard Routes */}
         <Route
@@ -74,6 +76,7 @@ export default function AppRoutes() {
           <Route path="coupons" element={<Coupons />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="profile" element={<Profile />} />  
+
       </Route>
     </Routes>
   );
