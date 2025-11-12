@@ -20,6 +20,9 @@ export default function RecentPayments({ payments }) {
               <th className="text-left text-xs font-medium text-gray-500 pb-3">
                 Date
               </th>
+              <th className="text-left text-xs font-medium text-gray-500 pb-3 hidden md:table-cell">
+                Client
+              </th>
               <th className="text-right text-xs font-medium text-gray-500 pb-3">
                 Montant
               </th>
@@ -35,6 +38,9 @@ export default function RecentPayments({ payments }) {
                   {payment.id}
                 </td>
                 <td className="py-5 text-sm text-gray-600">{payment.date}</td>
+                <td className="py-5 text-sm text-gray-900 hidden md:table-cell">
+                  {payment.client}
+                </td>
                 <td className="py-5 text-right text-sm font-semibold text-green-600">
                   + {payment.amount}
                 </td>
