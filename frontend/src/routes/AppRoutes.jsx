@@ -30,17 +30,17 @@ export default function AppRoutes() {
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<Details />} />
         <Route path="login" element={<Login />} />
-//         <Route
-//           path="seller"
-//           element={
-//             <ProtectedRoute allowedRoles={["seller"]}>
-//               <SellerDashboard />
-//             </ProtectedRoute>
-//           }
-//         />
+        {/* <Route
+          path="seller"
+          element={
+            <ProtectedRoute allowedRoles={["seller"]}>
+              <SellerDashboard />
+            </ProtectedRoute>
+          }
+        /> */}
         <Route path="register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
-      </Route>
+       </Route>
 
       <Route
         path="/admin"
@@ -57,7 +57,7 @@ export default function AppRoutes() {
         <Route path="orders" element={<AdminOrders />} />
         <Route path="*" element={<Navigate to="stats" replace />} />
          
-          
+    </Route>     
       {/* Seller Dashboard Routes */}
         <Route
           path="/seller"
