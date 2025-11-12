@@ -3,8 +3,10 @@ import SearchBar from "../../components/seller/SearchBar";
 import FilterSelect from "../../components/seller/FilterSelect";
 import ActionButton from "../../components/seller/ActionButton";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Products() {
+  const navigate = useNavigate();
   // États pour la recherche et les filtres
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -109,7 +111,7 @@ export default function Products() {
         <ActionButton
           label="Ajouter un Produit"
           icon="+"
-          onClick={() => console.log("Ajouter un produit")}
+          onClick={() => navigate("/seller/products/add")}
         />
       </div>
 
