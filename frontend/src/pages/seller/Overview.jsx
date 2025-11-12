@@ -11,10 +11,10 @@ export default function Overview() {
   const unreadNotifications = 2;
   // Données pour les paiements récents
   const recentPayments = [
-    { id: "BD54B22D", date: "Mar 14, 2025 at 08:10", amount: "249.50 dh" },
-    { id: "BD54B22D", date: "Mar 14, 2025 at 08:10", amount: "249.50 dh" },
-    { id: "BD54B22D", date: "Mar 14, 2025 at 08:10", amount: "249.50 dh" },
-    { id: "BD54B22D", date: "Mar 14, 2025 at 08:10", amount: "249.50 dh" },
+    { id: "BD54B22D", date: "Mar 14, 2025", client: "mohamed boukab", amount: "249.50 dh" },
+    { id: "BD54B22D", date: "Mar 14, 2025", client: "zaid boukab", amount: "249.50 dh" },
+    { id: "BD54B22D", date: "Mar 14, 2025", client: "souhaib boukab", amount: "249.50 dh" },
+    { id: "BD54B22D", date: "Mar 14, 2025", client: "bilal boukab", amount: "249.50 dh" },
   ];
 
   // Données pour les commandes récentes

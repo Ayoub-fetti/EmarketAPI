@@ -34,10 +34,10 @@ export default function RecentOrders({ orders }) {
               <th className="text-left text-xs font-medium text-gray-500 pb-3">
                 Command ID
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 pb-3">
+              <th className="text-left text-xs font-medium text-gray-500 pb-3 hidden md:table-cell">
                 Date
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 pb-3">
+              <th className="text-left text-xs font-medium text-gray-500 pb-3 hidden md:table-cell">
                 Client
               </th>
               <th className="text-left text-xs font-medium text-gray-500 pb-3">
@@ -57,8 +57,12 @@ export default function RecentOrders({ orders }) {
                 <td className="py-4 text-sm font-medium text-gray-900">
                   {order.id}
                 </td>
-                <td className="py-4 text-sm text-gray-600">{order.date}</td>
-                <td className="py-4 text-sm text-gray-900">{order.client}</td>
+                <td className="py-4 text-sm text-gray-600 hidden sm:table-cell">
+                  {order.date}
+                </td>
+                <td className="py-4 text-sm text-gray-900 hidden sm:table-cell">
+                  {order.client}
+                </td>
                 <td className="py-4">
                   <div className="flex items-center gap-2">
                     <span
