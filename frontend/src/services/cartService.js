@@ -62,3 +62,5 @@ export const clearCart = async () => {
   });
   return response.data;
 };
+
+

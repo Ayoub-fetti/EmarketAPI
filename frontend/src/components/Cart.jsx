@@ -1,5 +1,6 @@
 import { useCart } from "../context/CartContext";
 import { Trash2, Plus, Minus, ShoppingCart } from "lucide-react";
+import Button from "./Button";
 
 const Cart = () => {
   const {
@@ -120,9 +121,10 @@ const Cart = () => {
             </div>
           </div>
 
-          <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">
+          <Button 
+          className="w-full bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700">
             Commander
-          </button>
+          </Button>
         </div>
       </div>
     </div>

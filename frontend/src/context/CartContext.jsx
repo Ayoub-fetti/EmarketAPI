@@ -9,42 +9,105 @@ export const CartProvider = ({ children }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const [previousAuthState, setPreviousAuthState] = useState(null);
   
   const TAX_RATE = 0.2;
 
   useEffect(() => {
+    if (previousAuthState === false && user) {
+      mergeGuestCart();
+    }
+    setPreviousAuthState(!!user);
     loadCart();
   }, [user]);
-
-  useEffect(() => {
-    if (!loading) {
-      localStorage.setItem('cart', JSON.stringify(items));
-    }
-  }, [items, loading]);
-
-  const loadCart = async () => {
+  const mergeGuestCart = async () => {
     try {
-      setLoading(true);
-      
-      // Charger depuis localStorage d'abord
-      const savedCart = localStorage.getItem('cart');
-      if (savedCart) {
-        setItems(JSON.parse(savedCart));
-      }
+      const guestItems = JSON.parse(localStorage.getItem('cart') || '[]');
+      // add every cart item guest to cart item user
 
-      // Synchroniser avec le serveur
+      for (const item of guestItems) {
+        await cartService.addToCart(item.productId._id, item.quantity);
+      }
+      localStorage.removeItem('cart');
+      localStorage.removeItem('cart-session-id');
+
+      loadCart();
+    } catch (error) {
+      console.error('Erreur fusion: ' , error);
+    }
+  };
+
+  // useEffect(() => {
+  //   if (!loading) {
+  //     localStorage.setItem('cart', JSON.stringify(items));
+  //   }
+  // }, [items, loading, user]);
+
+
+// const loadCart = async () => {
+//   try {
+//     setLoading(true);
+    
+//     // Si utilisateur connecté, charger depuis le serveur uniquement
+//     if (user) {
+//       try {
+//         const response = await cartService.getCart();
+//         if (response.success && response.data.items) {
+//           setItems(response.data.items);
+//           return;
+//         }
+//       } catch (error) {
+//         if (error.response?.status !== 404) {
+//           console.error('Erreur panier:', error);
+//         }
+//       }
+//     }
+    
+//     // Sinon, charger depuis localStorage pour les invités
+//     const savedCart = localStorage.getItem('cart');
+//     if (savedCart) {
+//       setItems(JSON.parse(savedCart));
+//     }
+//   } catch (error) {
+//     console.error('Erreur générale:', error);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+useEffect(() => {
+  if (!loading && !user) {
+    localStorage.setItem('cart', JSON.stringify(items));
+  }
+}, [items, loading, user]);
+
+const loadCart = async () => {
+  try {
+    setLoading(true);
+    
+    if (user) {
+      // Utilisateur connecté - charger depuis le serveur uniquement
       const response = await cartService.getCart();
       if (response.success && response.data.items) {
         setItems(response.data.items);
+      } else {
+        setItems([]);
       }
-    } catch (error) {
-      if (error.response?.status !== 404) {
-        console.error('Erreur panier:', error);
-      }
-    } finally {
-      setLoading(false);
+    } else {
+      // Invité - charger depuis localStorage
+      const savedCart = localStorage.getItem('cart');
+      setItems(savedCart ? JSON.parse(savedCart) : []);
     }
-  };
+  } catch (error) {
+    if (error.response?.status !== 404) {
+      console.error('Erreur panier:', error);
+    }
+    setItems([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const addToCart = async (product, quantity = 1) => {
     try {
