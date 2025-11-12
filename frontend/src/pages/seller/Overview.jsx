@@ -1,8 +1,14 @@
 import StatCard from "../../components/seller/StatCard";
 import RecentPayments from "../../components/seller/RecentPayments";
 import RecentOrders from "../../components/seller/RecentOrders";
+import { MdNotifications } from "react-icons/md";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Overview() {
+  const { user } = useAuth();
+  
+  // Nombre de notifications non lues
+  const unreadNotifications = 2;
   // Données pour les paiements récents
   const recentPayments = [
     { id: "BD54B22D", date: "Mar 14, 2025 at 08:10", amount: "249.50 dh" },
@@ -41,14 +47,49 @@ export default function Overview() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      {/* Page Header */}
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Tableau de Bord
-        </h1>
-        <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
-          Statistiques et performances de votre boutique
-        </p>
+      {/* Page Header with User & Notifications */}
+      <div className="mb-6 sm:mb-8 flex items-start justify-between gap-4">
+        {/* Title Section */}
+        <div className="flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Tableau de Bord
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
+            Statistiques et performances de votre boutique
+          </p>
+        </div>
+
+        {/* User & Notifications Section */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* Notification Icon */}
+          <div className="relative cursor-pointer hover:bg-gray-100 p-2 rounded-full transition-colors">
+            <MdNotifications className="text-2xl text-gray-600" />
+            {unreadNotifications > 0 && (
+              <span className="absolute top-1 right-1 w-5 h-5 bg-orange-700 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                {unreadNotifications}
+              </span>
+            )}
+          </div>
+
+          {/* User Profile */}
+          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer px-2 sm:px-3 py-2 rounded-lg transition-colors">
+            {/* Avatar */}
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+              style={{ backgroundColor: "rgb(212, 54, 1)" }}
+            >
+              {user?.fullname ? user.fullname.substring(0, 2).toUpperCase() : "MB"}
+            </div>
+            
+            {/* User Info - Hidden on small screens */}
+            <div className="hidden md:block">
+              <p className="text-sm font-semibold text-gray-900">
+                {user?.fullname || "Seller"}
+              </p>
+              <p className="text-xs text-gray-500">Seller dashboard</p>
+            </div>
+
+          </div>
+        </div>
       </div>
 
       {/* Stats Cards Grid */}
