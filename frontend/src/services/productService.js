@@ -12,5 +12,27 @@ export const productService = {
     getProductById: async (id) => {
         const response = await api.get(`/products/${id}`);
         return response.data;
+    },
+    searchProducts: async (filters) => {
+        const params = new URLSearchParams();
+
+        if (filters.categories?.length) {
+            params.append('categories', filters.categories.join(','));
+        }
+        if (filters.minPrice) {
+            params.append('minPrice', filters.minPrice);
+        }
+        if (filters.maxPrice) {
+            params.append('maxPrice', filters.maxPrice);
+        }        
+        if (filters.title) {
+            params.append('title', filters.title);
+        }        
+        if (filters.description) {
+            params.append('description', filters.description);
+        }
+
+        const response = await api.get(`/products/search?${params}`);
+        return response.data;
     }
 }

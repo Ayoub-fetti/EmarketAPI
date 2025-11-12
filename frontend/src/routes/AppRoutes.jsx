@@ -5,6 +5,7 @@ import Products from '../pages/Products';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import { Details } from '../pages/Details';
+import Cart from '../components/Cart';
 import ProtectedRoute from '../components/ProtectedRoute';
 import NotFound from '../pages/NotFound';
 import AdminLayout from '../layouts/admin/AdminLayout';
@@ -13,7 +14,7 @@ import AdminUsers from '../pages/admin/AdminUsers';
 import AdminProducts from '../pages/admin/AdminProducts';
 import AdminOrders from '../pages/admin/AdminOrders';
 // import SellerDashboard from '../pages/SellerDashboard';
-import Dashboard from "../layouts/seller/dashboard";
+import Dashboard from "../layouts/seller/Dashboard";
 import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
 import Orders from "../pages/seller/Orders";
@@ -29,18 +30,12 @@ export default function AppRoutes() {
         <Route index element={<Home />} />
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<Details />} />
+        <Route path='cart' element={<Cart/>}/>
         <Route path="login" element={<Login />} />
-        {/* <Route
-          path="seller"
-          element={
-            <ProtectedRoute allowedRoles={["seller"]}>
-              <SellerDashboard />
-            </ProtectedRoute>
-          }
-        /> */}
         <Route path="register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
-       </Route>
+      </Route>
+
 
       <Route
         path="/admin"
@@ -55,8 +50,7 @@ export default function AppRoutes() {
         <Route path="users" element={<AdminUsers />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="orders" element={<AdminOrders />} />
-        <Route path="*" element={<Navigate to="stats" replace />} />
-         
+        <Route path="*" element={<NotFound/>} />         
     </Route>     
       {/* Seller Dashboard Routes */}
         <Route
@@ -74,6 +68,7 @@ export default function AppRoutes() {
           <Route path="coupons" element={<Coupons />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="profile" element={<Profile />} />  
+
       </Route>
     </Routes>
   );
