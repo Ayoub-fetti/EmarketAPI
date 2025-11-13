@@ -4,6 +4,7 @@ const navLinks = [
   { to: "/admin/stats", label: "Statistics" },
   { to: "/admin/users", label: "Users" },
   { to: "/admin/products", label: "Products" },
+  { to: "/admin/categories", label: "Categories" },
   { to: "/admin/orders", label: "Orders" },
 ];
 

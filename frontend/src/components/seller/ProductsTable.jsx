@@ -11,25 +11,25 @@ export default function ProductsTable({ products }) {
     <div className="bg-white rounded-lg">
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[640px]">
           <thead className="bg-gray-50">
             <tr className="border-b border-gray-200">
-              <th className="text-left text-xs font-semibold text-gray-600 uppercase px-4 sm:px-6 py-4">
+              <th className="text-left text-xs font-semibold text-gray-600 uppercase px-4 sm:px-6 py-4 min-w-[200px]">
                 Produit
               </th>
-              <th className="text-left text-xs font-semibold text-gray-600 uppercase px-4 py-4 hidden md:table-cell">
+              <th className="text-left text-xs font-semibold text-gray-600 uppercase px-4 py-4 hidden md:table-cell min-w-[120px]">
                 Catégorie
               </th>
-              <th className="text-left text-xs font-semibold text-gray-600 uppercase px-4 py-4">
+              <th className="text-left text-xs font-semibold text-gray-600 uppercase px-4 py-4 min-w-[100px]">
                 Prix
               </th>
-              <th className="text-left text-xs font-semibold text-gray-600 uppercase px-4 py-4">
+              <th className="text-left text-xs font-semibold text-gray-600 uppercase px-4 py-4 min-w-[100px]">
                 Stock
               </th>
-              <th className="text-left text-xs font-semibold text-gray-600 uppercase px-4 py-4 hidden lg:table-cell">
+              <th className="text-left text-xs font-semibold text-gray-600 uppercase px-4 py-4 hidden lg:table-cell min-w-[100]">
                 Ventes
               </th>
-              <th className="text-right text-xs font-semibold text-gray-600 uppercase px-4 sm:px-6 py-4">
+              <th className="text-right text-xs font-semibold text-gray-600 uppercase px-4 sm:px-6 py-4 min-w-[140]">
                 Actions
               </th>
             </tr>
