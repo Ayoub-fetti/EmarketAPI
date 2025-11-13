@@ -41,6 +41,11 @@ export const checkProductOwnership = async (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ message: "Utilisateur non authentifié" });
     }
+
+    if (req.user.role === "admin") {
+      return next();
+    }
+
     const userIdFromToken = req.user.id;
     const productIdFromParams = req.params.id;
     const targetProduct = await Product.findById(productIdFromParams);
