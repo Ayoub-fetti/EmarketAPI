@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { productService } from "../services/productService";
 import { categoryService } from "../services/categoryService";
-import Loader from "../components/Loader";
+import Loader from "../components/tools/Loader";
 
 export default function Products() {
   const navigate = useNavigate();

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { useCart } from "../../context/CartContext";
 import { Trash2, Plus, Minus, ShoppingCart, Tag } from "lucide-react";
 import Button from "./Button";
-import { validateCoupon } from "../services/cartService";
-import { createOrder } from "../services/orderService";
+import { validateCoupon } from "../../services/cartService";
+import { createOrder } from "../../services/orderService";
 import { toast } from "react-toastify";
 
 const Cart = () => {
@@ -51,24 +51,28 @@ const Cart = () => {
     }
   };
 
-  const handleCreateOrder = async () => {
-    setCreatingOrder(true);
-    setOrderError("");
-    try {
-      const coupons = appliedCoupon ? [appliedCoupon.code] : [];
-      await createOrder(coupons);
+const handleCreateOrder = async () => {
+  setCreatingOrder(true);
+  setOrderError("");
+  try {
+    const coupons = appliedCoupon ? [appliedCoupon.code] : [];
+    const result = await createOrder(coupons);
+    
+    if (result.success) {
       await clearCart();
       toast.success("Commande créée avec succès!");
-      navigate("/orders");
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Erreurs lors de la creation de la commande";
-      setOrderError(errorMessage);
-    } finally {
-      setCreatingOrder(false);
+      navigate("/orders/user");
     }
-  };
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.message || error.message ||
+      "Erreurs lors de la creation de la commande";
+    setOrderError(errorMessage);
+    toast.error(errorMessage);
+  } finally {
+    setCreatingOrder(false);
+  }
+};
 
   const getFinalTotal = () => {
     const total = getSubtotal();
@@ -126,7 +130,7 @@ const Cart = () => {
 
               <div className="flex-1">
                 <h3 className="font-semibold">{item.productId.title}</h3>
-                <p className="text-gray-600">{item.productId.price}€</p>
+                <p className="text-gray-600">{item.productId.price} MAD</p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -151,7 +155,7 @@ const Cart = () => {
 
               <div className="text-right">
                 <p className="font-semibold">
-                  {(item.productId.price * item.quantity).toFixed(2)}€
+                  {(item.productId.price * item.quantity).toFixed(2)} MAD
                 </p>
                 <button
                   onClick={() => removeFromCart(item.productId._id)}
@@ -212,18 +216,18 @@ const Cart = () => {
           <div className="space-y-2 mb-4">
             <div className="flex justify-between">
               <span>Sous-total</span>
-              <span>{getSubtotal().toFixed(2)}€</span>
+              <span>{getSubtotal().toFixed(2)} MAD</span>
             </div>
             {appliedCoupon && (
               <div className="flex justify-between text-green-600">
                 <span>Réduction</span>
-                <span>-{appliedCoupon.discountAmount.toFixed(2)}€</span>
+                <span>-{appliedCoupon.discountAmount.toFixed(2)} MAD</span>
               </div>
             )}
             <hr className="my-2" />
             <div className="flex justify-between font-semibold text-lg">
               <span>Total</span>
-              <span>{getFinalTotal().toFixed(2)}€</span>
+              <span>{getFinalTotal().toFixed(2)} MAD</span>
             </div>
           </div>
 
