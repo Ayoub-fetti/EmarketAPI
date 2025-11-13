@@ -15,7 +15,7 @@ export default function RecentOrders({ orders }) {
   };
 
   return (
-    <div className="bg-white rounded-sm shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-sm border border-gray-100 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold text-gray-900">
