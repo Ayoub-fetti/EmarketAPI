@@ -16,6 +16,7 @@ import AdminOrders from "../pages/admin/AdminOrders";
 import Dashboard from "../layouts/seller/Dashboard";
 import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
+import AddProduct from "../pages/seller/AddProduct";
 import Orders from "../pages/seller/Orders";
 import Coupons from "../pages/seller/Coupons";
 import Notifications from "../pages/seller/Notifications";
@@ -57,6 +58,7 @@ export default function AppRoutes() {
         <Route path="stats" element={<AdminStats />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="products" element={<AdminProducts />} />
+        <Route path="categories" element={<AdminCategories />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="*" element={<NotFound />} />
       </Route>
@@ -72,6 +74,7 @@ export default function AppRoutes() {
         <Route index element={<Navigate to="overview" replace />} />
         <Route path="overview" element={<Overview />} />
         <Route path="products" element={<SellerProducts />} />
+        <Route path="products/add" element={<AddProduct />} />
         <Route path="orders" element={<Orders />} />
         <Route path="coupons" element={<Coupons />} />
         <Route path="notifications" element={<Notifications />} />
