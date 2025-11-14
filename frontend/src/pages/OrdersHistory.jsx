@@ -2,16 +2,13 @@ import { useState, useEffect } from 'react';
 import { getUserOrders } from '../services/orderService';
 import { Package, Clock, Truck, CheckCircle, XCircle, CreditCard } from 'lucide-react';
 import { toast } from 'react-toastify';
-import PaymentModal from '../components/tools/PaymentModal';
 import { useAuth } from '../context/AuthContext';
 import Loader from '../components/tools/Loader';
 
-export default function Orders() {
+export default function OrdersHistory() {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -19,29 +16,31 @@ export default function Orders() {
     }
   }, [user]);
 
-  const loadOrders = async () => {
-    try {
-      const response = await getUserOrders(user.id);
-      
-      if (response.success && response.data && response.data.length > 0) {
-        const lastOrder = response.data[response.data.length -1];
-        setOrders([lastOrder]);
-      } else {
-        setOrders([]);
-      }
-    } catch (error) {
-      toast.error('Erreur lors du chargement des commandes');
-      console.error('Erreur lors du chargement des commandes', error);
+const loadOrders = async () => {
+  try {
+    const response = await getUserOrders(user.id);
+    
+    if (response.success && response.data) {
+      // Si data est un tableau
+      const ordersData = Array.isArray(response.data) ? response.data : [response.data];
+      setOrders(ordersData);
+    } else {
       setOrders([]);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    toast.error('Erreur lors du chargement des commandes');
+    console.error('Erreur lors du chargement des commandes', error);
+    setOrders([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'pending': return <Clock className="text-yellow-500" size={20} />;
+      //case 'pending': return <Clock className="text-yellow-500" size={20} />;
+      case 'pending': return <i class="fa-solid fa-spinner"></i>;
       case 'shipped': return <Truck className="text-blue-500" size={20} />;
       case 'delivered': return <CheckCircle className="text-green-500" size={20} />;
       case 'cancelled': return <XCircle className="text-red-500" size={20} />;
@@ -51,24 +50,12 @@ export default function Orders() {
 
   const getStatusText = (status) => {
     const statusMap = {
-      pending: 'En attente',
+      pending: 'En cours de traitement',
       shipped: 'Expédiée',
       delivered: 'Livrée',
       cancelled: 'Annulée'
     };
     return statusMap[status] || status;
-  };
-
-  const handlePayment = (order) => {
-    setSelectedOrder(order);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentSuccess = (orderId) => {
-    toast.success('Paiement effectué avec succès!');
-    setOrders(orders.map(order => 
-      order._id === orderId ? { ...order, status: 'shipped' } : order
-    ));
   };
 
   if (loading) {
@@ -87,7 +74,7 @@ export default function Orders() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Mes Commandes</h1>
+      <h1 className="text-3xl font-bold mb-6">Historique de mes commande</h1>
 
       <div className="space-y-6">
         {orders.map((order) => (
@@ -95,7 +82,7 @@ export default function Orders() {
             <div className="bg-gray-50 px-6 py-4 border-b">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-600">Commande #{order._id.slice(-8)}</p>
+                  <p className="text-sm text-gray-600">Commande #{order._id ? order._id.slice(-8) :  'N/A'}</p>
                   <p className="text-sm text-gray-500">
                     {new Date(order.createdAt).toLocaleDateString('fr-FR', {
                       year: 'numeric',
@@ -147,26 +134,10 @@ export default function Orders() {
                 </div>
               </div>
 
-              {order.status === 'pending' && (
-                <button
-                  onClick={() => handlePayment(order)}
-                  className="w-full mt-4 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 flex items-center justify-center gap-2"
-                >
-                  <CreditCard size={20} />
-                  Payer maintenant
-                </button>
-              )}
             </div>
           </div>
         ))}
       </div>
-
-      <PaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-        order={selectedOrder}
-        onPaymentSuccess={handlePaymentSuccess}
-      />
     </div>
   );
 }

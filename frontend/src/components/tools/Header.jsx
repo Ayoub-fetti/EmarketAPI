@@ -31,7 +31,7 @@ export default function Header() {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch(e);
     }
   };
@@ -58,7 +58,10 @@ export default function Header() {
         </Link>
 
         {showSearch && (
-          <form onSubmit={handleSearch} className="absolute left-1/2 transform -translate-x-1/2 w-1/2 max-w-md">
+          <form
+            onSubmit={handleSearch}
+            className="absolute left-1/2 transform -translate-x-1/2 w-1/2 max-w-md"
+          >
             <input
               type="text"
               placeholder="Search products..."
@@ -104,25 +107,28 @@ export default function Header() {
                 to="/"
                 onClick={() => setMenuOpen(false)}
                 className="px-4 py-2 w-full text-left hover:bg-gray-100"
-                >
+              >
+                <i class="fa-solid fa-house mr-2"></i>
                 Home
               </Link>
               <Link
                 to="/products"
                 onClick={() => setMenuOpen(false)}
                 className="px-4 py-2 w-full text-left hover:bg-gray-100"
-                >
+              >
+                <i class="fa-solid fa-store mr-2"></i> 
                 Products
               </Link>
-              {/* <Link
-                to="/cart"
-                onClick={() => setMenuOpen(false)}
-                className="px-4 py-2 w-full text-left hover:bg-gray-100"
-                >
-                Cart ({getItemCount()})
-              </Link> */}
               {isAuthenticated() ? (
                 <>
+                  <Link
+                    to="/orders/history"
+                    onClick={() => setMenuOpen(false)}
+                    className="px-4 py-2 w-full text-left hover:bg-gray-100"
+                  >
+                    <i class="fa-solid fa-clock-rotate-left mr-2"></i>
+                    History
+                  </Link>
                   <span className="px-4 text-sm text-gray-600">
                     Welcome, {user.fullname}
                   </span>
@@ -140,6 +146,7 @@ export default function Header() {
                     onClick={() => setMenuOpen(false)}
                     className="px-4 py-2 w-full text-left hover:bg-gray-100"
                   >
+                    <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i>
                     Login
                   </Link>
                   <Link
@@ -147,6 +154,7 @@ export default function Header() {
                     onClick={() => setMenuOpen(false)}
                     className="px-4 py-2 w-full text-left hover:bg-gray-100"
                   >
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i>
                     Register
                   </Link>
                 </>

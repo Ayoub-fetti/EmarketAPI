@@ -47,20 +47,25 @@ const PaymentModal = ({ isOpen, onClose, order, onPaymentSuccess }) => {
           <>
             <div className="mb-4">
               <p className="text-gray-600">Montant à payer:</p>
-              <p className="text-2xl font-bold">{order?.finalAmount?.toFixed(2)}€</p>
+              <p className="text-2xl font-bold">{order?.finalAmount?.toFixed(2)} MAD</p>
             </div>
 
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Méthode de paiement</label>
               <div className="grid grid-cols-3 gap-2">
-                {['stripe', 'paypal', 'card'].map((method) => (
+                {[
+                  {method:'stripe', icon: 'fa-brands fa-stripe-s'}, 
+                  {method:'paypal', icon: 'fa-brands fa-paypal'}, 
+                  {method: 'card' , icon: 'fa-solid fa-credit-card'}
+                ].map(({method, icon}) => (
                   <button
                     key={method}
                     onClick={() => setPaymentMethod(method)}
-                    className={`p-3 border rounded-lg capitalize ${
+                    className={`p-3 border rounded-lg capitalize flex flex-col items-center gap-2 ${
                       paymentMethod === method ? 'border-orange-500 bg-orange-50' : 'border-gray-300'
                     }`}
                   >
+                    <i className={`${icon} text-xl`}></i>
                     {method}
                   </button>
                 ))}
@@ -117,7 +122,7 @@ const PaymentModal = ({ isOpen, onClose, order, onPaymentSuccess }) => {
                 ) : (
                   <>
                     <CreditCard size={20} />
-                    Payer {order?.finalAmount?.toFixed(2)}€
+                    Payer {order?.finalAmount?.toFixed(2)} MAD
                   </>
                 )}
               </button>
