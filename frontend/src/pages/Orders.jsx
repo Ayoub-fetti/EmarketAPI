@@ -4,6 +4,7 @@ import { Package, Clock, Truck, CheckCircle, XCircle, CreditCard } from 'lucide-
 import { toast } from 'react-toastify';
 import PaymentModal from '../components/tools/PaymentModal';
 import { useAuth } from '../context/AuthContext';
+import Loader from '../components/tools/Loader';
 
 export default function Orders() {
   const { user } = useAuth();
@@ -22,14 +23,15 @@ export default function Orders() {
     try {
       const response = await getUserOrders(user.id);
       
-      if (response.success && response.data) {
-        setOrders(response.data);
+      if (response.success && response.data && response.data.length > 0) {
+        const lastOrder = response.data[response.data.length -1];
+        setOrders([lastOrder]);
       } else {
         setOrders([]);
       }
     } catch (error) {
-      console.error('Error loading orders:', error);
       toast.error('Erreur lors du chargement des commandes');
+      console.error('Erreur lors du chargement des commandes', error);
       setOrders([]);
     } finally {
       setLoading(false);
@@ -70,7 +72,7 @@ export default function Orders() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Chargement...</div>;
+    return <Loader/>;
   }
 
   if (orders.length === 0) {
