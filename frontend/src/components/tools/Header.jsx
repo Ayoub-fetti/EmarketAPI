@@ -81,7 +81,6 @@ export default function Header() {
           >
             <Search size={22} />
           </button>
-
           <Link
             to="/cart"
             className="p-2 hover:text-[#D43601] transition relative"
@@ -93,14 +92,22 @@ export default function Header() {
               </span>
             )}
           </Link>
-
+          {isAuthenticated() ? (
+            <Link
+              to="/profile/user"
+              className="p-2 hover:text-[#D43601] transition relative"
+            >
+              <i class="fa-solid fa-user"></i>
+            </Link>
+          ) : (
+            <></>
+          )}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="p-2 hover:text-[#D43601] transition"
           >
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-
           {menuOpen && (
             <div className="absolute top-12 right-0 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-4 flex flex-col items-start space-y-2 z-50 animate-fadeIn">
               <Link
@@ -116,7 +123,7 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
                 className="px-4 py-2 w-full text-left hover:bg-gray-100"
               >
-                <i class="fa-solid fa-store mr-2"></i> 
+                <i class="fa-solid fa-store mr-2"></i>
                 Products
               </Link>
               {isAuthenticated() ? (

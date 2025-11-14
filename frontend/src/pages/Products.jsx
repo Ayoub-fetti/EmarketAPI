@@ -108,9 +108,10 @@ export default function Products() {
         {searchQuery ? `Search results for "${searchQuery}"` : 'Bienvenue sur FastShop'}
       </h1>
       
-      <section>
+<div className="flex justify-between">
+        <section>
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div className="bg-white p-4 rounded-lg shadow-md mb-6 w-80">
           <h3 className="font-semibold mb-4">Filtres</h3>
           
           {/* Search Input */}
@@ -151,7 +152,7 @@ export default function Products() {
           {/* Categories */}
           <div className="mb-4">
             <h4 className="font-medium mb-2">Catégories</h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 gap-2">
               {categories.map((category) => (
                 <label key={category._id} className="flex items-center">
                   <input
@@ -208,6 +209,7 @@ export default function Products() {
           </div>
         ))}
       </div>
+</div>
       
       {products.length === 0 && (
         <div className="text-center py-8">
