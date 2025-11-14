@@ -55,4 +55,8 @@ export const productService = {
     });
     return response.data;
   },
+  deleteProduct: async (id) => {
+    const response = await api.delete(`/products/${id}/soft`);
+    return response.data;
+  },
 };

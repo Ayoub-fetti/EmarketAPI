@@ -10,12 +10,12 @@ import { useAuth } from "../../context/AuthContext";
 export default function Products() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   // États pour la recherche et les filtres
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStock, setSelectedStock] = useState("");
-  
+
   // États pour les produits
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +24,11 @@ export default function Products() {
   // Charger les produits du seller
   useEffect(() => {
     const fetchProducts = async () => {
+      console.log("=== Début du chargement des produits ===");
+      console.log("User:", user);
+
       if (!user || !user.id) {
+        console.log("Utilisateur non connecté ou pas d'ID");
         setError("Utilisateur non connecté");
         setLoading(false);
         return;
@@ -32,15 +36,30 @@ export default function Products() {
 
       try {
         setLoading(true);
+        console.log("Appel API avec seller ID:", user.id);
         const response = await productService.getProductsBySeller(user.id);
-        console.log("Produits récupérés:", response);
+        console.log("Response brute:", response);
+        console.log("Produits:", response.products);
+        console.log("Nombre de produits:", response.products?.length || 0);
+
         setProducts(response.products || []);
         setError(null);
       } catch (err) {
-        console.error("Erreur lors du chargement des produits:", err);
-        setError(err.response?.data?.message || "Erreur lors du chargement des produits");
+        console.error("=== ERREUR DÉTAILLÉE ===");
+        console.error("Erreur complète:", err);
+        console.error("Response:", err.response);
+        console.error("Data:", err.response?.data);
+        console.error("Status:", err.response?.status);
+        console.error("Message:", err.message);
+
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Erreur lors du chargement des produits"
+        );
       } finally {
         setLoading(false);
+        console.log("=== Fin du chargement ===");
       }
     };
 
@@ -59,6 +78,14 @@ export default function Products() {
     { value: "in-stock", label: "En stock" },
     { value: "out-of-stock", label: "Rupture de stock" },
   ];
+
+  // Gérer la suppression d'un produit
+  const handleProductDeleted = (deletedProductId) => {
+    // Retirer le produit de la liste
+    setProducts((prevProducts) =>
+      prevProducts.filter((product) => product._id !== deletedProductId)
+    );
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -119,6 +146,9 @@ export default function Products() {
       {error && !loading && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <p className="text-red-600 font-medium">{error}</p>
+          <p className="text-sm text-gray-600 mt-2">
+            Vérifiez la console pour plus de détails
+          </p>
         </div>
       )}
 
@@ -156,9 +186,11 @@ export default function Products() {
 
       {/* Products Table */}
       {!loading && !error && products.length > 0 && (
-        <ProductsTable products={products} />
+        <ProductsTable
+          products={products}
+          onProductDeleted={handleProductDeleted}
+        />
       )}
     </div>
   );
 }
-

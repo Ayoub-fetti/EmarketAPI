@@ -1,8 +1,58 @@
 import { MdEdit, MdDelete, MdVisibility } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import DeleteConfirmModal from "./DeleteConfirmModal";
+import { productService } from "../../services/productService";
 
-export default function ProductsTable({ products }) {
+export default function ProductsTable({ products, onProductDeleted }) {
   const navigate = useNavigate();
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    productId: null,
+    productName: "",
+  });
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteClick = (product) => {
+    setDeleteModal({
+      isOpen: true,
+      productId: product._id,
+      productName: product.title,
+    });
+  };
+
+  const handleCloseModal = () => {
+    if (!deleting) {
+      setDeleteModal({
+        isOpen: false,
+        productId: null,
+        productName: "",
+      });
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      setDeleting(true);
+      await productService.deleteProduct(deleteModal.productId);
+
+      // Fermer le modal
+      setDeleteModal({
+        isOpen: false,
+        productId: null,
+        productName: "",
+      });
+
+      if (onProductDeleted) {
+        onProductDeleted(deleteModal.productId);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+      alert("Erreur lors de la suppression du produit");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const getStockColor = (stock) => {
     if (stock === 0) return "bg-red-100 text-red-700";
@@ -148,6 +198,7 @@ export default function ProductsTable({ products }) {
                     <button
                       className="p-2 bg-gray-700 hover:bg-gray-800 rounded-md transition-colors"
                       title="Supprimer"
+                      onClick={() => handleDeleteClick(product)}
                     >
                       <MdDelete className="text-lg text-white" />
                     </button>
@@ -158,6 +209,15 @@ export default function ProductsTable({ products }) {
           </tbody>
         </table>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmDelete}
+        productName={deleteModal.productName}
+        loading={deleting}
+      />
     </div>
   );
 }
