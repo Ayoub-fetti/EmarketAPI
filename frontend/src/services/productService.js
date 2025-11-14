@@ -42,5 +42,9 @@ export const productService = {
             },
         });
         return response.data;
+    },
+    getProductsBySeller: async (sellerId) => {
+        const response = await api.get(`/products/seller/${sellerId}`);
+        return response.data;
     }
 }

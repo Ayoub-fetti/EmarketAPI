@@ -2,15 +2,50 @@ import ProductsTable from "../../components/seller/ProductsTable";
 import SearchBar from "../../components/seller/SearchBar";
 import FilterSelect from "../../components/seller/FilterSelect";
 import ActionButton from "../../components/seller/ActionButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { productService } from "../../services/productService";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Products() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
   // États pour la recherche et les filtres
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStock, setSelectedStock] = useState("");
+  
+  // États pour les produits
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Charger les produits du seller
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!user || !user.id) {
+        setError("Utilisateur non connecté");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await productService.getProductsBySeller(user.id);
+        console.log("Produits récupérés:", response);
+        setProducts(response.products || []);
+        setError(null);
+      } catch (err) {
+        console.error("Erreur lors du chargement des produits:", err);
+        setError(err.response?.data?.message || "Erreur lors du chargement des produits");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [user]);
 
   // Options pour les filtres
   const categoryOptions = [
@@ -23,49 +58,6 @@ export default function Products() {
   const stockOptions = [
     { value: "in-stock", label: "En stock" },
     { value: "out-of-stock", label: "Rupture de stock" },
-  ];
-  // Données de démonstration pour les produits
-  const products = [
-    {
-      image: "https://via.placeholder.com/150",
-      name: "Casque Bluetooth à Conduction Osseuse",
-      category: "Audio",
-      price: "2 990 DH",
-      stock: 45,
-      sales: 128,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      name: "Écouteurs Sans Fil Pro",
-      category: "Audio",
-      price: "1 990 DH",
-      stock: 32,
-      sales: 89,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      name: 'HP Stream 14" Laptop',
-      category: "Électronique",
-      price: "3 700 DH",
-      stock: 12,
-      sales: 34,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      name: "Montre Connectée Series 5",
-      category: "Accessoires",
-      price: "4 500 DH",
-      stock: 0,
-      sales: 67,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      name: "Souris Gaming RGB",
-      category: "Accessoires",
-      price: "890 DH",
-      stock: 156,
-      sales: 234,
-    },
   ];
 
   return (
@@ -115,8 +107,58 @@ export default function Products() {
         />
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="bg-white rounded-lg p-8 text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-700"></div>
+          <p className="mt-4 text-gray-600">Chargement des produits...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <p className="text-red-600 font-medium">{error}</p>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && !error && products.length === 0 && (
+        <div className="bg-white rounded-lg p-12 text-center">
+          <div className="text-gray-400 mb-4">
+            <svg
+              className="w-16 h-16 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Aucun produit trouvé
+          </h3>
+          <p className="text-gray-600 mb-6">
+            Commencez par ajouter votre premier produit
+          </p>
+          <ActionButton
+            label="Ajouter un Produit"
+            icon="+"
+            onClick={() => navigate("/seller/products/add")}
+          />
+        </div>
+      )}
+
       {/* Products Table */}
-      <ProductsTable products={products} />
+      {!loading && !error && products.length > 0 && (
+        <ProductsTable products={products} />
+      )}
     </div>
   );
 }
+
