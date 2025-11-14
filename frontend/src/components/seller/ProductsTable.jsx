@@ -1,6 +1,9 @@
 import { MdEdit, MdDelete, MdVisibility } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductsTable({ products }) {
+  const navigate = useNavigate();
+
   const getStockColor = (stock) => {
     if (stock === 0) return "bg-red-100 text-red-700";
     if (stock < 20) return "bg-yellow-100 text-yellow-700";
@@ -16,7 +19,9 @@ export default function ProductsTable({ products }) {
     // Si l'image commence par http, c'est une URL complète
     if (imagePath.startsWith("http")) return imagePath;
     // Sinon, construire l'URL avec le backend
-    return `http://localhost:5173${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+    return `http://localhost:5173${
+      imagePath.startsWith("/") ? "" : "/"
+    }${imagePath}`;
   };
 
   return (
@@ -106,7 +111,9 @@ export default function ProductsTable({ products }) {
                 {/* Stock */}
                 <td className="px-4 py-4">
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStockColor(product.stock)}`}
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStockColor(
+                      product.stock
+                    )}`}
                   >
                     {product.stock}
                   </span>
@@ -123,12 +130,18 @@ export default function ProductsTable({ products }) {
                     <button
                       className="p-2 hover:bg-blue-50 rounded-md transition-colors bg-gray-100"
                       title="Voir"
+                      onClick={() =>
+                        navigate(`/seller/products/${product._id}`)
+                      }
                     >
                       <MdVisibility className="text-lg text-gray-600" />
                     </button>
                     <button
-                      className="p-2 rounded-md transition-colors bg-orange-700"
+                      className="p-2 rounded-md transition-colors bg-orange-700 hover:bg-orange-800"
                       title="Modifier"
+                      onClick={() =>
+                        navigate(`/seller/products/edit/${product._id}`)
+                      }
                     >
                       <MdEdit className="text-lg text-white" />
                     </button>
