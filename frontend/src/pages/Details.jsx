@@ -68,7 +68,7 @@ export function Details () {
                     {product.primaryImage && (
                         <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                             <img 
-                                src={product.primaryImage ? `http://localhost:3000${product.primaryImage}` : '/placeholder.jpg'} 
+                                src={product.primaryImage ? `${import.meta.env.VITE_BACKEND_BASE_URL}${product.primaryImage}` : '/placeholder.jpg'} 
                                 alt={product.title}
                                 className="w-full h-full object-cover"
                             />

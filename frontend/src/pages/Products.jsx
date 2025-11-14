@@ -194,7 +194,7 @@ export default function Products() {
             onClick={() => handleProductClick(product._id)}
           >
             <img 
-              src={product.primaryImage ? `http://localhost:3000${product.primaryImage}` : '/placeholder.jpg'}
+              src={product.primaryImage ? `${import.meta.env.VITE_BACKEND_BASE_URL}${product.primaryImage}` : '/placeholder.jpg'}
               alt={product.name}
               className="w-full h-48 object-cover"
             />
