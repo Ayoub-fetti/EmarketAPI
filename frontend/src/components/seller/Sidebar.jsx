@@ -8,7 +8,6 @@ import {
   MdLocalOffer,
   MdPerson,
   MdLogout,
-  MdNotifications,
   MdMenu,
   MdClose,
 } from "react-icons/md";
@@ -34,11 +33,6 @@ const navLinks = [
     to: "/seller/coupons",
     label: "Coupons",
     icon: MdLocalOffer,
-  },
-  {
-    to: "/seller/notifications",
-    label: "Notifications",
-    icon: MdNotifications,
   },
 ];
 
@@ -112,7 +106,9 @@ export default function Sidebar() {
               <FaBox className="text-white text-lg" />
             </div>
             <div>
-              <span className="text-xl font-bold text-gray-900">E-Market</span>
+              <span className="text-xl font-bold text-gray-900 mt-10">
+                E-Market
+              </span>
               <p className="text-xs text-gray-500">
                 Gestion des Products & Commandes
               </p>
