@@ -1,6 +1,6 @@
 // frontend/src/components/Loader.jsx
 import React from 'react';
-import '../Loader.css';
+import '../../Loader.css';
 
 const Loader = () => {
   return (

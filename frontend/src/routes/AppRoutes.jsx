@@ -1,19 +1,19 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Layout from '../components/Layout';
-import Home from '../pages/Home';
-import Products from '../pages/Products';
-import Login from '../pages/Login';
-import Register from '../pages/Register';
-import { Details } from '../pages/Details';
-import Cart from '../components/Cart';
-import ProtectedRoute from '../components/ProtectedRoute';
-import NotFound from '../pages/NotFound';
-import AdminLayout from '../layouts/admin/AdminLayout';
-import AdminStats from '../pages/admin/AdminStats';
-import AdminUsers from '../pages/admin/AdminUsers';
-import AdminProducts from '../pages/admin/AdminProducts';
-import AdminOrders from '../pages/admin/AdminOrders';
-import AdminCategories from '../pages/admin/AdminCategories';
+import { Routes, Route, Navigate } from "react-router-dom";
+import Layout from "../components/Layout";
+import Home from "../pages/Home";
+import Products from "../pages/Products";
+import Login from "../pages/Login";
+import Register from "../pages/Register";
+import { Details } from "../pages/Details";
+import Cart from "../components/tools/Cart";
+import ProtectedRoute from "../components/ProtectedRoute";
+import NotFound from "../pages/NotFound";
+import AdminLayout from "../layouts/admin/AdminLayout";
+import AdminStats from "../pages/admin/AdminStats";
+import AdminUsers from "../pages/admin/AdminUsers";
+import AdminProducts from "../pages/admin/AdminProducts";
+import AdminOrders from "../pages/admin/AdminOrders";
+import AdminCategories from "../pages/admin/AdminCategories"
 import Dashboard from "../layouts/seller/Dashboard";
 import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
@@ -22,6 +22,7 @@ import Orders from "../pages/seller/Orders";
 import Coupons from "../pages/seller/Coupons";
 import Notifications from "../pages/seller/Notifications";
 import Profile from "../pages/seller/Profile";
+import UserOrders from "../pages/Orders";
 
 export default function AppRoutes() {
   return (
@@ -35,6 +36,15 @@ export default function AppRoutes() {
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
+        {/* private route */}
+        <Route
+          path="orders/user"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <UserOrders />
+            </ProtectedRoute>
+          }
+        ></Route>
       </Route>
 
       <Route
