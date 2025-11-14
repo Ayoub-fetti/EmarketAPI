@@ -13,6 +13,7 @@ import AdminStats from "../pages/admin/AdminStats";
 import AdminUsers from "../pages/admin/AdminUsers";
 import AdminProducts from "../pages/admin/AdminProducts";
 import AdminOrders from "../pages/admin/AdminOrders";
+import AdminCategories from "../pages/admin/AdminCategories"
 import Dashboard from "../layouts/seller/Dashboard";
 import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
