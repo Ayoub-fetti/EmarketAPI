@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { productService } from "../services/productService";
 import { categoryService } from "../services/categoryService";
 import Loader from "../components/tools/Loader";
+import { Search, X } from 'lucide-react';
 
 export default function Products() {
   const navigate = useNavigate();
@@ -94,8 +95,8 @@ export default function Products() {
   
   if (error) {
     return (
-      <div className="container mx-auto p-4">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-6 py-4 rounded-lg max-w-md">
           {error}
         </div>
       </div>
@@ -103,121 +104,168 @@ export default function Products() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">
-        {searchQuery ? `Search results for "${searchQuery}"` : 'Bienvenue sur FastShop'}
-      </h1>
-      
-<div className="flex justify-between">
-        <section>
-        {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-md mb-6 w-80">
-          <h3 className="font-semibold mb-4">Filtres</h3>
-          
-          {/* Search Input */}
-          <div className="mb-4">
-            <h4 className="font-medium mb-2">Recherche</h4>
-            <input
-              type="text"
-              placeholder="Rechercher des produits..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border rounded px-3 py-2 w-full max-w-md"
-            />
-          </div>
-
-          {/* Price Range */}
-          <div className="mb-4">
-            <h4 className="font-medium mb-2">Prix</h4>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                placeholder="Prix min"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                className="border rounded px-3 py-1 w-24"
-              />
-              <span className="self-center">-</span>
-              <input
-                type="number"
-                placeholder="Prix max"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                className="border rounded px-3 py-1 w-24"
-              />
-              <span className="self-center">MAD</span>
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div className="mb-4">
-            <h4 className="font-medium mb-2">Catégories</h4>
-            <div className="grid grid-cols-1 gap-2">
-              {categories.map((category) => (
-                <label key={category._id} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedCategories.includes(category._id)}
-                    onChange={() => handleCategoryChange(category._id)}
-                    className="mr-2"
-                  />
-                  {category.name}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Filter Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={handleFilter}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Filtrer
-            </button>
-            <button
-              onClick={clearFilters}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-            >
-              Effacer
-            </button>
-          </div>
-        </div>
-      </section>
-      
-      {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <div 
-            key={product._id} 
-            className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => handleProductClick(product._id)}
-          >
-            <img 
-              src={product.primaryImage ? `${import.meta.env.VITE_BACKEND_BASE_URL}${product.primaryImage}` : '/placeholder.jpg'}
-              alt={product.name}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h3 className="font-semibold text-lg mb-2 uppercase">{product.title}</h3>
-              <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-xl font-bold text-blue-600">{product.price} MAD</span>
-                <span className="text-sm text-gray-500">Stock: {product.stock}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-</div>
-      
-      {products.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-gray-500">
-            {searchQuery ? `Aucun produit trouvé pour "${searchQuery}"` : 'Aucun produit trouvé'}
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-foreground mb-2">
+            {searchQuery ? `Résultats pour "${searchQuery}"` : 'FastShop'}
+          </h1>
+          <p className="text-muted-foreground text-base">
+            {searchQuery ? 'Produits trouvés' : 'Bienvenue sur FastShop - Découvrez nos produits'}
           </p>
         </div>
-      )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Sidebar Filters */}
+          <aside className="lg:col-span-1">
+            <div className="bg-card border border-orange-600 rounded-xl shadow-sm p-6 sticky top-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-foreground">Filtres</h3>
+                {(selectedCategories.length > 0 || minPrice || maxPrice || searchQuery) && (
+                  <button
+                    onClick={clearFilters}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Réinitialiser
+                  </button>
+                )}
+              </div>
+
+              {/* Search Input */}
+              <div className="mb-6">
+                <label className="text-sm font-medium text-foreground mb-2 block">Recherche</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Produits..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Price Range */}
+              <div className="mb-6">
+                <label className="text-sm font-medium text-foreground mb-3 block">Gamme de prix (MAD)</label>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      className="flex-1 px-3 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm w-25"
+                    />
+                    <span className="self-center text-muted-foreground text-sm">-</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      className="flex-1 px-3 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm w-25"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Categories */}
+              <div className="mb-6">
+                <label className="text-sm font-medium text-foreground mb-3 block">Catégories</label>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {categories.map((category) => (
+                    <label key={category._id} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(category._id)}
+                        onChange={() => handleCategoryChange(category._id)}
+                        className="w-4 h-4 rounded border-input bg-background text-primary focus:ring-2 focus:ring-primary/50 cursor-pointer"
+                      />
+                      <span className="text-sm text-foreground">{category.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Filter Buttons */}
+              <div className="flex gap-2 pt-4 border-t border-border">
+                <button
+                  onClick={handleFilter}
+                  className="flex-1 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                >
+                  Filtrer
+                </button>
+                <button
+                  onClick={clearFilters}
+                  className="flex-1 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg font-medium hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all"
+                >
+                  Réinitialiser
+                </button>
+              </div>
+            </div>
+          </aside>
+
+          {/* Products Grid */}
+          <div className="lg:col-span-3">
+            {products.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products.map((product) => (
+                  <button
+                    key={product._id}
+                    onClick={() => handleProductClick(product._id)}
+                    className="group relative bg-card border border-orange-600 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary/30 text-left h-full flex flex-col"
+                  >
+                    {/* Image Container */}
+                    <div className="relative w-full h-48 bg-muted overflow-hidden">
+                      <img
+                        src={product.primaryImage ? `${import.meta.env.VITE_BACKEND_BASE_URL}${product.primaryImage}` : '/placeholder.jpg'}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {product.stock === 0 && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <span className="text-white font-semibold text-sm">Rupture de stock</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-4 flex-1 flex flex-col">
+                      <h3 className="font-semibold text-foreground mb-1 line-clamp-2 text-sm">{product.title}</h3>
+                      <p className="text-muted-foreground text-xs line-clamp-2 mb-4 flex-1">{product.description}</p>
+
+                      {/* Footer */}
+                      <div className="flex items-end justify-between pt-4 border-t border-border">
+                        <div>
+                          <p className="text-2xl font-bold text-primary">{product.price}</p>
+                          <p className="text-xs text-muted-foreground">MAD</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Stock</p>
+                          <p className={`text-sm font-semibold ${product.stock > 0 ? 'text-green-600' : 'text-destructive'}`}>
+                            {product.stock}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="col-span-full flex flex-col items-center justify-center py-16 px-4">
+                <div className="text-center">
+                  <p className="text-lg text-muted-foreground mb-2">
+                    {searchQuery ? `Aucun produit trouvé pour "${searchQuery}"` : 'Aucun produit trouvé'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Essayez de modifier vos filtres</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
