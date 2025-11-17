@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { productService } from "../services/productService";
 import { reviewService } from "../services/reviewService";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/tools/Loader";
 import Button from "../components/tools/Button";
 
 export function Details() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState(null);
@@ -37,7 +36,6 @@ export function Details() {
 
   const handleAddToCart = async () => {
     await addToCart(product);
-    navigate("/cart");
   };
 
   if (loading) return <Loader />;

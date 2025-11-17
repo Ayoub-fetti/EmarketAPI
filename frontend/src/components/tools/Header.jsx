@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { Search, Menu, X } from "lucide-react";
 import Button from "./Button";
+import Cart from "./Cart";
 
 export default function Header() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -14,6 +15,7 @@ export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const menuRef = useRef(null);
+  const [cartOpen, setCartOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -81,7 +83,7 @@ export default function Header() {
           >
             <Search size={22} />
           </button>
-          <Link
+          {/* <Link
             to="/cart"
             className="p-2 hover:text-[#D43601] transition relative"
           >
@@ -91,7 +93,20 @@ export default function Header() {
                 {getItemCount()}
               </span>
             )}
-          </Link>
+          </Link> */}
+          <button
+            onClick={() => setCartOpen(true)}
+            className="p-2 hover:text-[#D43601] transition relative"
+          >
+            <i className="fa-solid fa-cart-shopping"></i>
+            {getItemCount() > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {getItemCount()}
+              </span>
+            )}
+          </button>
+          <Cart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+
           {isAuthenticated() ? (
             <Link
               to="/profile/user"
