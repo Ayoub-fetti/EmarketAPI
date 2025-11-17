@@ -13,11 +13,12 @@ import AdminStats from "../pages/admin/AdminStats";
 import AdminUsers from "../pages/admin/AdminUsers";
 import AdminProducts from "../pages/admin/AdminProducts";
 import AdminOrders from "../pages/admin/AdminOrders";
-import AdminCategories from "../pages/admin/AdminCategories"
+import AdminCategories from "../pages/admin/AdminCategories";
 import Dashboard from "../layouts/seller/Dashboard";
 import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
 import AddProduct from "../pages/seller/AddProduct";
+import EditProduct from "../pages/seller/EditProduct";
 import Orders from "../pages/seller/Orders";
 import Coupons from "../pages/seller/Coupons";
 import Notifications from "../pages/seller/Notifications";
@@ -97,6 +98,7 @@ export default function AppRoutes() {
         <Route path="overview" element={<Overview />} />
         <Route path="products" element={<SellerProducts />} />
         <Route path="products/add" element={<AddProduct />} />
+        <Route path="products/edit/:id" element={<EditProduct />} />
         <Route path="orders" element={<Orders />} />
         <Route path="coupons" element={<Coupons />} />
         <Route path="notifications" element={<Notifications />} />

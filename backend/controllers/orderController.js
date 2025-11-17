@@ -122,6 +122,69 @@ export const updateOrderStatus = async (req, res, next) => {
   }
 };
 
+// Admin can update order status without restrictions
+export const adminUpdateOrderStatus = async (req, res, next) => {
+  try {
+    const { id: orderId } = req.params;
+    const { newStatus } = req.body;
+
+    const validStatuses = ["pending", "shipped", "delivered", "cancelled"];
+    if (!validStatuses.includes(newStatus)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status" });
+    }
+
+    const order = await Order.findById(orderId).notDeleted();
+    if (!order)
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+
+    const oldStatus = order.status;
+    order.status = newStatus;
+    await order.save();
+
+    // Populate order data for response
+    await order.populate("userId", "fullname email");
+    await order.populate({
+      path: "items.productId",
+      select: "title primaryImage seller_id",
+      populate: { path: "seller_id", select: "fullname email" },
+    });
+    await order.populate("appliedCoupons", "code type value");
+
+    // Send notification if status changed to cancelled
+    if (newStatus === "cancelled" && oldStatus !== "cancelled") {
+      const productIds = order.items.map((i) => i.productId);
+      const products = await Product.find(
+        { _id: { $in: productIds } },
+        "seller_id",
+      );
+      const sellerIds = [
+        ...new Set(products.map((p) => p.seller_id.toString())),
+      ];
+
+      sellerIds.forEach((sellerId) => {
+        notificationEmitter.emit("orderDeleted", {
+          orderId: order._id,
+          buyerId: order.userId,
+          sellerId,
+          status: "deleted",
+        });
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Order status updated successfully",
+      data: order.toObject(),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // get all orders
 export const getOrders = async (req, res, next) => {
   try {

@@ -1,11 +1,12 @@
 import Button from "./Button";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
     <footer className="bg-white border-t border-gray-200">
-      <div className="max-w-6xl mx-auto px-8 py-16">
+      <div className="max-w-6xl mx-auto px-8">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-3xl font-bold text-gray-900 mb-6">
+          <h2 className="text-4xl md:text-3xl font-bold text-gray-900 mb-6 mt-6 ">
             Empowering your digital lifestyle with the best devices at great
             prices.
           </h2>
@@ -19,33 +20,18 @@ export default function Footer() {
 
         <div className="border-t border-gray-200 pt-8 mb-8">
           <nav className="flex justify-center gap-8 mb-8">
-            <a
-              href="#"
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors"
-            >
+            <Link to="/">
               About
-            </a>
-            <a
-              href="#"
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors"
-            >
+            </Link>            
+            <Link to="/products">
               Products
-            </a>
-            <a
-              href="#"
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors"
-            >
-              Works
-            </a>
-            <a
-              href="#"
-              className="text-gray-700 hover:text-orange-600 font-medium transition-colors"
-            >
-              Support
-            </a>
+            </Link>
+            <Link to="/">
+            Support
+            </Link>
           </nav>
 
-          <div className="border-t border-gray-200 pt-6">
+          <div className="border-t border-gray-200 pt-4">
             <div className="flex items-center justify-between flex-wrap gap-6">
               <p className="text-gray-600 text-sm">
                 © Copyright 2025, All Rights Reserved
