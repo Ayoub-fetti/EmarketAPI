@@ -116,7 +116,7 @@ export default function Products() {
             <h1 className="text-4xl font-bold text-foreground mb-2">
               {searchQuery ? `Résultats pour "${searchQuery}"` : "FastShop"}
             </h1>
-            <p className="text-xl text-orange-700">
+            <p className="text-xl font-bold text-orange-700">
               {searchQuery
                 ? "Produits trouvés"
                 : "Bienvenue sur FastShop - Découvrez nos produits"}
@@ -245,10 +245,10 @@ export default function Products() {
             {products.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product) => (
-                  <button
+                  <div
                     key={product._id}
                     onClick={() => handleProductClick(product._id)}
-                    className="group relative bg-card border border-orange-600 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary/30 text-left h-full flex flex-col"
+                    className="group relative bg-card border border-orange-600 rounded-xl overflow-hidden hover:border-primary/30 hover:shadow-2xl text-left h-full flex flex-col"
                   >
                     {/* Image Container */}
                     <div className="relative w-full h-48 bg-muted overflow-hidden">
@@ -303,7 +303,7 @@ export default function Products() {
                         </div>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             ) : (
