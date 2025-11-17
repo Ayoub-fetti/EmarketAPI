@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { Search, Menu, X } from "lucide-react";
 import Button from "./Button";
+import Cart from "./Cart";
 
 export default function Header() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -14,6 +15,7 @@ export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const menuRef = useRef(null);
+  const [cartOpen, setCartOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -31,7 +33,7 @@ export default function Header() {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch(e);
     }
   };
@@ -58,7 +60,10 @@ export default function Header() {
         </Link>
 
         {showSearch && (
-          <form onSubmit={handleSearch} className="absolute left-1/2 transform -translate-x-1/2 w-1/2 max-w-md">
+          <form
+            onSubmit={handleSearch}
+            className="absolute left-1/2 transform -translate-x-1/2 w-1/2 max-w-md"
+          >
             <input
               type="text"
               placeholder="Search products..."
@@ -78,8 +83,7 @@ export default function Header() {
           >
             <Search size={22} />
           </button>
-
-          <Link
+          {/* <Link
             to="/cart"
             className="p-2 hover:text-[#D43601] transition relative"
           >
@@ -89,40 +93,64 @@ export default function Header() {
                 {getItemCount()}
               </span>
             )}
-          </Link>
+          </Link> */}
+          <button
+            onClick={() => setCartOpen(true)}
+            className="p-2 hover:text-[#D43601] transition relative"
+          >
+            <i className="fa-solid fa-cart-shopping"></i>
+            {getItemCount() > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {getItemCount()}
+              </span>
+            )}
+          </button>
+          <Cart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
+          {isAuthenticated() ? (
+            <Link
+              to="/profile/user"
+              className="p-2 hover:text-[#D43601] transition relative"
+            >
+              <i class="fa-solid fa-user"></i>
+            </Link>
+          ) : (
+            <></>
+          )}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="p-2 hover:text-[#D43601] transition"
           >
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-
           {menuOpen && (
             <div className="absolute top-12 right-0 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-4 flex flex-col items-start space-y-2 z-50 animate-fadeIn">
               <Link
                 to="/"
                 onClick={() => setMenuOpen(false)}
                 className="px-4 py-2 w-full text-left hover:bg-gray-100"
-                >
+              >
+                <i class="fa-solid fa-house mr-2"></i>
                 Home
               </Link>
               <Link
                 to="/products"
                 onClick={() => setMenuOpen(false)}
                 className="px-4 py-2 w-full text-left hover:bg-gray-100"
-                >
+              >
+                <i class="fa-solid fa-store mr-2"></i>
                 Products
               </Link>
-              {/* <Link
-                to="/cart"
-                onClick={() => setMenuOpen(false)}
-                className="px-4 py-2 w-full text-left hover:bg-gray-100"
-                >
-                Cart ({getItemCount()})
-              </Link> */}
               {isAuthenticated() ? (
                 <>
+                  <Link
+                    to="/orders/history"
+                    onClick={() => setMenuOpen(false)}
+                    className="px-4 py-2 w-full text-left hover:bg-gray-100"
+                  >
+                    <i class="fa-solid fa-clock-rotate-left mr-2"></i>
+                    History
+                  </Link>
                   <span className="px-4 text-sm text-gray-600">
                     Welcome, {user.fullname}
                   </span>
@@ -140,6 +168,7 @@ export default function Header() {
                     onClick={() => setMenuOpen(false)}
                     className="px-4 py-2 w-full text-left hover:bg-gray-100"
                   >
+                    <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i>
                     Login
                   </Link>
                   <Link
@@ -147,6 +176,7 @@ export default function Header() {
                     onClick={() => setMenuOpen(false)}
                     className="px-4 py-2 w-full text-left hover:bg-gray-100"
                   >
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i>
                     Register
                   </Link>
                 </>

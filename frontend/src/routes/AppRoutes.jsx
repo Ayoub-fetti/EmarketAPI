@@ -24,6 +24,8 @@ import Coupons from "../pages/seller/Coupons";
 import Notifications from "../pages/seller/Notifications";
 import Profile from "../pages/seller/Profile";
 import UserOrders from "../pages/Orders";
+import OrdersHistory from "../pages/OrdersHistory";
+import ProfileUser from "../pages/Profile";
 
 export default function AppRoutes() {
   return (
@@ -45,7 +47,26 @@ export default function AppRoutes() {
               <UserOrders />
             </ProtectedRoute>
           }
-        ></Route>
+        >
+        </Route>           
+        <Route
+          path="profile/user"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <ProfileUser />
+            </ProtectedRoute>
+          }
+        >
+        </Route>        
+        <Route
+          path="orders/history"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <OrdersHistory />
+            </ProtectedRoute>
+          }
+        >
+        </Route>
       </Route>
 
       <Route
