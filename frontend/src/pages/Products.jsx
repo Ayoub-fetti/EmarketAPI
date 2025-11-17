@@ -3,7 +3,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { productService } from "../services/productService";
 import { categoryService } from "../services/categoryService";
 import Loader from "../components/tools/Loader";
-import { Search, X } from 'lucide-react';
+import { Search, X } from "lucide-react";
+import discountImage from "../../public/discount.png";
+import '../App.css';
 
 export default function Products() {
   const navigate = useNavigate();
@@ -13,9 +15,9 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,18 +25,20 @@ export default function Products() {
         setLoading(true);
         const categoriesData = await categoryService.getCategories();
         setCategories(categoriesData.categories);
-        
-        const urlSearchQuery = searchParams.get('search');
+
+        const urlSearchQuery = searchParams.get("search");
         if (urlSearchQuery) {
           setSearchQuery(urlSearchQuery);
-          const searchData = await productService.searchProducts({ title: urlSearchQuery });
+          const searchData = await productService.searchProducts({
+            title: urlSearchQuery,
+          });
           setProducts(searchData.data);
         } else {
           const productsData = await productService.getPublishedProducts();
           setProducts(productsData.data);
         }
       } catch {
-        setError('Erreur lors du chargement des données');
+        setError("Erreur lors du chargement des données");
       } finally {
         setLoading(false);
       }
@@ -49,37 +53,37 @@ export default function Products() {
         categories: selectedCategories,
         minPrice: minPrice || undefined,
         maxPrice: maxPrice || undefined,
-        title: searchQuery || undefined
+        title: searchQuery || undefined,
       };
-      
+
       const data = await productService.searchProducts(filters);
       setProducts(data.data);
     } catch {
-      setError('Erreur lors du filtrage');
+      setError("Erreur lors du filtrage");
     } finally {
       setLoading(false);
     }
   };
 
   const handleCategoryChange = (categoryId) => {
-    setSelectedCategories(prev => 
-      prev.includes(categoryId) 
-        ? prev.filter(id => id !== categoryId)
+    setSelectedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
         : [...prev, categoryId]
     );
   };
 
   const clearFilters = async () => {
     setSelectedCategories([]);
-    setMinPrice('');
-    setMaxPrice('');
-    setSearchQuery('');
+    setMinPrice("");
+    setMaxPrice("");
+    setSearchQuery("");
     try {
       setLoading(true);
       const data = await productService.getPublishedProducts();
       setProducts(data.data);
     } catch {
-      setError('Erreur lors du chargement');
+      setError("Erreur lors du chargement");
     } finally {
       setLoading(false);
     }
@@ -90,9 +94,9 @@ export default function Products() {
   };
 
   if (loading) {
-    return (<Loader/>);
+    return <Loader />;
   }
-  
+
   if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -107,13 +111,24 @@ export default function Products() {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            {searchQuery ? `Résultats pour "${searchQuery}"` : 'FastShop'}
-          </h1>
-          <p className="text-muted-foreground text-base">
-            {searchQuery ? 'Produits trouvés' : 'Bienvenue sur FastShop - Découvrez nos produits'}
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              {searchQuery ? `Résultats pour "${searchQuery}"` : "FastShop"}
+            </h1>
+            <p className="text-muted-foreground text-base">
+              {searchQuery
+                ? "Produits trouvés"
+                : "Bienvenue sur FastShop - Découvrez nos produits"}
+            </p>
+          </div>
+          {!searchQuery && (
+            <img
+              src={discountImage}
+              alt="Discount"
+              className="w-35 h-35 object-contain slide-image"
+            />
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -121,8 +136,13 @@ export default function Products() {
           <aside className="lg:col-span-1">
             <div className="bg-card border border-orange-600 rounded-xl shadow-sm p-6 sticky top-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-foreground">Filtres</h3>
-                {(selectedCategories.length > 0 || minPrice || maxPrice || searchQuery) && (
+                <h3 className="text-lg font-semibold text-foreground">
+                  Filtres
+                </h3>
+                {(selectedCategories.length > 0 ||
+                  minPrice ||
+                  maxPrice ||
+                  searchQuery) && (
                   <button
                     onClick={clearFilters}
                     className="text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -134,7 +154,9 @@ export default function Products() {
 
               {/* Search Input */}
               <div className="mb-6">
-                <label className="text-sm font-medium text-foreground mb-2 block">Recherche</label>
+                <label className="text-sm font-medium text-foreground mb-2 block">
+                  Recherche
+                </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
@@ -149,7 +171,9 @@ export default function Products() {
 
               {/* Price Range */}
               <div className="mb-6">
-                <label className="text-sm font-medium text-foreground mb-3 block">Gamme de prix (MAD)</label>
+                <label className="text-sm font-medium text-foreground mb-3 block">
+                  Gamme de prix (MAD)
+                </label>
                 <div className="space-y-2">
                   <div className="flex gap-2">
                     <input
@@ -159,7 +183,9 @@ export default function Products() {
                       onChange={(e) => setMinPrice(e.target.value)}
                       className="flex-1 px-3 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm w-25"
                     />
-                    <span className="self-center text-muted-foreground text-sm">-</span>
+                    <span className="self-center text-muted-foreground text-sm">
+                      -
+                    </span>
                     <input
                       type="number"
                       placeholder="Max"
@@ -173,17 +199,24 @@ export default function Products() {
 
               {/* Categories */}
               <div className="mb-6">
-                <label className="text-sm font-medium text-foreground mb-3 block">Catégories</label>
+                <label className="text-sm font-medium text-foreground mb-3 block">
+                  Catégories
+                </label>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {categories.map((category) => (
-                    <label key={category._id} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                    <label
+                      key={category._id}
+                      className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                    >
                       <input
                         type="checkbox"
                         checked={selectedCategories.includes(category._id)}
                         onChange={() => handleCategoryChange(category._id)}
                         className="w-4 h-4 rounded border-input bg-background text-primary focus:ring-2 focus:ring-primary/50 cursor-pointer"
                       />
-                      <span className="text-sm text-foreground">{category.name}</span>
+                      <span className="text-sm text-foreground">
+                        {category.name}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -220,31 +253,51 @@ export default function Products() {
                     {/* Image Container */}
                     <div className="relative w-full h-48 bg-muted overflow-hidden">
                       <img
-                        src={product.primaryImage ? `${import.meta.env.VITE_BACKEND_BASE_URL}${product.primaryImage}` : '/placeholder.jpg'}
+                        src={
+                          product.primaryImage
+                            ? `${import.meta.env.VITE_BACKEND_BASE_URL}${
+                                product.primaryImage
+                              }`
+                            : "/placeholder.jpg"
+                        }
                         alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       {product.stock === 0 && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="text-white font-semibold text-sm">Rupture de stock</span>
+                          <span className="text-white font-semibold text-sm">
+                            Rupture de stock
+                          </span>
                         </div>
                       )}
                     </div>
 
                     {/* Content */}
                     <div className="p-4 flex-1 flex flex-col">
-                      <h3 className="font-semibold text-foreground mb-1 line-clamp-2 text-sm">{product.title}</h3>
-                      <p className="text-muted-foreground text-xs line-clamp-2 mb-4 flex-1">{product.description}</p>
+                      <h3 className="font-semibold text-foreground mb-1 line-clamp-2 text-sm">
+                        {product.title}
+                      </h3>
+                      <p className="text-muted-foreground text-xs line-clamp-2 mb-4 flex-1">
+                        {product.description}
+                      </p>
 
                       {/* Footer */}
                       <div className="flex items-end justify-between pt-4 border-t border-border">
                         <div>
-                          <p className="text-2xl font-bold text-primary">{product.price}</p>
+                          <p className="text-2xl font-bold text-primary">
+                            {product.price}
+                          </p>
                           <p className="text-xs text-muted-foreground">MAD</p>
                         </div>
                         <div className="text-right">
                           <p className="text-xs text-muted-foreground">Stock</p>
-                          <p className={`text-sm font-semibold ${product.stock > 0 ? 'text-green-600' : 'text-destructive'}`}>
+                          <p
+                            className={`text-sm font-semibold ${
+                              product.stock > 0
+                                ? "text-green-600"
+                                : "text-destructive"
+                            }`}
+                          >
                             {product.stock}
                           </p>
                         </div>
@@ -257,9 +310,13 @@ export default function Products() {
               <div className="col-span-full flex flex-col items-center justify-center py-16 px-4">
                 <div className="text-center">
                   <p className="text-lg text-muted-foreground mb-2">
-                    {searchQuery ? `Aucun produit trouvé pour "${searchQuery}"` : 'Aucun produit trouvé'}
+                    {searchQuery
+                      ? `Aucun produit trouvé pour "${searchQuery}"`
+                      : "Aucun produit trouvé"}
                   </p>
-                  <p className="text-sm text-muted-foreground">Essayez de modifier vos filtres</p>
+                  <p className="text-sm text-muted-foreground">
+                    Essayez de modifier vos filtres
+                  </p>
                 </div>
               </div>
             )}
