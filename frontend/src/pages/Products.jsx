@@ -116,7 +116,7 @@ export default function Products() {
             <h1 className="text-4xl font-bold text-foreground mb-2">
               {searchQuery ? `Résultats pour "${searchQuery}"` : "FastShop"}
             </h1>
-            <p className="text-muted-foreground text-base">
+            <p className="text-xl text-orange-700">
               {searchQuery
                 ? "Produits trouvés"
                 : "Bienvenue sur FastShop - Découvrez nos produits"}
