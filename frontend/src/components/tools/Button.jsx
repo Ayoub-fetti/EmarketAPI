@@ -12,8 +12,8 @@ export default function Button({
   const baseClasses = 'font-medium rounded transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
   
   const variants = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-    secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
+    primary: 'bg-orange-700 text-white hover:bg-orange-800 focus:ring-orange-600',
+    secondary: 'bg-white text-orange-600 hover:bg-gray-200 text-orange-800 rounded-2xl cursor-pointer',
     danger: 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500',
     outline: 'text-white w-45 border border-gray-400 text-gray-700 hover:bg-gray-50 focus:ring-blue-500'
   };
