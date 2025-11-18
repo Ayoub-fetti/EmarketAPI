@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import SearchBar from "../../components/seller/SearchBar";
 import FilterSelect from "../../components/seller/FilterSelect";
 import OrdersTable from "../../components/seller/OrdersTable";
+import { orderService } from "../../services/orderService";
 
 export default function Orders() {
   const { user } = useAuth();
@@ -28,68 +29,15 @@ export default function Orders() {
 
       try {
         setLoading(true);
-        // TODO: Appeler l'API pour récupérer les commandes du seller
-        // const response = await orderService.getSellerOrders(user.id);
-        // setOrders(response.orders || []);
-        // setFilteredOrders(response.orders || []);
+        console.log("=== Chargement des commandes du seller ===");
+        console.log("Seller ID:", user.id);
 
-        // Données mock temporaires
-        const mockOrders = [
-          {
-            _id: "1",
-            orderNumber: "CMD-2024-001",
-            userId: { fullname: "Ahmed El Fassi", email: "ahmed@example.com" },
-            items: [
-              {
-                productId: { title: "Casque Bluetooth" },
-                quantity: 2,
-                price: 299,
-              },
-            ],
-            totalAmount: 598,
-            finalAmount: 538,
-            status: "pending",
-            createdAt: new Date("2024-11-15"),
-          },
-          {
-            _id: "2",
-            orderNumber: "CMD-2024-002",
-            userId: { fullname: "Fatima Zahra", email: "fatima@example.com" },
-            items: [
-              {
-                productId: { title: "Souris Gaming" },
-                quantity: 1,
-                price: 450,
-              },
-            ],
-            totalAmount: 450,
-            finalAmount: 450,
-            status: "shipped",
-            createdAt: new Date("2024-11-16"),
-          },
-          {
-            _id: "3",
-            orderNumber: "CMD-2024-003",
-            userId: {
-              fullname: "Youssef Bennani",
-              email: "youssef@example.com",
-            },
-            items: [
-              {
-                productId: { title: "Clavier Mécanique" },
-                quantity: 1,
-                price: 850,
-              },
-            ],
-            totalAmount: 850,
-            finalAmount: 765,
-            status: "delivered",
-            createdAt: new Date("2024-11-10"),
-          },
-        ];
+        const response = await orderService.getSellerOrders(user.id);
+        console.log("Response:", response);
+        console.log("Orders:", response.orders);
 
-        setOrders(mockOrders);
-        setFilteredOrders(mockOrders);
+        setOrders(response.orders || []);
+        setFilteredOrders(response.orders || []);
         setError(null);
       } catch (err) {
         console.error("Erreur lors du chargement des commandes:", err);

@@ -1,15 +1,15 @@
-import mongoose from "mongoose";
-import Order from "../models/Order.js";
-import OrderService from "../services/orderServices.js";
-import { notificationEmitter } from "../events/notificationEmitter.js";
-import Product from "../models/Product.js";
+import mongoose from 'mongoose';
+import Order from '../models/Order.js';
+import OrderService from '../services/orderServices.js';
+import { notificationEmitter } from '../events/notificationEmitter.js';
+import Product from '../models/Product.js';
 
 export const createOrder = async (req, res, next) => {
   let session = null;
 
   try {
     // Only use transactions in production or when explicitly supported
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === 'production') {
       session = await mongoose.startSession();
       session.startTransaction();
     }
@@ -22,12 +22,12 @@ export const createOrder = async (req, res, next) => {
     const productIds = result.order.items.map((i) => i.productId);
     const products = await Product.find(
       { _id: { $in: productIds } },
-      "seller_id",
+      'seller_id'
     );
     const sellerIds = [...new Set(products.map((p) => p.seller_id.toString()))];
 
     sellerIds.forEach((sellerId) => {
-      notificationEmitter.emit("newOrder", {
+      notificationEmitter.emit('newOrder', {
         orderId: result.order._id,
         buyerId: userId,
         sellerId,
@@ -40,7 +40,7 @@ export const createOrder = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "Order created successfully",
+      message: 'Order created successfully',
       data: { ...result },
     });
   } catch (error) {
@@ -60,18 +60,18 @@ export const updateOrderStatus = async (req, res, next) => {
     const { id: orderId } = req.params;
     const { newStatus } = req.body;
 
-    const validStatuses = ["pending", "shipped", "delivered", "cancelled"];
+    const validStatuses = ['pending', 'shipped', 'delivered', 'cancelled'];
     if (!validStatuses.includes(newStatus)) {
       return res
         .status(400)
-        .json({ success: false, message: "Invalid status" });
+        .json({ success: false, message: 'Invalid status' });
     }
 
     const order = await Order.findById(orderId);
     if (!order)
       return res
         .status(404)
-        .json({ success: false, message: "Order not found" });
+        .json({ success: false, message: 'Order not found' });
 
     const statusPriority = {
       pending: 1,
@@ -91,11 +91,11 @@ export const updateOrderStatus = async (req, res, next) => {
     order.status = newStatus;
     await order.save();
 
-    if (newStatus === "cancelled") {
+    if (newStatus === 'cancelled') {
       const productIds = order.items.map((i) => i.productId);
       const products = await Product.find(
         { _id: { $in: productIds } },
-        "seller_id",
+        'seller_id'
       );
       const sellerIds = [
         ...new Set(products.map((p) => p.seller_id.toString())),
@@ -103,18 +103,18 @@ export const updateOrderStatus = async (req, res, next) => {
 
       // Notification pour chaque vendeur concerné
       sellerIds.forEach((sellerId) => {
-        notificationEmitter.emit("orderDeleted", {
+        notificationEmitter.emit('orderDeleted', {
           orderId: order._id,
           buyerId: order.userId,
           sellerId,
-          status: "deleted",
+          status: 'deleted',
         });
       });
     }
 
     res.json({
       success: true,
-      message: "Order status updated",
+      message: 'Order status updated',
       data: { order },
     });
   } catch (error) {
@@ -128,56 +128,56 @@ export const adminUpdateOrderStatus = async (req, res, next) => {
     const { id: orderId } = req.params;
     const { newStatus } = req.body;
 
-    const validStatuses = ["pending", "shipped", "delivered", "cancelled"];
+    const validStatuses = ['pending', 'shipped', 'delivered', 'cancelled'];
     if (!validStatuses.includes(newStatus)) {
       return res
         .status(400)
-        .json({ success: false, message: "Invalid status" });
+        .json({ success: false, message: 'Invalid status' });
     }
 
     const order = await Order.findById(orderId).notDeleted();
     if (!order)
       return res
         .status(404)
-        .json({ success: false, message: "Order not found" });
+        .json({ success: false, message: 'Order not found' });
 
     const oldStatus = order.status;
     order.status = newStatus;
     await order.save();
 
     // Populate order data for response
-    await order.populate("userId", "fullname email");
+    await order.populate('userId', 'fullname email');
     await order.populate({
-      path: "items.productId",
-      select: "title primaryImage seller_id",
-      populate: { path: "seller_id", select: "fullname email" },
+      path: 'items.productId',
+      select: 'title primaryImage seller_id',
+      populate: { path: 'seller_id', select: 'fullname email' },
     });
-    await order.populate("appliedCoupons", "code type value");
+    await order.populate('appliedCoupons', 'code type value');
 
     // Send notification if status changed to cancelled
-    if (newStatus === "cancelled" && oldStatus !== "cancelled") {
+    if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
       const productIds = order.items.map((i) => i.productId);
       const products = await Product.find(
         { _id: { $in: productIds } },
-        "seller_id",
+        'seller_id'
       );
       const sellerIds = [
         ...new Set(products.map((p) => p.seller_id.toString())),
       ];
 
       sellerIds.forEach((sellerId) => {
-        notificationEmitter.emit("orderDeleted", {
+        notificationEmitter.emit('orderDeleted', {
           orderId: order._id,
           buyerId: order.userId,
           sellerId,
-          status: "deleted",
+          status: 'deleted',
         });
       });
     }
 
     res.json({
       success: true,
-      message: "Order status updated successfully",
+      message: 'Order status updated successfully',
       data: order.toObject(),
     });
   } catch (error) {
@@ -191,7 +191,7 @@ export const getOrders = async (req, res, next) => {
     const orders = await Order.find().notDeleted();
     res.status(200).json({
       success: true,
-      message: "Orders retrieved successfully",
+      message: 'Orders retrieved successfully',
       data: orders,
     });
   } catch (error) {
@@ -206,10 +206,10 @@ export const softDeleteOrder = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order)
-      return res.status(404).json({ success: false, error: "Order not found" });
+      return res.status(404).json({ success: false, error: 'Order not found' });
 
     await order.softDelete();
-    res.status(200).json({ success: true, message: "Order soft deleted" });
+    res.status(200).json({ success: true, message: 'Order soft deleted' });
   } catch (error) {
     next(error);
   }
@@ -220,12 +220,12 @@ export const restoreOrder = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order)
-      return res.status(404).json({ success: false, error: "Order not found" });
+      return res.status(404).json({ success: false, error: 'Order not found' });
 
     await order.restore(); // <-- helper
     res.status(200).json({
       success: true,
-      message: "Order restored",
+      message: 'Order restored',
       data: order,
     });
   } catch (error) {
@@ -239,7 +239,7 @@ export const getDeletedOrders = async (req, res, next) => {
     const orders = await Order.find().deleted();
     res.status(200).json({
       success: true,
-      message: "Soft deleted order retrieved successfully",
+      message: 'Soft deleted order retrieved successfully',
       data: orders,
     });
   } catch (error) {
@@ -254,8 +254,63 @@ export const getUserOrders = async (req, res, next) => {
     const orders = await Order.find({ userId }).notDeleted();
     res.status(200).json({
       success: true,
-      message: "Orders retrieved successfully",
+      message: 'Orders retrieved successfully',
       data: orders,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// get seller orders (orders containing seller's products)
+export const getSellerOrders = async (req, res, next) => {
+  try {
+    const { sellerId } = req.params;
+
+    // Find all products of this seller
+    const sellerProducts = await Product.find({ seller_id: sellerId }, '_id');
+    const productIds = sellerProducts.map((p) => p._id);
+
+    // Find all orders containing at least one of seller's products
+    const orders = await Order.find({
+      'items.productId': { $in: productIds },
+    })
+      .notDeleted()
+      .populate('userId', 'fullname email')
+      .populate({
+        path: 'items.productId',
+        select: 'title primaryImage seller_id',
+      })
+      .populate('appliedCoupons', 'code type value')
+      .sort({ createdAt: -1 });
+
+    // Filter items to only show seller's products and recalculate amounts
+    const filteredOrders = orders.map((order) => {
+      const orderObj = order.toObject();
+
+      // Filter items to only include seller's products
+      const sellerItems = orderObj.items.filter((item) => {
+        const productIdStr =
+          item.productId?._id?.toString() || item.productId?.toString();
+        return productIds.some((id) => id.toString() === productIdStr);
+      });
+
+      // Calculate total for seller's items
+      const sellerTotal = sellerItems.reduce((sum, item) => {
+        return sum + item.price * item.quantity;
+      }, 0);
+
+      return {
+        ...orderObj,
+        items: sellerItems,
+        sellerTotal, // Total for this seller's items only
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Seller orders retrieved successfully',
+      orders: filteredOrders,
     });
   } catch (error) {
     next(error);

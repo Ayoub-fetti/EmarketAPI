@@ -1,6 +1,40 @@
 import { MdVisibility } from "react-icons/md";
 
 export default function OrdersTable({ orders }) {
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      pending: {
+        label: "En attente",
+        className: "bg-yellow-100 text-yellow-800",
+      },
+      shipped: {
+        label: "Expédiée",
+        className: "bg-blue-100 text-blue-800",
+      },
+      delivered: {
+        label: "Livrée",
+        className: "bg-green-100 text-green-800",
+      },
+      cancelled: {
+        label: "Annulée",
+        className: "bg-red-100 text-red-800",
+      },
+    };
+
+    const config = statusConfig[status] || {
+      label: status,
+      className: "bg-gray-100 text-gray-800",
+    };
+
+    return (
+      <span
+        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${config.className}`}
+      >
+        {config.label}
+      </span>
+    );
+  };
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("fr-FR", {
       day: "2-digit",
@@ -11,6 +45,14 @@ export default function OrdersTable({ orders }) {
 
   const formatPrice = (price) => {
     return `${price.toFixed(2)} DH`;
+  };
+
+  const generateOrderNumber = (orderId, createdAt) => {
+    const date = new Date(createdAt);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const shortId = orderId.substring(orderId.length - 6).toUpperCase();
+    return `CMD-${year}${month}-${shortId}`;
   };
 
   return (
@@ -47,7 +89,7 @@ export default function OrdersTable({ orders }) {
               <tr key={order._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
-                    {order.orderNumber}
+                    {generateOrderNumber(order._id, order.createdAt)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -70,7 +112,7 @@ export default function OrdersTable({ orders }) {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
-                    {formatPrice(order.finalAmount)}
+                    {formatPrice(order.sellerTotal || order.finalAmount)}
                   </div>
                   {order.finalAmount !== order.totalAmount && (
                     <div className="text-xs text-gray-500 line-through">
@@ -79,9 +121,7 @@ export default function OrdersTable({ orders }) {
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-orange-700 bg-orange-100">
-                    <span className="capitalize">{order.status}</span>
-                  </span>
+                  {getStatusBadge(order.status)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {formatDate(order.createdAt)}
@@ -93,6 +133,7 @@ export default function OrdersTable({ orders }) {
                         console.log("View order:", order._id);
                       }}
                       className="p-2 hover:bg-blue-50 rounded-md transition-colors bg-gray-100"
+                      title="Voir les détails"
                     >
                       <MdVisibility className="text-lg text-gray-600" />
                     </button>
