@@ -1,6 +1,8 @@
 import { MdVisibility } from "react-icons/md";
+import { useState } from "react";
 
-export default function OrdersTable({ orders }) {
+export default function OrdersTable({ orders, onStatusChange }) {
+  const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const getStatusBadge = (status) => {
     const statusConfig = {
       pending: {
@@ -55,6 +57,17 @@ export default function OrdersTable({ orders }) {
     return `CMD-${year}${month}-${shortId}`;
   };
 
+  const handleStatusChange = async (orderId, newStatus) => {
+    if (!onStatusChange) return;
+
+    setUpdatingOrderId(orderId);
+    try {
+      await onStatusChange(orderId, newStatus);
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  };
+
   return (
     <div className="bg-white rounded-md shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
@@ -80,7 +93,7 @@ export default function OrdersTable({ orders }) {
                 Date
               </th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
+                Changer le statut
               </th>
             </tr>
           </thead>
@@ -127,17 +140,23 @@ export default function OrdersTable({ orders }) {
                   {formatDate(order.createdAt)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <div className="flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => {
-                        console.log("View order:", order._id);
-                      }}
-                      className="p-2 hover:bg-blue-50 rounded-md transition-colors bg-gray-100"
-                      title="Voir les détails"
-                    >
-                      <MdVisibility className="text-lg text-gray-600" />
-                    </button>
-                  </div>
+                  <select
+                    value={order.status}
+                    onChange={(e) =>
+                      handleStatusChange(order._id, e.target.value)
+                    }
+                    disabled={updatingOrderId === order._id}
+                    className={`px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                      updatingOrderId === order._id
+                        ? "opacity-50 cursor-not-allowed bg-gray-100"
+                        : "bg-white cursor-pointer hover:border-orange-500"
+                    }`}
+                  >
+                    <option value="pending">En attente</option>
+                    <option value="shipped">Expédiée</option>
+                    <option value="delivered">Livrée</option>
+                    <option value="cancelled">Annulée</option>
+                  </select>
                 </td>
               </tr>
             ))}

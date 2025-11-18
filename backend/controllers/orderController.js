@@ -185,6 +185,72 @@ export const adminUpdateOrderStatus = async (req, res, next) => {
   }
 };
 
+// Seller can update order status for orders containing their products
+export const sellerUpdateOrderStatus = async (req, res, next) => {
+  try {
+    const { id: orderId } = req.params;
+    const { newStatus } = req.body;
+    const sellerId = req.user.id;
+
+    const validStatuses = ['pending', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(newStatus)) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Invalid status' });
+    }
+
+    const order = await Order.findById(orderId).notDeleted();
+    if (!order)
+      return res
+        .status(404)
+        .json({ success: false, message: 'Order not found' });
+
+    // Verify that the seller owns at least one product in this order
+    const productIds = order.items.map((item) => item.productId);
+    const sellerProducts = await Product.find({
+      _id: { $in: productIds },
+      seller_id: sellerId,
+    });
+
+    if (sellerProducts.length === 0) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied: You do not own any products in this order',
+      });
+    }
+
+    const oldStatus = order.status;
+    order.status = newStatus;
+    await order.save();
+
+    // Populate order data for response
+    await order.populate('userId', 'fullname email');
+    await order.populate({
+      path: 'items.productId',
+      select: 'title primaryImage seller_id',
+    });
+    await order.populate('appliedCoupons', 'code type value');
+
+    // Send notification if status changed to cancelled
+    if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
+      notificationEmitter.emit('orderDeleted', {
+        orderId: order._id,
+        buyerId: order.userId,
+        sellerId,
+        status: 'deleted',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Order status updated successfully',
+      data: order.toObject(),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // get all orders
 export const getOrders = async (req, res, next) => {
   try {

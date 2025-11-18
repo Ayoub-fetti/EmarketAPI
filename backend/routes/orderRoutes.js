@@ -39,6 +39,13 @@ router.patch(
 );
 
 router.patch(
+  '/:id/status/seller',
+  authorizeRoles('seller'),
+  modifyLimiter,
+  OrderController.sellerUpdateOrderStatus
+);
+
+router.patch(
   '/:id/status/admin',
   isAdmin,
   modifyLimiter,

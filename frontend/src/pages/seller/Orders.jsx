@@ -4,6 +4,7 @@ import SearchBar from "../../components/seller/SearchBar";
 import FilterSelect from "../../components/seller/FilterSelect";
 import OrdersTable from "../../components/seller/OrdersTable";
 import { orderService } from "../../services/orderService";
+import api from "../../services/axios";
 
 export default function Orders() {
   const { user } = useAuth();
@@ -58,13 +59,27 @@ export default function Orders() {
   useEffect(() => {
     let filtered = [...orders];
 
-    // Filtre par recherche (numéro de commande ou nom client)
+    // Filtre par recherche (ID de commande ou nom client ou email)
     if (searchQuery) {
       filtered = filtered.filter((order) => {
         const query = searchQuery.toLowerCase();
-        const orderNumber = order.orderNumber?.toLowerCase() || "";
+        const orderId = order._id?.toLowerCase() || "";
         const customerName = order.userId?.fullname?.toLowerCase() || "";
-        return orderNumber.includes(query) || customerName.includes(query);
+        const customerEmail = order.userId?.email?.toLowerCase() || "";
+
+        // Générer le numéro de commande pour la recherche
+        const date = new Date(order.createdAt);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const shortId = order._id.substring(order._id.length - 6).toUpperCase();
+        const orderNumber = `CMD-${year}${month}-${shortId}`.toLowerCase();
+
+        return (
+          orderId.includes(query) ||
+          customerName.includes(query) ||
+          customerEmail.includes(query) ||
+          orderNumber.includes(query)
+        );
       });
     }
 
@@ -81,9 +96,38 @@ export default function Orders() {
     setSelectedStatus("");
   };
 
-  // Options pour le filtre de statut
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      console.log(
+        `Changement de statut pour la commande ${orderId} vers ${newStatus}`
+      );
+
+      // Appel API pour mettre à jour le statut (route seller)
+      const response = await api.patch(`/orders/${orderId}/status/seller`, {
+        newStatus: newStatus,
+      });
+
+      console.log("Statut mis à jour:", response.data);
+
+      // Mettre à jour localement la commande dans la liste
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+
+      setFilteredOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+    } catch (err) {
+      console.error("Erreur lors du changement de statut:", err);
+    }
+  };
+
+  // Options de statut fixes
   const statusOptions = [
-    { value: "", label: "Tous les statuts" },
     { value: "pending", label: "En attente" },
     { value: "shipped", label: "Expédiée" },
     { value: "delivered", label: "Livrée" },
@@ -106,7 +150,7 @@ export default function Orders() {
       <div className="mb-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <SearchBar
-            placeholder="Rechercher par numéro ou client..."
+            placeholder="Rechercher par N° commande, client ou email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -116,6 +160,7 @@ export default function Orders() {
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               options={statusOptions}
+              placeholder="Tous les statuts"
               className="w-full sm:w-48"
             />
 
@@ -201,7 +246,10 @@ export default function Orders() {
           </div>
         </div>
       ) : (
-        <OrdersTable orders={filteredOrders} />
+        <OrdersTable
+          orders={filteredOrders}
+          onStatusChange={handleStatusChange}
+        />
       )}
     </div>
   );
