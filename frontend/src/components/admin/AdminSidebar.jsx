@@ -6,6 +6,8 @@ const navLinks = [
   { to: "/admin/products", label: "Products" },
   { to: "/admin/categories", label: "Categories" },
   { to: "/admin/orders", label: "Orders" },
+  { to: "/admin/coupons", label: "Coupons" },
+  { to: "/admin/reviews", label: "Reviews" },
 ];
 
 export default function AdminSidebar() {

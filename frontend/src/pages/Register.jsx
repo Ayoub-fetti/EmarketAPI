@@ -1,42 +1,46 @@
 // frontend/src/pages/Register.jsx
-import styled from "styled-components";
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { authService } from "../services/authService";
-import { useAuth } from "../context/AuthContext";
-import { toast } from "react-toastify";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
-export default function Register2() {
-  const [formData, setFormData] = useState({
-    fullname: "",
-    email: "",
-    password: "",
-    role: "",
-  });
-  const [errors, setErrors] = useState("");
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
-  const getRedirectPath = (role) => {
-    if (role === "admin") return "/admin";
-    if (role === "seller") return "/seller";
-    return "/products";
-  };
+export default function Register() {
+    const [formData, setFormData] = useState({
+        fullname: '',
+        email: '',
+        password: '',
+        role: ''
+    });
+    const [errors, setErrors] = useState('');
+    const {login} = useAuth()
+    const navigate = useNavigate();
+    const getRedirectPath = (role, status) => {
+        if (role === 'admin') return '/admin';
+        if (role === 'seller') {
+            // If seller status is pending, redirect to pending approval page
+            if (status === 'pending') return '/seller/pending';
+            return '/seller';
+        }
+        return '/products';
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await authService.register(formData);
-      login(response.data.token, response.data.user);
-      toast.success("Inscription réussie !");
-      const targetPath = getRedirectPath(response.data.user?.role);
-      navigate(targetPath, { replace: true });
-    } catch (err) {
-      setErrors(err.response?.data?.errors || {});
-      toast.error("Erreur lors de l'inscription", { position: "top-center" });
-    }
-  };
-
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await authService.register(formData);
+            login(response.data.token, response.data.user);
+            toast.success('Inscription réussie !');
+            const targetPath = getRedirectPath(
+                response.data.user?.role,
+                response.data.user?.status
+            );
+            navigate(targetPath, { replace: true });
+        } catch (err) {
+            setErrors(err.response?.data?.errors || {});
+            toast.error("Erreur lors de l'inscription");
+        }
+    };
   return (
     <StyledWrapper>
       <form onSubmit={handleSubmit} className="form">
@@ -91,7 +95,6 @@ export default function Register2() {
           {errors.email && <div className="text-red-500">{errors.email}</div>}
         </div>
         <div className="flex-column">
-          <label>Password </label>
         </div>
         <div className="inputForm">
           <svg

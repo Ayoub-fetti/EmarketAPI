@@ -14,6 +14,7 @@ export default function AddProduct() {
     title: "",
     description: "",
     price: "",
+    ex_price: "",
     stock: "",
     categories: [],
     primaryImage: null,
@@ -121,6 +122,12 @@ export default function AddProduct() {
       newErrors.price = "Le prix ne peut pas être négatif";
     }
 
+    if (!formData.ex_price) {
+      newErrors.ex_price = "Le prix d'origine est requis";
+    } else if (parseFloat(formData.ex_price) < 0) {
+      newErrors.ex_price = "Le prix d'origine ne peut pas être négatif";
+    }
+
     if (!formData.stock) {
       newErrors.stock = "Le stock est requis";
     } else if (parseInt(formData.stock) < 0) {
@@ -135,9 +142,7 @@ export default function AddProduct() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async (publishStatus) => {
     if (!validateForm()) {
       return;
     }
@@ -152,7 +157,9 @@ export default function AddProduct() {
       data.append("title", formData.title);
       data.append("description", formData.description);
       data.append("price", formData.price);
+      data.append("ex_price", formData.ex_price);
       data.append("stock", formData.stock);
+      data.append("published", publishStatus);
 
       // Ajouter le seller_id de l'utilisateur connecté
       if (user && user.id) {
@@ -175,21 +182,19 @@ export default function AddProduct() {
         data.append("secondaryImages", file);
       });
 
-      console.log("Données envoyées:");
-      for (let pair of data.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
       // Envoyer au backend
       const response = await productService.createProduct(data);
 
       console.log("Produit créé avec succès:", response);
-      setSuccessMessage("Produit créé avec succès !");
+      const message = publishStatus
+        ? "Produit publié avec succès !"
+        : "Produit enregistré comme brouillon !";
+      setSuccessMessage(message);
 
       // Rediriger après 2 secondes
       setTimeout(() => {
         navigate("/seller/products");
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.error("Erreur lors de la création du produit:", error);
       console.error("Détails de l'erreur:", error.response?.data);
@@ -359,30 +364,57 @@ export default function AddProduct() {
               Prix et Stock
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Price */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Prix de Vente (DH) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  placeholder="0.00"
-                  step="0.01"
-                  className={`w-full px-4 py-2 border rounded-sm focus:outline-none ${
-                    errors.price ? "border-red-500" : "border-gray-300"
-                  }`}
-                  disabled={loading}
-                />
-                {errors.price && (
-                  <p className="text-red-500 text-xs mt-1">{errors.price}</p>
-                )}
+            <div className="space-y-4">
+              {/* Prix - 2 colonnes */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Price */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Prix de Vente (DH) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    placeholder="0.00"
+                    step="0.01"
+                    className={`w-full px-4 py-2 border rounded-sm focus:outline-none ${
+                      errors.price ? "border-red-500" : "border-gray-300"
+                    }`}
+                    disabled={loading}
+                  />
+                  {errors.price && (
+                    <p className="text-red-500 text-xs mt-1">{errors.price}</p>
+                  )}
+                </div>
+
+                {/* Original Price */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Prix Original (DH) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="ex_price"
+                    value={formData.ex_price}
+                    onChange={handleInputChange}
+                    placeholder="0.00"
+                    step="0.01"
+                    className={`w-full px-4 py-2 border rounded-sm focus:outline-none ${
+                      errors.ex_price ? "border-red-500" : "border-gray-300"
+                    }`}
+                    disabled={loading}
+                  />
+                  {errors.ex_price && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.ex_price}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Stock */}
+              {/* Stock - Pleine largeur en dessous */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Quantité en Stock <span className="text-red-500">*</span>
@@ -486,11 +518,20 @@ export default function AddProduct() {
               Annuler
             </button>
             <button
-              type="submit"
-              className="px-6 py-2 bg-orange-700 text-white rounded-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+              onClick={() => handleSubmit(false)}
+              className="px-6 py-2 bg-gray-600 text-white rounded-sm font-medium hover:bg-gray-700"
               disabled={loading}
             >
-              {loading ? "Création en cours..." : "Créer le Produit"}
+              {loading ? "Enregistrement..." : "Enregistrer en brouillon"}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSubmit(true)}
+              className="px-6 py-2 bg-orange-700 text-white rounded-sm font-medium hover:bg-orange-800"
+              disabled={loading}
+            >
+              {loading ? "Publication..." : "Publier le produit"}
             </button>
           </div>
         </div>

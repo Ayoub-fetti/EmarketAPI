@@ -248,12 +248,42 @@ router.put(
  *         description: Review not found
  */
 router.delete("/:id", checkReviewOwnership, reviewController.deleteReview);
+
 /**
  * @swagger
  * tags:
  *   name: Reviews Admin
  *   description: Admin reviews management
  */
+
+/**
+ * @swagger
+ * /reviews/all:
+ *   get:
+ *     tags: [Reviews Admin]
+ *     summary: Get all reviews (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all reviews
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Review'
+ *       403:
+ *         description: Access denied
+ */
+router.get(
+  "/all",
+  authorizeRoles("admin"),
+  reviewController.getAllReviews,
+);
 
 /**
  * @swagger
