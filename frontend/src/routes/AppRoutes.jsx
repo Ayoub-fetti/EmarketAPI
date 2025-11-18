@@ -23,6 +23,7 @@ import Orders from "../pages/seller/Orders";
 import Coupons from "../pages/seller/Coupons";
 import Notifications from "../pages/seller/Notifications";
 import Profile from "../pages/seller/Profile";
+import PendingApproval from "../pages/seller/PendingApproval";
 import UserOrders from "../pages/Orders";
 import OrdersHistory from "../pages/OrdersHistory";
 import ProfileUser from "../pages/Profile";
@@ -85,6 +86,16 @@ export default function AppRoutes() {
         <Route path="orders" element={<AdminOrders />} />
         <Route path="*" element={<NotFound />} />
       </Route>
+      {/* Seller Pending Approval - Outside Dashboard Layout */}
+      <Route
+        path="/seller/pending"
+        element={
+          <ProtectedRoute allowedRoles={["seller"]}>
+            <PendingApproval />
+          </ProtectedRoute>
+        }
+      />
+
       {/* Seller Dashboard Routes */}
       <Route
         path="/seller"
