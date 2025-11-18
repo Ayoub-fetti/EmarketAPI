@@ -41,7 +41,7 @@ export default function Register2() {
     <StyledWrapper>
       <form onSubmit={handleSubmit} className="form">
         <div className="flex-column">
-          <label>Fullname </label>
+          <label>Full Name</label>
         </div>
         <div className="inputForm">
           <svg
