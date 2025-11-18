@@ -1,10 +1,9 @@
-import { MdEdit, MdDelete, MdContentCopy } from "react-icons/md";
+import { MdEdit, MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export default function CouponsTable({ coupons, onDelete }) {
   const navigate = useNavigate();
-  const [copiedCode, setCopiedCode] = useState(null);
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("fr-FR", {
@@ -51,12 +50,6 @@ export default function CouponsTable({ coupons, onDelete }) {
       return { used, maxUsage, percentage: Math.round(percentage) };
     }
     return { used, maxUsage: null, percentage: null };
-  };
-
-  const handleCopyCode = (code) => {
-    navigator.clipboard.writeText(code);
-    setCopiedCode(code);
-    setTimeout(() => setCopiedCode(null), 2000);
   };
 
   const handleDelete = (couponId) => {
