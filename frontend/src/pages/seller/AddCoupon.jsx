@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
+import { couponService } from "../../services/couponService";
 
 export default function AddCoupon() {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ export default function AddCoupon() {
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ type: "", message: "" });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,6 +34,10 @@ export default function AddCoupon() {
         ...prev,
         [name]: "",
       }));
+    }
+    // Supprimer le message d'alerte
+    if (alertMessage.message) {
+      setAlertMessage({ type: "", message: "" });
     }
   };
 
@@ -68,17 +75,83 @@ export default function AddCoupon() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
+      setAlertMessage({
+        type: "error",
+        message: "Veuillez corriger les erreurs dans le formulaire",
+      });
       return;
     }
 
-    // Pour l'instant, juste afficher les données (hardcodé)
-    console.log("Données du coupon:", formData);
-    alert("Coupon créé avec succès (mock)");
-    navigate("/seller/coupons");
+    try {
+      setLoading(true);
+      setAlertMessage({ type: "", message: "" });
+
+      // Préparer les données pour l'API
+      const couponData = {
+        code: formData.code.toUpperCase(),
+        type: formData.type,
+        value: Number(formData.value),
+        minimumPurchase: formData.minimumPurchase
+          ? Number(formData.minimumPurchase)
+          : 0,
+        startDate: new Date(formData.startDate).toISOString(),
+        expirationDate: new Date(formData.expirationDate).toISOString(),
+        maxUsage: formData.maxUsage ? Number(formData.maxUsage) : null,
+        maxUsagePerUser: Number(formData.maxUsagePerUser) || 1,
+        status: formData.status,
+      };
+
+      console.log("Envoi des données:", couponData);
+
+      // Appel API pour créer le coupon
+      const response = await couponService.createCoupon(couponData);
+
+      console.log("Réponse API:", response);
+
+      setAlertMessage({
+        type: "success",
+        message: "Coupon créé avec succès !",
+      });
+
+      // Rediriger après 3 secondes pour laisser le temps de voir le message
+      setTimeout(() => {
+        navigate("/seller/coupons");
+      }, 3000);
+    } catch (error) {
+      console.error("Erreur lors de la création du coupon:", error);
+
+      // Gérer les erreurs de validation du backend
+      if (error.response?.data?.errors) {
+        // Erreurs Yup du backend
+        const backendErrors = {};
+        error.response.data.errors.forEach((err) => {
+          backendErrors[err.path] = err.message;
+        });
+        setErrors(backendErrors);
+        setAlertMessage({
+          type: "error",
+          message: "Veuillez corriger les erreurs dans le formulaire",
+        });
+      } else {
+        // Autres erreurs
+        const errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          error.message ||
+          "Erreur lors de la création du coupon";
+
+        setAlertMessage({
+          type: "error",
+          message: errorMessage,
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -100,8 +173,40 @@ export default function AddCoupon() {
         </p>
       </div>
 
+      {/* Alert Message */}
+      {alertMessage.message && (
+        <div
+          className={`mb-6 p-4 rounded-md ${
+            alertMessage.type === "success"
+              ? "bg-green-50 border border-green-200 text-green-700"
+              : "bg-red-50 border border-red-200 text-red-700"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {alertMessage.type === "success" ? (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+            <span className="font-medium">{alertMessage.message}</span>
+          </div>
+        </div>
+      )}
+
       {/* Form */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-md border border-gray-200 p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Code du coupon */}
           <div>
@@ -114,7 +219,7 @@ export default function AddCoupon() {
               value={formData.code}
               onChange={handleChange}
               placeholder="Ex: SAVE22, WINTER50"
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+              className={`w-full px-4 py-2 border rounded-md outline-none transition-colors ${
                 errors.code ? "border-red-500" : "border-gray-300"
               }`}
               style={{ textTransform: "uppercase" }}
@@ -138,7 +243,7 @@ export default function AddCoupon() {
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-gray-400 transition-colors"
               >
                 <option value="percentage">Pourcentage (%)</option>
                 <option value="fixed">Montant fixe (DH)</option>
@@ -161,7 +266,7 @@ export default function AddCoupon() {
                 step="0.01"
                 min="0"
                 max={formData.type === "percentage" ? "100" : undefined}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                className={`w-full px-4 py-2 border rounded-md outline-none transition-colors ${
                   errors.value ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -189,7 +294,7 @@ export default function AddCoupon() {
               placeholder="Ex: 100"
               step="0.01"
               min="0"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-gray-400 transition-colors"
             />
             <p className="mt-1 text-xs text-gray-500">
               Montant minimum du panier pour utiliser ce coupon (laissez vide
@@ -209,7 +314,7 @@ export default function AddCoupon() {
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                className={`w-full px-4 py-2 border rounded-md outline-none transition-colors ${
                   errors.startDate ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -228,7 +333,7 @@ export default function AddCoupon() {
                 name="expirationDate"
                 value={formData.expirationDate}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                className={`w-full px-4 py-2 border rounded-md outline-none transition-colors ${
                   errors.expirationDate ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -254,7 +359,7 @@ export default function AddCoupon() {
                 onChange={handleChange}
                 placeholder="Illimité"
                 min="1"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-gray-400 transition-colors"
               />
               <p className="mt-1 text-xs text-gray-500">
                 Nombre maximum d'utilisations de ce coupon (laissez vide pour
@@ -273,7 +378,7 @@ export default function AddCoupon() {
                 value={formData.maxUsagePerUser}
                 onChange={handleChange}
                 min="1"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-gray-400 transition-colors"
               />
               <p className="mt-1 text-xs text-gray-500">
                 Combien de fois un même utilisateur peut utiliser ce coupon
@@ -290,7 +395,7 @@ export default function AddCoupon() {
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-gray-400 transition-colors"
             >
               <option value="active">Actif</option>
               <option value="inactive">Inactif</option>
@@ -299,25 +404,36 @@ export default function AddCoupon() {
               Un coupon inactif ne peut pas être utilisé même s'il est valide
             </p>
           </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={() => navigate("/seller/coupons")}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 bg-orange-700 text-white rounded-lg hover:bg-orange-800 transition-colors"
-            >
-              Créer le coupon
-            </button>
-          </div>
         </form>
       </div>
+
+      {/* Buttons */}
+      <form onSubmit={handleSubmit}>
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            type="button"
+            onClick={() => navigate("/seller/coupons")}
+            disabled={loading}
+            className="px-6 py-2 border border-gray-200 bg-white rounded-sm text-gray-700 font-medium transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-2 bg-orange-700 text-white rounded-sm font-medium hover:bg-orange-800 transition-colors flex items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Création en cours...</span>
+              </>
+            ) : (
+              "Créer le coupon"
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
