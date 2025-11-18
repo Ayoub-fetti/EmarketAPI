@@ -1,4 +1,5 @@
 // frontend/src/pages/Register.jsx
+import styled from "styled-components";
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
@@ -15,6 +16,7 @@ export default function Register() {
     const [errors, setErrors] = useState('');
     const {login} = useAuth()
     const navigate = useNavigate();
+      const [showPassword, setShowPassword] = useState(false);
     const getRedirectPath = (role, status) => {
         if (role === 'admin') return '/admin';
         if (role === 'seller') {
