@@ -112,7 +112,7 @@ export default function Header() {
               to="/profile/user"
               className="p-2 hover:text-[#D43601] transition relative"
             >
-              <i class="fa-solid fa-user"></i>
+              <i className="fa-solid fa-user"></i>
             </Link>
           ) : (
             <></>
@@ -130,7 +130,7 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
                 className="px-4 py-2 w-full text-left hover:bg-gray-100"
               >
-                <i class="fa-solid fa-house mr-2"></i>
+                <i className="fa-solid fa-house mr-2"></i>
                 Home
               </Link>
               <Link
@@ -138,7 +138,7 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
                 className="px-4 py-2 w-full text-left hover:bg-gray-100"
               >
-                <i class="fa-solid fa-store mr-2"></i>
+                <i className="fa-solid fa-store mr-2"></i>
                 Products
               </Link>
               {isAuthenticated() ? (
@@ -148,7 +148,7 @@ export default function Header() {
                     onClick={() => setMenuOpen(false)}
                     className="px-4 py-2 w-full text-left hover:bg-gray-100"
                   >
-                    <i class="fa-solid fa-clock-rotate-left mr-2"></i>
+                    <i className="fa-solid fa-clock-rotate-left mr-2"></i>
                     History
                   </Link>
                   <span className="px-4 text-sm text-gray-600">
@@ -168,7 +168,7 @@ export default function Header() {
                     onClick={() => setMenuOpen(false)}
                     className="px-4 py-2 w-full text-left hover:bg-gray-100"
                   >
-                    <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i>
+                    <i className="fa-solid fa-arrow-right-to-bracket mr-2"></i>
                     Login
                   </Link>
                   <Link
@@ -176,7 +176,7 @@ export default function Header() {
                     onClick={() => setMenuOpen(false)}
                     className="px-4 py-2 w-full text-left hover:bg-gray-100"
                   >
-                    <i class="fa-solid fa-right-to-bracket mr-2"></i>
+                    <i className="fa-solid fa-right-to-bracket mr-2"></i>
                     Register
                   </Link>
                 </>

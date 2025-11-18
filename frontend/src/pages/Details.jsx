@@ -123,7 +123,8 @@ export function Details() {
                     ))}
                   </div>
                   <span className="text-xs text-gray-600">
-                    {reviews.averageRating.toFixed(1)} ({reviews.total})
+{reviews.averageRating ? reviews.averageRating.toFixed(1) : '0.0'} ({reviews.total || 0})
+
                   </span>
                 </div>
               )}
@@ -160,7 +161,7 @@ export function Details() {
                 }`}
               >
                 {product.stock > 0
-                  ? `${product.stock} dispo`
+                  ? `${product.stock} disponible`
                   : "Rupture de stock"}
               </span>
             </div>
