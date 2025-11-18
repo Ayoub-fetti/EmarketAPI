@@ -2,7 +2,7 @@
 
 export default function FilterSelect({
   options,
-  placeholder = "Sélectionner...",
+  placeholder = "Tous les statuts",
   value,
   onChange,
 }) {
