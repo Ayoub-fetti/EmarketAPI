@@ -54,24 +54,9 @@ export default function ProductsTable({ products, onProductDeleted }) {
     }
   };
 
-  const getStockColor = (stock) => {
-    if (stock === 0) return "bg-red-100 text-red-700";
-    if (stock < 20) return "bg-yellow-100 text-yellow-700";
-    return "bg-green-100 text-green-700";
-  };
 
   const formatPrice = (price) => {
     return `${parseFloat(price).toFixed(2)} DH`;
-  };
-
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return "https://via.placeholder.com/150";
-    // Si l'image commence par http, c'est une URL complète
-    if (imagePath.startsWith("http")) return imagePath;
-    // Sinon, construire l'URL avec le backend
-    return `http://localhost:5173${
-      imagePath.startsWith("/") ? "" : "/"
-    }${imagePath}`;
   };
 
   return (
@@ -110,11 +95,6 @@ export default function ProductsTable({ products, onProductDeleted }) {
                 {/* Product */}
                 <td className="px-4 sm:px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <img
-                      src={getImageUrl(product.primaryImage)}
-                      alt={product.title}
-                      className="w-12 h-12 rounded-md object-cover border border-gray-200"
-                    />
                     <div>
                       <p className="text-sm font-medium text-gray-900">
                         {product.title}
@@ -161,9 +141,7 @@ export default function ProductsTable({ products, onProductDeleted }) {
                 {/* Stock */}
                 <td className="px-4 py-4">
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStockColor(
-                      product.stock
-                    )}`}
+                    className="px-3 py-1 rounded-full text-sm font-medium text-orange-700"
                   >
                     {product.stock}
                   </span>

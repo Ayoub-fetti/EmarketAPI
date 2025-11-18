@@ -83,6 +83,13 @@ router.put(
   userController.changeRole,
 );
 
+router.patch(
+  "/:id/admin",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  userController.adminUpdateUser,
+);
+
 export default router;
 
 /**
