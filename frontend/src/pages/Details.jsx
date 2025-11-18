@@ -81,7 +81,7 @@ export function Details() {
                   className="aspect-square bg-gray-100 rounded-md overflow-hidden shadow-sm border border-orange-700"
                 >
                   <img
-                    src={`http://localhost:3000${image}`}
+                    src={`${import.meta.env.VITE_BACKEND_BASE_URL}${image}`}
                     alt=""
                     className="w-full h-full object-cover"
                   />

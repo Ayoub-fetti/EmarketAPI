@@ -86,7 +86,7 @@ const Cart = ({ isOpen, onClose }) => {
       {/* Backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0 z-40"
+          className="fixed inset-0 backdrop-blur-xs z-40"
           onClick={onClose}
         />
       )}
@@ -120,7 +120,7 @@ const Cart = ({ isOpen, onClose }) => {
                 {items.map((item) => (
                   <div key={item.productId._id} className="flex gap-3 p-3 border rounded-lg">
                     <img
-                      src={item.productId.primaryImage ? `http://localhost:3000${item.productId.primaryImage}` : "/placeholder.jpg"}
+                      src={item.productId.primaryImage ? `${import.meta.env.VITE_BACKEND_BASE_URL}${item.productId.primaryImage}` : "/placeholder.jpg"}
                       alt={item.productId.title}
                       className="w-16 h-16 object-cover rounded"
                       onError={(e) => { e.target.src = "/placeholder.jpg"; }}
