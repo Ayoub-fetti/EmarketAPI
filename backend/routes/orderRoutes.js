@@ -32,6 +32,13 @@ router.patch(
   OrderController.updateOrderStatus,
 );
 
+router.patch(
+  "/:id/status/admin",
+  isAdmin,
+  modifyLimiter,
+  OrderController.adminUpdateOrderStatus,
+);
+
 router.delete(
   "/:id/soft",
   isAdmin,
