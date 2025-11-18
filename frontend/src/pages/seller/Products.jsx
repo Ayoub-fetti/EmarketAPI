@@ -5,6 +5,7 @@ import ActionButton from "../../components/seller/ActionButton";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { productService } from "../../services/productService";
+import { categoryService } from "../../services/categoryService";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Products() {
@@ -18,8 +19,24 @@ export default function Products() {
 
   // États pour les produits
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Charger les catégories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryService.getCategories();
+        setCategories(response.categories || []);
+      } catch (error) {
+        console.error("Erreur lors du chargement des catégories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Charger les produits du seller
   useEffect(() => {
@@ -43,6 +60,7 @@ export default function Products() {
         console.log("Nombre de produits:", response.products?.length || 0);
 
         setProducts(response.products || []);
+        setFilteredProducts(response.products || []);
         setError(null);
       } catch (err) {
         console.error("=== ERREUR DÉTAILLÉE ===");
@@ -66,13 +84,51 @@ export default function Products() {
     fetchProducts();
   }, [user]);
 
-  // Options pour les filtres
-  const categoryOptions = [
-    { value: "audio", label: "Audio" },
-    { value: "electronique", label: "Électronique" },
-    { value: "accessoires", label: "Accessoires" },
-    { value: "vetements", label: "Vêtements" },
-  ];
+  // Filtrer les produits en fonction de la recherche et des filtres
+  useEffect(() => {
+    let filtered = [...products];
+
+    // Filtrer par recherche (titre ou description)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (product) =>
+          product.title.toLowerCase().includes(query) ||
+          product.description.toLowerCase().includes(query)
+      );
+    }
+
+    // Filtrer par catégorie
+    if (selectedCategory) {
+      filtered = filtered.filter((product) => {
+        if (!product.categories || product.categories.length === 0)
+          return false;
+
+        // Vérifier si au moins une catégorie correspond (par ID)
+        return product.categories.some((cat) => {
+          const categoryId = typeof cat === "string" ? cat : cat._id;
+          return categoryId === selectedCategory;
+        });
+      });
+    }
+
+    // Filtrer par stock
+    if (selectedStock) {
+      if (selectedStock === "in-stock") {
+        filtered = filtered.filter((product) => product.stock > 0);
+      } else if (selectedStock === "out-of-stock") {
+        filtered = filtered.filter((product) => product.stock === 0);
+      }
+    }
+
+    setFilteredProducts(filtered);
+  }, [searchQuery, selectedCategory, selectedStock, products]);
+
+  // Options pour les filtres - catégories dynamiques depuis le backend
+  const categoryOptions = categories.map((category) => ({
+    value: category._id,
+    label: category.name,
+  }));
 
   const stockOptions = [
     { value: "in-stock", label: "En stock" },
@@ -83,6 +139,9 @@ export default function Products() {
   const handleProductDeleted = (deletedProductId) => {
     // Retirer le produit de la liste
     setProducts((prevProducts) =>
+      prevProducts.filter((product) => product._id !== deletedProductId)
+    );
+    setFilteredProducts((prevProducts) =>
       prevProducts.filter((product) => product._id !== deletedProductId)
     );
   };
@@ -152,7 +211,7 @@ export default function Products() {
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Empty State - No products at all */}
       {!loading && !error && products.length === 0 && (
         <div className="bg-white rounded-lg p-12 text-center">
           <div className="text-gray-400 mb-4">
@@ -184,12 +243,62 @@ export default function Products() {
         </div>
       )}
 
+      {/* No results after filtering */}
+      {!loading &&
+        !error &&
+        products.length > 0 &&
+        filteredProducts.length === 0 && (
+          <div className="bg-white rounded-lg p-12 text-center">
+            <div className="text-gray-400 mb-4">
+              <svg
+                className="w-16 h-16 mx-auto"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Aucun résultat trouvé
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Essayez de modifier vos critères de recherche ou de filtrage
+            </p>
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedCategory("");
+                setSelectedStock("");
+              }}
+              className="px-6 py-2 bg-orange-700 text-white rounded-md hover:bg-orange-800 transition-colors"
+            >
+              Réinitialiser les filtres
+            </button>
+          </div>
+        )}
+
       {/* Products Table */}
-      {!loading && !error && products.length > 0 && (
-        <ProductsTable
-          products={products}
-          onProductDeleted={handleProductDeleted}
-        />
+      {!loading && !error && filteredProducts.length > 0 && (
+        <>
+          <div className="mb-4 text-sm text-gray-600">
+            {filteredProducts.length} produit
+            {filteredProducts.length > 1 ? "s" : ""} trouvé
+            {filteredProducts.length > 1 ? "s" : ""}
+            {(searchQuery || selectedCategory || selectedStock) && (
+              <span className="ml-2">sur {products.length} au total</span>
+            )}
+          </div>
+          <ProductsTable
+            products={filteredProducts}
+            onProductDeleted={handleProductDeleted}
+          />
+        </>
       )}
     </div>
   );

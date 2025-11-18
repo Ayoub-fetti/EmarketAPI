@@ -20,6 +20,7 @@ import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
 import AddProduct from "../pages/seller/AddProduct";
 import EditProduct from "../pages/seller/EditProduct";
+import ProductDetails from "../pages/seller/ProductDetails";
 import Orders from "../pages/seller/Orders";
 import Coupons from "../pages/seller/Coupons";
 import Notifications from "../pages/seller/Notifications";
@@ -49,8 +50,7 @@ export default function AppRoutes() {
               <UserOrders />
             </ProtectedRoute>
           }
-        >
-        </Route>           
+        ></Route>
         <Route
           path="profile/user"
           element={
@@ -58,8 +58,7 @@ export default function AppRoutes() {
               <ProfileUser />
             </ProtectedRoute>
           }
-        >
-        </Route>        
+        ></Route>
         <Route
           path="orders/history"
           element={
@@ -67,8 +66,7 @@ export default function AppRoutes() {
               <OrdersHistory />
             </ProtectedRoute>
           }
-        >
-        </Route>
+        ></Route>
       </Route>
 
       <Route
@@ -112,6 +110,7 @@ export default function AppRoutes() {
         <Route path="products" element={<SellerProducts />} />
         <Route path="products/add" element={<AddProduct />} />
         <Route path="products/edit/:id" element={<EditProduct />} />
+        <Route path="products/:id" element={<ProductDetails />} />
         <Route path="orders" element={<Orders />} />
         <Route path="coupons" element={<Coupons />} />
         <Route path="notifications" element={<Notifications />} />

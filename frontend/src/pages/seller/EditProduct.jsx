@@ -15,6 +15,7 @@ export default function EditProduct() {
     title: "",
     description: "",
     price: "",
+    ex_price: "",
     stock: "",
     categories: [],
     primaryImage: null,
@@ -26,6 +27,7 @@ export default function EditProduct() {
     secondaryImages: [],
   });
 
+  const [isPublished, setIsPublished] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [errors, setErrors] = useState({});
@@ -63,6 +65,7 @@ export default function EditProduct() {
           title: product.title || "",
           description: product.description || "",
           price: product.price || "",
+          ex_price: product.ex_price || "",
           stock: product.stock || "",
           categories: product.categories?.map((cat) => cat._id || cat) || [],
           primaryImage: null,
@@ -73,6 +76,8 @@ export default function EditProduct() {
           primaryImage: product.primaryImage || null,
           secondaryImages: product.secondaryImages || [],
         });
+
+        setIsPublished(product.published || false);
 
       } catch (error) {
         console.error("Erreur lors du chargement du produit:", error);
@@ -186,9 +191,7 @@ export default function EditProduct() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async (publishStatus = null) => {
     if (!validateForm()) {
       return;
     }
@@ -202,7 +205,15 @@ export default function EditProduct() {
       data.append("title", formData.title);
       data.append("description", formData.description);
       data.append("price", formData.price);
+      if (formData.ex_price) {
+        data.append("ex_price", formData.ex_price);
+      }
       data.append("stock", formData.stock);
+
+      // Si publishStatus est fourni, l'utiliser, sinon garder l'état actuel
+      if (publishStatus !== null) {
+        data.append("published", publishStatus);
+      }
 
       if (user && user.id) {
         data.append("seller_id", user.id);
@@ -223,11 +234,14 @@ export default function EditProduct() {
       const response = await productService.updateProduct(id, data);
 
       console.log("Produit modifié avec succès:", response);
-      setSuccessMessage("Produit modifié avec succès !");
+      const message = publishStatus === true 
+        ? "Produit publié avec succès !" 
+        : "Produit enregistré avec succès !";
+      setSuccessMessage(message);
 
       setTimeout(() => {
         navigate("/seller/products");
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.error("Erreur lors de la modification du produit:", error);
 
@@ -431,9 +445,33 @@ export default function EditProduct() {
                 )}
               </div>
 
-              {/* Stock */}
+              {/* Original Price */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Prix Original (DH)
+                </label>
+                <input
+                  type="number"
+                  name="ex_price"
+                  value={formData.ex_price}
+                  onChange={handleInputChange}
+                  placeholder="0.00"
+                  step="0.01"
+                  className={`w-full px-4 py-2 border rounded-sm focus:outline-none ${
+                    errors.ex_price ? "border-red-500" : "border-gray-300"
+                  }`}
+                  disabled={loading}
+                />
+                {errors.ex_price && (
+                  <p className="text-red-500 text-xs mt-1">{errors.ex_price}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {/* Stock */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 my-2">
                   Quantité en Stock <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -474,7 +512,7 @@ export default function EditProduct() {
                       Image actuelle:
                     </p>
                     <img
-                      src={`http://localhost:5173${existingImages.primaryImage}`}
+                      src={`http://localhost:3000${existingImages.primaryImage}`}
                       alt="Image principale actuelle"
                       className="w-32 h-32 object-cover rounded-md border border-gray-300"
                     />
@@ -522,7 +560,7 @@ export default function EditProduct() {
                       {existingImages.secondaryImages.map((img, index) => (
                         <div key={index} className="relative group">
                           <img
-                            src={`http://localhost:5173${img}`}
+                            src={`http://localhost:3000${img}`}
                             alt={`Image secondaire ${index + 1}`}
                             className="w-full h-24 object-cover rounded-md border border-gray-300"
                           />
@@ -604,12 +642,23 @@ export default function EditProduct() {
               Annuler
             </button>
             <button
-              type="submit"
-              className="px-6 py-2 bg-orange-700 text-white rounded-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+              onClick={() => handleSubmit(null)}
+              className="px-6 py-2 bg-gray-600 text-white rounded-sm font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
-              {loading ? "Modification en cours..." : "Modifier le Produit"}
+              {loading ? "Enregistrement..." : "Enregistrer modifications"}
             </button>
+            {!isPublished && (
+              <button
+                type="button"
+                onClick={() => handleSubmit(true)}
+                className="px-6 py-2 bg-orange-700 text-white rounded-sm font-medium hover:bg-orange-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
+              >
+                {loading ? "Publication..." : "Publier le produit"}
+              </button>
+            )}
           </div>
         </div>
       </form>
