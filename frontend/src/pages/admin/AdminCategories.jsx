@@ -4,8 +4,10 @@ import { adminCategoriesService } from "../../services/admin/adminCategoriesServ
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
+  const [deletedCategories, setDeletedCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showDeleted, setShowDeleted] = useState(false);
 
   const [newCategoryName, setNewCategoryName] = useState("");
   const [creating, setCreating] = useState(false);
@@ -16,13 +18,20 @@ export default function AdminCategories() {
 
   const [deletingId, setDeletingId] = useState(null);
   const [categoryPendingDelete, setCategoryPendingDelete] = useState(null);
+  const [softDeletingId, setSoftDeletingId] = useState(null);
+  const [categoryPendingSoftDelete, setCategoryPendingSoftDelete] = useState(null);
+  const [restoringId, setRestoringId] = useState(null);
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminCategoriesService.fetchCategories();
-      setCategories(data);
+      const [active, deleted] = await Promise.all([
+        adminCategoriesService.fetchCategories(),
+        adminCategoriesService.fetchDeletedCategories(),
+      ]);
+      setCategories(active);
+      setDeletedCategories(deleted);
     } catch (err) {
       const message =
         err.response?.data?.message ||
@@ -39,12 +48,13 @@ export default function AdminCategories() {
   }, [fetchCategories]);
 
   const sortedCategories = useMemo(() => {
-    return [...categories].sort((a, b) => {
+    const source = showDeleted ? deletedCategories : categories;
+    return [...source].sort((a, b) => {
       const dateA = new Date(a.createdAt || 0).getTime();
       const dateB = new Date(b.createdAt || 0).getTime();
       return dateB - dateA;
     });
-  }, [categories]);
+  }, [categories, deletedCategories, showDeleted]);
 
   const resetEditing = () => {
     setEditingCategory(null);
@@ -153,6 +163,7 @@ export default function AdminCategories() {
       if (editingCategory?._id === category._id) {
         resetEditing();
       }
+      await fetchCategories();
     } catch (err) {
       const message = normaliseErrorMessage(
         err,
@@ -162,6 +173,56 @@ export default function AdminCategories() {
     } finally {
       setDeletingId(null);
       setCategoryPendingDelete(null);
+    }
+  };
+
+  const confirmSoftDelete = (category) => {
+    setCategoryPendingSoftDelete(category);
+  };
+
+  const performSoftDelete = async () => {
+    if (!categoryPendingSoftDelete) return;
+    const category = categoryPendingSoftDelete;
+    setSoftDeletingId(category._id);
+    try {
+      await adminCategoriesService.softDeleteCategory(category._id);
+      setCategories((prev) =>
+        prev.filter((item) => item._id !== category._id),
+      );
+      toast.success("Catégorie désactivée.");
+      if (editingCategory?._id === category._id) {
+        resetEditing();
+      }
+      await fetchCategories();
+    } catch (err) {
+      const message = normaliseErrorMessage(
+        err,
+        "Impossible de désactiver la catégorie.",
+      );
+      toast.error(message);
+    } finally {
+      setSoftDeletingId(null);
+      setCategoryPendingSoftDelete(null);
+    }
+  };
+
+  const handleRestore = async (category) => {
+    setRestoringId(category._id);
+    try {
+      const restored = await adminCategoriesService.restoreCategory(category._id);
+      setDeletedCategories((prev) =>
+        prev.filter((item) => item._id !== category._id),
+      );
+      toast.success("Catégorie restaurée.");
+      await fetchCategories();
+    } catch (err) {
+      const message = normaliseErrorMessage(
+        err,
+        "Impossible de restaurer la catégorie.",
+      );
+      toast.error(message);
+    } finally {
+      setRestoringId(null);
     }
   };
 
@@ -295,16 +356,44 @@ export default function AdminCategories() {
         )}
       </div>
 
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">Afficher:</label>
+          <button
+            type="button"
+            onClick={() => setShowDeleted(false)}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+              !showDeleted
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Actives ({categories.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowDeleted(true)}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+              showDeleted
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Supprimées ({deletedCategories.length})
+          </button>
+        </div>
+      </div>
+
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
-              Liste des catégories
+              {showDeleted ? "Catégories supprimées" : "Liste des catégories"}
             </h3>
             <p className="text-sm text-gray-500">
-              {categories.length} catégorie
-              {categories.length > 1 ? "s" : ""} enregistrée
-              {categories.length > 1 ? "s" : ""}.
+              {sortedCategories.length} catégorie
+              {sortedCategories.length > 1 ? "s" : ""} trouvée
+              {sortedCategories.length > 1 ? "s" : ""}.
             </p>
           </div>
         </div>
@@ -337,25 +426,55 @@ export default function AdminCategories() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => beginEdit(category)}
-                        className="rounded-md border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
-                      >
-                        Modifier
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => confirmDelete(category)}
-                        className={[
-                          "rounded-md border border-red-200 px-3 py-1 text-xs font-semibold transition",
-                          deletingId === category._id
-                            ? "bg-red-100 text-red-400 cursor-not-allowed"
-                            : "text-red-600 hover:bg-red-50",
-                        ].join(" ")}
-                      >
-                        {deletingId === category._id ? "Suppression..." : "Supprimer"}
-                      </button>
+                      {!showDeleted ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => beginEdit(category)}
+                            className="rounded-md border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                          >
+                            Modifier
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => confirmSoftDelete(category)}
+                            className={[
+                              "rounded-md border border-yellow-200 px-3 py-1 text-xs font-semibold transition",
+                              softDeletingId === category._id
+                                ? "bg-yellow-100 text-yellow-400 cursor-not-allowed"
+                                : "text-yellow-600 hover:bg-yellow-50",
+                            ].join(" ")}
+                          >
+                            {softDeletingId === category._id ? "Désactivation..." : "Désactiver"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => confirmDelete(category)}
+                            className={[
+                              "rounded-md border border-red-200 px-3 py-1 text-xs font-semibold transition",
+                              deletingId === category._id
+                                ? "bg-red-100 text-red-400 cursor-not-allowed"
+                                : "text-red-600 hover:bg-red-50",
+                            ].join(" ")}
+                          >
+                            {deletingId === category._id ? "Suppression..." : "Supprimer"}
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleRestore(category)}
+                          disabled={restoringId === category._id}
+                          className={[
+                            "rounded-md border border-green-200 px-3 py-1 text-xs font-semibold transition",
+                            restoringId === category._id
+                              ? "bg-green-100 text-green-400 cursor-not-allowed"
+                              : "text-green-600 hover:bg-green-50",
+                          ].join(" ")}
+                        >
+                          {restoringId === category._id ? "Restauration..." : "Restaurer"}
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -376,6 +495,52 @@ export default function AdminCategories() {
         </div>
       </div>
 
+      {categoryPendingSoftDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Désactiver la catégorie
+            </h3>
+            <p className="mt-3 text-sm text-gray-600">
+              Tu es sur le point de désactiver la catégorie{" "}
+              <span className="font-semibold text-gray-900">
+                "{categoryPendingSoftDelete.name}"
+              </span>
+              . La catégorie sera retirée de la liste active mais pourra être restaurée plus tard.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (softDeletingId) return;
+                  setCategoryPendingSoftDelete(null);
+                }}
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                disabled={Boolean(softDeletingId)}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={performSoftDelete}
+                disabled={softDeletingId === categoryPendingSoftDelete._id}
+                className={[
+                  "inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white transition",
+                  softDeletingId === categoryPendingSoftDelete._id
+                    ? "bg-yellow-300 cursor-not-allowed"
+                    : "bg-yellow-600 hover:bg-yellow-700",
+                ].join(" ")}
+              >
+                {softDeletingId === categoryPendingSoftDelete._id
+                  ? "Désactivation..."
+                  : "Désactiver"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {categoryPendingDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
@@ -383,11 +548,11 @@ export default function AdminCategories() {
               Confirmer la suppression
             </h3>
             <p className="mt-3 text-sm text-gray-600">
-              Tu es sur le point de supprimer la catégorie{" "}
+              Tu es sur le point de supprimer définitivement la catégorie{" "}
               <span className="font-semibold text-gray-900">
-                “{categoryPendingDelete.name}”
+                "{categoryPendingDelete.name}"
               </span>
-              . Cette action est définitive.
+              . Cette action est irréversible.
             </p>
 
             <div className="mt-6 flex justify-end gap-3">
