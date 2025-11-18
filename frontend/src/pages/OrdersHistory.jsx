@@ -132,42 +132,64 @@ export default function OrdersHistory() {
             </div>
 
             <div className="p-6">
-              <div className="space-y-4">
-                {order.items.map((item, index) => {
-                  const isDelivered = order.status === 'delivered';
-                  const alreadyReviewed = hasReviewed(item.productId);
-                  
-                  return (
-                    <div key={index} className="flex items-center gap-4 pb-4 border-b last:border-b-0">
-                      <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center">
-                        <Package className="text-gray-400" size={32} />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">Produit ID: {item.productId}</p>
-                        <p className="text-sm text-gray-600">Quantité: {item.quantity}</p>
-                        <p className="text-sm text-gray-600">Prix unitaire: {item.price.toFixed(2)} MAD</p>
-                      </div>
-                      <div className="text-right flex flex-col items-end gap-2">
-                        <p className="font-semibold">{(item.price * item.quantity).toFixed(2)} MAD</p>
-                        {isDelivered && (
-                          alreadyReviewed ? (
-                            <span className="text-xs text-green-600 flex items-center gap-1">
-                              <CheckCircle size={14} /> Avis ajouté
-                            </span>
-                          ) : (
-                            <button
-                              onClick={() => handleOpenReviewModal(item.productId)}
-                              className="text-xs bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-700 flex items-center gap-1"
-                            >
-                              <Star size={14} /> Ajouter un avis
-                            </button>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+<div className="overflow-x-auto mt-4">
+  <table className="w-full border-collapse">
+    <thead>
+      <tr className="bg-gray-100 text-left text-sm">
+        <th className="p-3 border">Produit</th>
+        <th className="p-3 border">Quantité</th>
+        <th className="p-3 border">Prix unitaire</th>
+        <th className="p-3 border">Total</th>
+        <th className="p-3 border text-center">Avis</th>
+      </tr>
+    </thead>
+    <tbody>
+      {order.items.map((item, index) => {
+        const isDelivered = order.status === 'delivered';
+        const alreadyReviewed = hasReviewed(item.productId);
+        
+        return (
+          <tr key={index} className="text-sm border-b hover:bg-gray-50">
+            <td className="p-3 border flex items-center gap-3">
+              <div className="w-14 h-14 bg-gray-100 rounded flex items-center justify-center">
+                <Package className="text-gray-400" size={28} />
               </div>
+              <div>
+                <p className="font-medium">Produit ID: {item.productId}</p>
+              </div>
+            </td>
+
+            <td className="p-3 border">{item.quantity}</td>
+            <td className="p-3 border">{item.price.toFixed(2)} MAD</td>
+            <td className="p-3 border font-semibold">
+              {(item.price * item.quantity).toFixed(2)} MAD
+            </td>
+
+            <td className="p-3 border text-center">
+              {isDelivered ? (
+                alreadyReviewed ? (
+                  <span className="text-xs text-green-600 flex items-center gap-1 justify-center">
+                    <CheckCircle size={14} /> Avis ajouté
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleOpenReviewModal(item.productId)}
+                    className="text-xs bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 flex items-center gap-1 justify-center"
+                  >
+                    <Star size={14} /> Ajouter
+                  </button>
+                )
+              ) : (
+                <span className="text-xs text-gray-400">En attente</span>
+              )}
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
+
 
               <div className="mt-6 pt-4 border-t">
                 <div className="flex justify-between items-center mb-2">
