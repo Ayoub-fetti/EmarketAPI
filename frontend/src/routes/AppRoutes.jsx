@@ -19,11 +19,14 @@ import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
 import AddProduct from "../pages/seller/AddProduct";
 import EditProduct from "../pages/seller/EditProduct";
+import ProductDetails from "../pages/seller/ProductDetails";
 import Orders from "../pages/seller/Orders";
 import Coupons from "../pages/seller/Coupons";
 import Notifications from "../pages/seller/Notifications";
 import Profile from "../pages/seller/Profile";
 import UserOrders from "../pages/Orders";
+import OrdersHistory from "../pages/OrdersHistory";
+import ProfileUser from "../pages/Profile";
 
 export default function AppRoutes() {
   return (
@@ -43,6 +46,22 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={["user"]}>
               <UserOrders />
+            </ProtectedRoute>
+          }
+        ></Route>
+        <Route
+          path="profile/user"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <ProfileUser />
+            </ProtectedRoute>
+          }
+        ></Route>
+        <Route
+          path="orders/history"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <OrdersHistory />
             </ProtectedRoute>
           }
         ></Route>
@@ -78,6 +97,7 @@ export default function AppRoutes() {
         <Route path="products" element={<SellerProducts />} />
         <Route path="products/add" element={<AddProduct />} />
         <Route path="products/edit/:id" element={<EditProduct />} />
+        <Route path="products/:id" element={<ProductDetails />} />
         <Route path="orders" element={<Orders />} />
         <Route path="coupons" element={<Coupons />} />
         <Route path="notifications" element={<Notifications />} />

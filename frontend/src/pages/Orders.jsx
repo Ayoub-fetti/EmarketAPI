@@ -121,10 +121,10 @@ export default function Orders() {
                     <div className="flex-1">
                       <p className="font-medium">Produit ID: {item.productId}</p>
                       <p className="text-sm text-gray-600">Quantité: {item.quantity}</p>
-                      <p className="text-sm text-gray-600">Prix unitaire: {item.price.toFixed(2)}€</p>
+                      <p className="text-sm text-gray-600">Prix unitaire: {item.price.toFixed(2)} MAD</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold">{(item.price * item.quantity).toFixed(2)}€</p>
+                      <p className="font-semibold">{(item.price * item.quantity).toFixed(2)} MAD</p>
                     </div>
                   </div>
                 ))}
@@ -133,17 +133,17 @@ export default function Orders() {
               <div className="mt-6 pt-4 border-t">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-gray-600">Sous-total:</span>
-                  <span>{order.totalAmount.toFixed(2)}€</span>
+                  <span>{order.totalAmount.toFixed(2)} MAD</span>
                 </div>
                 {order.totalAmount !== order.finalAmount && (
                   <div className="flex justify-between items-center mb-2 text-green-600">
                     <span>Réduction:</span>
-                    <span>-{(order.totalAmount - order.finalAmount).toFixed(2)}€</span>
+                    <span>-{(order.totalAmount - order.finalAmount).toFixed(2)} MAD</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center text-lg font-bold">
                   <span>Total:</span>
-                  <span>{order.finalAmount.toFixed(2)}€</span>
+                  <span>{order.finalAmount.toFixed(2)} MAD</span>
                 </div>
               </div>
 
