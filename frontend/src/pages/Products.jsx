@@ -3,9 +3,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { productService } from "../services/productService";
 import { categoryService } from "../services/categoryService";
 import Loader from "../components/tools/Loader";
-import { Search, X } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import discountImage from "../../public/discount.png";
-import '../App.css';
+import "../App.css";
 
 export default function Products() {
   const navigate = useNavigate();
@@ -18,6 +18,8 @@ export default function Products() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,8 +36,11 @@ export default function Products() {
           });
           setProducts(searchData.data);
         } else {
-          const productsData = await productService.getPublishedProducts();
+          const productsData = await productService.getPublishedProducts(
+            currentPage
+          );
           setProducts(productsData.data);
+          setTotalPages(productsData.pages);
         }
       } catch {
         setError("Erreur lors du chargement des données");
@@ -44,7 +49,7 @@ export default function Products() {
       }
     };
     fetchData();
-  }, [searchParams]);
+  }, [searchParams, currentPage]);
 
   const handleFilter = async () => {
     try {
@@ -80,8 +85,10 @@ export default function Products() {
     setSearchQuery("");
     try {
       setLoading(true);
-      const data = await productService.getPublishedProducts();
+      const data = await productService.getPublishedProducts(1);
       setProducts(data.data);
+      setTotalPages(data.pages);
+      setCurrentPage(1);
     } catch {
       setError("Erreur lors du chargement");
     } finally {
@@ -212,7 +219,7 @@ export default function Products() {
                         type="checkbox"
                         checked={selectedCategories.includes(category._id)}
                         onChange={() => handleCategoryChange(category._id)}
-                        className="w-4 h-4 rounded border-input bg-background text-primary focus:ring-2 focus:ring-primary/50 cursor-pointer"
+                        className="w-4 h-4 rounded border-input bg-background text-primary cursor-pointer"
                       />
                       <span className="text-sm text-foreground">
                         {category.name}
@@ -321,6 +328,44 @@ export default function Products() {
               </div>
             )}
           </div>
+          {/* Pagination */}
+          {!searchQuery && totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-2">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg border border-input bg-background hover:bg-accent disabled:opacity-50"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                      currentPage === page
+                        ? "bg-gray-300 text-primary-foreground"
+                        : "bg-background border border-input hover:bg-accent"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg border border-input bg-background hover:bg-accent disabled:opacity-50"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

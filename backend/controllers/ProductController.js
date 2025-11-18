@@ -164,12 +164,29 @@ export const getProducts = async (req, res, next) => {
 
 export const getPublishedProducts = async (req, res, next) => {
   try {
-    const Products = await Product.find()
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = (page - 1) * limit;
+
+    const total = await Product.find()
+    .notDeleted()
+    .isPublished()
+    .countDocuments();
+
+    const products = await Product.find()
       .notDeleted()
       .isPublished()
       .populate({ path: 'categories', match: {} })
-      .populate('seller_id', 'fullname email');
-    res.status(200).json({ data: Products });
+      .populate('seller_id', 'fullname email')
+      .skip(startIndex)
+      .limit(limit);
+    res.status(200).json({
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit),
+      data: products,
+    });
   } catch (error) {
     next(error);
   }
