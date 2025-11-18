@@ -15,6 +15,7 @@ import AdminProducts from "../pages/admin/AdminProducts";
 import AdminOrders from "../pages/admin/AdminOrders";
 import AdminCategories from "../pages/admin/AdminCategories";
 import AdminCoupons from "../pages/admin/AdminCoupons";
+import AdminReviews from "../pages/admin/AdminReviews";
 import Dashboard from "../layouts/seller/Dashboard";
 import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
@@ -84,6 +85,7 @@ export default function AppRoutes() {
         <Route path="categories" element={<AdminCategories />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="coupons" element={<AdminCoupons />} />
+        <Route path="reviews" element={<AdminReviews />} />
         <Route path="*" element={<NotFound />} />
       </Route>
       {/* Seller Pending Approval - Outside Dashboard Layout */}
