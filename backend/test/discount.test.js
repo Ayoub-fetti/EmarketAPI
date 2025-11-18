@@ -3,6 +3,7 @@ import request from "supertest";
 import app from "../server.js";
 import mongoose from "mongoose";
 import Coupon from "../models/Coupon.js";
+import User from "../models/User.js";
 
 describe("Coupon API", function () {
   this.timeout(10000);
@@ -13,18 +14,20 @@ describe("Coupon API", function () {
 
   before(async () => {
     await mongoose.connect(process.env.DB_URI);
+    
+    await User.deleteMany({});
 
     const adminRes = await request(app).post("/api/auth/register").send({
       fullname: "Admin User",
       email: "admin@test.com",
       password: "admin123",
-      role: "admin",
     });
     const userRes = await request(app).post("/api/auth/register").send({
       fullname: "Normal User",
       email: "user@test.com",
       password: "user123",
     });
+    
     adminToken = adminRes.body.data.token;
     userToken = userRes.body.data.token;
     adminUserId = adminRes.body.data.user.id;
@@ -89,8 +92,8 @@ describe("Coupon API", function () {
     });
 
     it("Should handle expired coupon", async () => {
-      coupon.startDate = new Date(Date.now() - 1000 * 60 * 60 * 24); // 1 day in the past
-      coupon.expirationDate = new Date(Date.now() - 1000 * 60 * 60); // 1 hour in the past
+      coupon.startDate = new Date(Date.now() - 1000 * 60 * 60 * 24);
+      coupon.expirationDate = new Date(Date.now() - 1000 * 60 * 60);
       await coupon.save();
 
       const res = await request(app)

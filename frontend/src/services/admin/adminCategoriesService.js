@@ -19,5 +19,19 @@ export const adminCategoriesService = {
   async deleteCategory(id) {
     await api.delete(`/categories/${id}`);
   },
+
+  async softDeleteCategory(id) {
+    await api.delete(`/categories/${id}/soft`);
+  },
+
+  async fetchDeletedCategories() {
+    const response = await api.get("/categories/deleted");
+    return response.data?.data ?? response.data?.categories ?? [];
+  },
+
+  async restoreCategory(id) {
+    const response = await api.patch(`/categories/${id}/restore`);
+    return response.data?.data ?? response.data?.category ?? response.data;
+  },
 };
 

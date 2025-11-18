@@ -43,7 +43,6 @@ router.get(
   authorizeRoles("admin"),
   userController.getUserById,
 );
-// router.patch("/:id",isAuthenticated,createUpload("avatars", "avatar", 1), validate(userSchema),checkOwnership, userController.updateUser);
 router.patch(
   "/:id",
   isAuthenticated,
@@ -82,6 +81,13 @@ router.put(
   isAuthenticated,
   authorizeRoles("admin"),
   userController.changeRole,
+);
+
+router.patch(
+  "/:id/admin",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  userController.adminUpdateUser,
 );
 
 export default router;
