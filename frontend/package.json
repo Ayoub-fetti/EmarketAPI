@@ -22,6 +22,7 @@
     "react-router-dom": "^7.9.5",
     "react-toastify": "^11.0.5",
     "recharts": "^3.4.1",
+    "styled-components": "^6.1.19",
     "tailwindcss": "^4.1.16",
     "yup": "^1.7.1"
   },

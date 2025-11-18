@@ -43,28 +43,28 @@ export default function Footer() {
                   aria-label="Twitter"
                   className="text-gray-600 hover:text-orange-600 transition-colors"
                 >
-                  <i class="fa-brands fa-x-twitter"></i>{" "}
+                  <i className="fa-brands fa-x-twitter"></i>{" "}
                 </a>
                 <a
                   href="#"
                   aria-label="Facebook"
                   className="text-gray-600 hover:text-orange-600 transition-colors"
                 >
-                  <i class="fa-brands fa-facebook-f"></i>{" "}
+                  <i className="fa-brands fa-facebook-f"></i>{" "}
                 </a>
                 <a
                   href="#"
                   aria-label="Instagram"
                   className="text-gray-600 hover:text-orange-600 transition-colors"
                 >
-                  <i class="fa-brands fa-instagram"></i>
+                  <i className="fa-brands fa-instagram"></i>
                 </a>
                 <a
                   href="#"
                   aria-label="GitHub"
                   className="text-gray-600 hover:text-orange-600 transition-colors"
                 >
-                  <i class="fa-brands fa-github"></i>
+                  <i className="fa-brands fa-github"></i>
                 </a>
               </div>
 
