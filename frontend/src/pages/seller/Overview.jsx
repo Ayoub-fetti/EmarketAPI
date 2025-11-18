@@ -3,6 +3,7 @@ import RecentOrders from "../../components/seller/RecentOrders";
 import { useAuth } from "../../context/AuthContext";
 import { useState, useEffect } from "react";
 import { orderService } from "../../services/orderService";
+import { productService } from "../../services/productService";
 import api from "../../services/axios";
 import {
   MdAttachMoney,
@@ -14,10 +15,16 @@ import {
 export default function Overview() {
   const { user } = useAuth();
   const [recentOrders, setRecentOrders] = useState([]);
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    pendingOrders: 0,
+    totalProducts: 0,
+    deliveredOrders: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRecentOrders = async () => {
+    const fetchData = async () => {
       if (!user || !user.id) {
         setLoading(false);
         return;
@@ -25,19 +32,51 @@ export default function Overview() {
 
       try {
         setLoading(true);
-        const response = await orderService.getSellerOrders(user.id);
+
+        // Charger les commandes et les produits en parallèle
+        const [ordersResponse, productsResponse] = await Promise.all([
+          orderService.getSellerOrders(user.id),
+          productService.getProductsBySeller(user.id),
+        ]);
+
+        const orders = ordersResponse.orders || [];
+        const products = productsResponse.products || [];
+
+        // Calculer les statistiques
+        const totalRevenue = orders.reduce((sum, order) => {
+          if (order.status !== "cancelled") {
+            return sum + (order.sellerTotal || order.finalAmount || 0);
+          }
+          return sum;
+        }, 0);
+
+        const pendingOrders = orders.filter(
+          (order) => order.status === "pending" || order.status === "shipped"
+        ).length;
+
+        const deliveredOrders = orders.filter(
+          (order) => order.status === "delivered"
+        ).length;
+
+        setStats({
+          totalRevenue,
+          pendingOrders,
+          totalProducts: products.length,
+          deliveredOrders,
+        });
+
         // Prendre seulement les 5 dernières commandes
-        const recent = (response.orders || []).slice(0, 5);
+        const recent = orders.slice(0, 5);
         setRecentOrders(recent);
       } catch (err) {
-        console.error("Erreur lors du chargement des commandes récentes:", err);
+        console.error("Erreur lors du chargement des données:", err);
         setRecentOrders([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRecentOrders();
+    fetchData();
   }, [user]);
 
   const handleStatusChange = async (orderId, newStatus) => {
@@ -80,38 +119,34 @@ export default function Overview() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
         <StatCard
           title="Total Revenus"
-          value="22 550 DH"
+          value={`${stats.totalRevenue.toFixed(2)} DH`}
           icon={MdAttachMoney}
           color="green"
-          trend="up"
-          trendValue="+12.5%"
+          loading={loading}
         />
 
         <StatCard
           title="Commandes En Cours"
-          value="48"
+          value={stats.pendingOrders}
           icon={MdShoppingCart}
           color="blue"
-          trend="up"
-          trendValue="+8.3%"
+          loading={loading}
         />
 
         <StatCard
           title="Total Produits"
-          value="156"
+          value={stats.totalProducts}
           icon={MdInventory}
           color="orange"
-          trend="up"
-          trendValue="+2.1%"
+          loading={loading}
         />
 
         <StatCard
           title="Commandes Livrées"
-          value="324"
+          value={stats.deliveredOrders}
           icon={MdLocalShipping}
           color="purple"
-          trend="up"
-          trendValue="+5.2%"
+          loading={loading}
         />
       </div>
 
