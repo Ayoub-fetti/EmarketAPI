@@ -31,6 +31,9 @@ export const productService = {
     if (filters.description) {
       params.append("description", filters.description);
     }
+    if (filters.id) {
+      params.append("description", filters.id);
+    }
 
     const response = await api.get(`/products/search?${params}`);
     return response.data;

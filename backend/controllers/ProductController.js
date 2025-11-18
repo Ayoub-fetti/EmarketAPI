@@ -169,9 +169,9 @@ export const getPublishedProducts = async (req, res, next) => {
     const startIndex = (page - 1) * limit;
 
     const total = await Product.find()
-    .notDeleted()
-    .isPublished()
-    .countDocuments();
+      .notDeleted()
+      .isPublished()
+      .countDocuments();
 
     const products = await Product.find()
       .notDeleted()
@@ -262,6 +262,7 @@ export const searchProducts = async (req, res) => {
   try {
     const {
       title,
+      description,
       categories,
       minPrice,
       maxPrice,
@@ -280,6 +281,9 @@ export const searchProducts = async (req, res) => {
 
     if (title) {
       filter.$text = { $search: title };
+    }
+    if (description) {
+      filter.description = { $regex: description, $options: 'i' };
     }
 
     if (categories) {

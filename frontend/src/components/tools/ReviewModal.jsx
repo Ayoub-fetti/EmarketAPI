@@ -12,7 +12,7 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, productId }) {
     if (rating === 0) {
       return;
     }
-    if (comment.length < 10) {
+    if (comment.length < 5) {
       return;
     }
     
@@ -37,7 +37,7 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, productId }) {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Note *</label>
+            <label className="block text-sm font-medium mb-2">Note <span className='text-red-500'>*</span></label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -63,15 +63,15 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, productId }) {
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">
-              Commentaire * (min. 10 caractères)
+              Commentaire <span className='text-red-500'>*</span> <span className='text-xs'>(min. 5 caractères)</span>
             </label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="w-full border rounded-lg p-2 min-h-[100px]"
+              className="w-full border rounded-lg p-2 min-h-[50px]"
               placeholder="Partagez votre expérience..."
               required
-              minLength={10}
+              minLength={5}
             />
             <p className="text-xs text-gray-500 mt-1">{comment.length} caractères</p>
           </div>
@@ -87,8 +87,8 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, productId }) {
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
-              disabled={loading || rating === 0 || comment.length < 10}
+              className="flex-1 px-4 py-2 bg-orange-700 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
+              disabled={loading || rating === 0 || comment.length < 5}
             >
               {loading ? 'Envoi...' : 'Envoyer'}
             </button>
