@@ -1,4 +1,74 @@
-export default function RecentOrders({ orders }) {
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+
+export default function RecentOrders({ orders, onStatusChange }) {
+  const navigate = useNavigate();
+  const [updatingOrderId, setUpdatingOrderId] = useState(null);
+
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      pending: {
+        label: "En attente",
+        className: "bg-yellow-100 text-yellow-800",
+      },
+      shipped: {
+        label: "Expédiée",
+        className: "bg-blue-100 text-blue-800",
+      },
+      delivered: {
+        label: "Livrée",
+        className: "bg-green-100 text-green-800",
+      },
+      cancelled: {
+        label: "Annulée",
+        className: "bg-red-100 text-red-800",
+      },
+    };
+
+    const config = statusConfig[status] || {
+      label: status,
+      className: "bg-gray-100 text-gray-800",
+    };
+
+    return (
+      <span
+        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${config.className}`}
+      >
+        {config.label}
+      </span>
+    );
+  };
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatPrice = (price) => {
+    return `${price.toFixed(2)} DH`;
+  };
+
+  const generateOrderNumber = (orderId, createdAt) => {
+    const date = new Date(createdAt);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const shortId = orderId.substring(orderId.length - 6).toUpperCase();
+    return `CMD-${year}${month}-${shortId}`;
+  };
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    if (!onStatusChange) return;
+
+    setUpdatingOrderId(orderId);
+    try {
+      await onStatusChange(orderId, newStatus);
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  };
   return (
     <div className="bg-white rounded-md border border-gray-200 p-6">
       {/* Header */}
@@ -11,7 +81,10 @@ export default function RecentOrders({ orders }) {
             Dernières commandes reçues
           </p>
         </div>
-        <button className="text-sm font-medium text-orange-700 hover:text-orange-800 transition-colors">
+        <button
+          onClick={() => navigate("/seller/orders")}
+          className="text-sm font-medium text-orange-700 hover:text-orange-800 transition-colors"
+        >
           Voir tout →
         </button>
       </div>
@@ -22,13 +95,13 @@ export default function RecentOrders({ orders }) {
           <thead>
             <tr className="border-b border-gray-200">
               <th className="text-left text-xs font-semibold text-gray-600 uppercase pb-3 px-2">
-                Commande
-              </th>
-              <th className="text-left text-xs font-semibold text-gray-600 uppercase pb-3 px-2 hidden md:table-cell">
-                Date
+                N° Commande
               </th>
               <th className="text-left text-xs font-semibold text-gray-600 uppercase pb-3 px-2">
                 Client
+              </th>
+              <th className="text-left text-xs font-semibold text-gray-600 uppercase pb-3 px-2 hidden md:table-cell">
+                Produits
               </th>
               <th className="text-left text-xs font-semibold text-gray-600 uppercase pb-3 px-2">
                 Montant
@@ -36,65 +109,92 @@ export default function RecentOrders({ orders }) {
               <th className="text-left text-xs font-semibold text-gray-600 uppercase pb-3 px-2">
                 Statut
               </th>
-              <th className="text-right text-xs font-semibold text-gray-600 uppercase pb-3 px-2">
-                Actions
+              <th className="text-left text-xs font-semibold text-gray-600 uppercase pb-3 px-2 hidden lg:table-cell">
+                Date
+              </th>
+              <th className="text-center text-xs font-semibold text-gray-600 uppercase pb-3 px-2 hidden xl:table-cell">
+                Changer
               </th>
             </tr>
           </thead>
           <tbody>
-            {orders.map((order, index) => (
+            {orders.map((order) => (
               <tr
-                key={index}
+                key={order._id}
                 className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
               >
-                {/* Order ID */}
+                {/* Order Number */}
                 <td className="py-4 px-2">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      #{order.id}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-0.5 md:hidden">
-                      {order.date}
-                    </p>
+                  <div className="text-sm font-semibold text-gray-900">
+                    {generateOrderNumber(order._id, order.createdAt)}
                   </div>
-                </td>
-
-                {/* Date - Hidden on mobile */}
-                <td className="py-4 px-2 text-sm text-gray-600 hidden md:table-cell">
-                  {order.date}
                 </td>
 
                 {/* Client */}
                 <td className="py-4 px-2">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-semibold text-xs">
-                      {order.client.substring(0, 2).toUpperCase()}
+                      {(order.userId?.fullname || "UK")
+                        .substring(0, 2)
+                        .toUpperCase()}
                     </div>
-                    <span className="text-sm font-medium text-gray-900 capitalize">
-                      {order.client}
-                    </span>
+                    <div>
+                      <span className="text-sm font-medium text-gray-900 capitalize block">
+                        {order.userId?.fullname || "Client inconnu"}
+                      </span>
+                      <span className="text-xs text-gray-500 block lg:hidden">
+                        {formatDate(order.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+
+                {/* Products - Hidden on mobile */}
+                <td className="py-4 px-2 hidden md:table-cell">
+                  <div className="text-sm text-gray-900">
+                    {order.items?.length || 0} article
+                    {order.items?.length > 1 ? "s" : ""}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {order.items?.[0]?.productId?.title}
+                    {order.items?.length > 1 && ` +${order.items.length - 1}`}
                   </div>
                 </td>
 
                 {/* Amount */}
                 <td className="py-4 px-2">
                   <span className="text-sm font-semibold text-gray-900">
-                    {order.amount}
+                    {formatPrice(order.sellerTotal || order.finalAmount)}
                   </span>
                 </td>
 
                 {/* Status */}
-                <td className="py-4 px-2">
-                  <span className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium text-orange-700 bg-orange-100">
-                    <span className="capitalize">{order.status}</span>
-                  </span>
+                <td className="py-4 px-2">{getStatusBadge(order.status)}</td>
+
+                {/* Date - Hidden on small screens */}
+                <td className="py-4 px-2 text-sm text-gray-600 hidden lg:table-cell">
+                  {formatDate(order.createdAt)}
                 </td>
 
-                {/* Actions */}
-                <td className="py-4 px-2 text-right">
-                  <button className="text-sm px-4 py-1 rounded font-small text-white transition-all hover:shadow-md bg-orange-700">
-                    Détails
-                  </button>
+                {/* Status Change - Hidden on small screens */}
+                <td className="py-4 px-2 text-center hidden xl:table-cell">
+                  <select
+                    value={order.status}
+                    onChange={(e) =>
+                      handleStatusChange(order._id, e.target.value)
+                    }
+                    disabled={updatingOrderId === order._id}
+                    className={`px-2 py-1 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                      updatingOrderId === order._id
+                        ? "opacity-50 cursor-not-allowed bg-gray-100"
+                        : "bg-white cursor-pointer hover:border-orange-500"
+                    }`}
+                  >
+                    <option value="pending">En attente</option>
+                    <option value="shipped">Expédiée</option>
+                    <option value="delivered">Livrée</option>
+                    <option value="cancelled">Annulée</option>
+                  </select>
                 </td>
               </tr>
             ))}
