@@ -1,27 +1,36 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { adminUsersService } from "../../services/admin/adminUsersService";
+import {
+  FaUserPlus,
+  FaEye,
+  FaEdit,
+  FaBan,
+  FaTrash,
+  FaUndo,
+  FaUsers,
+} from "react-icons/fa";
 
 const statusLabels = {
-  active: "Actif",
-  pending: "En attente",
+  active: "Active",
+  pending: "Pending",
 };
 
 const statusColors = {
-  active: "bg-green-100 text-green-800",
-  pending: "bg-yellow-100 text-yellow-800",
+  active: "bg-green-100 text-green-800 border border-green-200",
+  pending: "bg-yellow-100 text-yellow-800 border border-yellow-200",
 };
 
 const roleLabels = {
-  user: "Utilisateur",
-  seller: "Vendeur",
-  admin: "Administrateur",
+  user: "User",
+  seller: "Seller",
+  admin: "Admin",
 };
 
 const roleColors = {
-  user: "bg-blue-100 text-blue-800",
-  seller: "bg-purple-100 text-purple-800",
-  admin: "bg-red-100 text-red-800",
+  user: "bg-blue-100 text-blue-800 border border-blue-200",
+  seller: "bg-purple-100 text-purple-800 border border-purple-200",
+  admin: "bg-red-100 text-red-800 border border-red-200",
 };
 
 export default function AdminUsers() {
@@ -63,7 +72,7 @@ export default function AdminUsers() {
       const message =
         err.response?.data?.message ||
         err.message ||
-        "Erreur lors du chargement des utilisateurs.";
+        "Error loading users.";
       setError(message);
     } finally {
       setLoading(false);
@@ -99,7 +108,7 @@ export default function AdminUsers() {
       const userDetails = await adminUsersService.fetchUserById(user._id);
       setViewingUser(userDetails);
     } catch (err) {
-      toast.error("Impossible de charger les détails de l'utilisateur.");
+      toast.error("Unable to load user details.");
     }
   };
 
@@ -132,14 +141,14 @@ export default function AdminUsers() {
       setUsers((prev) =>
         prev.map((u) => (u._id === editingUser._id ? updatedUser : u)),
       );
-      toast.success("Utilisateur mis à jour avec succès.");
+      toast.success("User updated successfully.");
       closeEditModal();
       await fetchUsers();
     } catch (err) {
       const message =
         err.response?.data?.message ||
         err.message ||
-        "Impossible de mettre à jour l'utilisateur.";
+        "Unable to update user.";
       toast.error(message);
     } finally {
       setSaving(false);
@@ -148,13 +157,13 @@ export default function AdminUsers() {
 
   const handleCreate = async () => {
     if (!newUser.fullname || !newUser.email || !newUser.password) {
-      toast.error("Veuillez remplir tous les champs obligatoires.");
+      toast.error("Please fill all required fields.");
       return;
     }
     setCreating(true);
     try {
       const createdUser = await adminUsersService.createUser(newUser);
-      toast.success("Utilisateur créé avec succès.");
+      toast.success("User created successfully.");
       setNewUser({
         fullname: "",
         email: "",
@@ -168,7 +177,7 @@ export default function AdminUsers() {
       const message =
         err.response?.data?.message ||
         err.message ||
-        "Impossible de créer l'utilisateur.";
+        "Unable to create user.";
       toast.error(message);
     } finally {
       setCreating(false);
@@ -181,18 +190,18 @@ export default function AdminUsers() {
     try {
       if (actionType === "delete") {
         await adminUsersService.deleteUser(actionTarget._id);
-        toast.success("Utilisateur supprimé définitivement.");
+        toast.success("User permanently deleted.");
         setUsers((prev) => prev.filter((u) => u._id !== actionTarget._id));
         setDeletedUsers((prev) =>
           prev.filter((u) => u._id !== actionTarget._id),
         );
       } else if (actionType === "softDelete") {
         await adminUsersService.softDeleteUser(actionTarget._id);
-        toast.success("Utilisateur désactivé.");
+        toast.success("User deactivated.");
         setUsers((prev) => prev.filter((u) => u._id !== actionTarget._id));
       } else if (actionType === "restore") {
         await adminUsersService.restoreUser(actionTarget._id);
-        toast.success("Utilisateur restauré.");
+        toast.success("User restored.");
         setDeletedUsers((prev) =>
           prev.filter((u) => u._id !== actionTarget._id),
         );
@@ -224,7 +233,7 @@ export default function AdminUsers() {
         setUsers(filtered);
       }
     } catch (err) {
-      toast.error("Erreur lors du filtrage.");
+      toast.error("Error filtering users.");
     } finally {
       setLoading(false);
     }
@@ -232,8 +241,11 @@ export default function AdminUsers() {
 
   if (loading && users.length === 0 && deletedUsers.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+      <div className="flex h-full items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+          <p className="text-sm text-gray-500">Loading users...</p>
+        </div>
       </div>
     );
   }
@@ -241,14 +253,14 @@ export default function AdminUsers() {
   if (error && users.length === 0) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-600">
-        <div className="font-semibold">Erreur</div>
+        <div className="font-semibold">Error</div>
         <p className="mt-2 text-sm">{error}</p>
         <button
           type="button"
           onClick={fetchUsers}
-          className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+          className="mt-4 rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
         >
-          Réessayer
+          Try Again
         </button>
       </div>
     );
@@ -256,19 +268,19 @@ export default function AdminUsers() {
 
   return (
     <section className="space-y-6">
-      <header className="space-y-1">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          Gestion des utilisateurs
+      <header className="space-y-2 mb-6">
+        <h2 className="text-3xl font-bold text-gray-900">
+          Users Management
         </h2>
-        <p className="text-sm text-gray-500">
-          Consultez et gérez les utilisateurs, leurs statuts et leurs rôles.
+        <p className="text-sm text-gray-600">
+          View and manage users, their statuses, and roles.
         </p>
       </header>
 
-      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-md">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-gray-700">
-            Filtrer par rôle:
+            Filter by role:
           </label>
           <select
             value={roleFilter}
@@ -276,77 +288,77 @@ export default function AdminUsers() {
               setRoleFilter(e.target.value);
               handleFilterByRole(e.target.value);
             }}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
           >
-            <option value="all">Tous</option>
-            <option value="user">Utilisateur</option>
-            <option value="seller">Vendeur</option>
-            <option value="admin">Administrateur</option>
+            <option value="all">All</option>
+            <option value="user">User</option>
+            <option value="seller">Seller</option>
+            <option value="admin">Admin</option>
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700">Afficher:</label>
+          <label className="text-sm font-medium text-gray-700">Show:</label>
           <button
             type="button"
             onClick={() => setShowDeleted(false)}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
               !showDeleted
-                ? "bg-blue-600 text-white"
+                ? "bg-orange-600 text-white shadow-sm"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            Actifs ({users.length})
+            Active ({users.length})
           </button>
           <button
             type="button"
             onClick={() => setShowDeleted(true)}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
               showDeleted
-                ? "bg-blue-600 text-white"
+                ? "bg-orange-600 text-white shadow-sm"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            Supprimés ({deletedUsers.length})
+            Deleted ({deletedUsers.length})
           </button>
         </div>
         <div className="ml-auto">
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700"
+            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 shadow-sm hover:shadow-md"
           >
-            + Créer un utilisateur
+            <FaUserPlus className="w-4 h-4" />
+            Create User
           </button>
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {showDeleted ? "Utilisateurs supprimés" : "Utilisateurs actifs"}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md">
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-gray-900">
+            {showDeleted ? "Deleted Users" : "Active Users"}
           </h3>
-          <p className="text-sm text-gray-500">
-            {filteredUsers.length} utilisateur{filteredUsers.length > 1 ? "s" : ""} trouvé
-            {filteredUsers.length > 1 ? "s" : ""}.
+          <p className="text-sm text-gray-500 mt-1">
+            {filteredUsers.length} user{filteredUsers.length !== 1 ? "s" : ""} found.
           </p>
         </div>
 
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
                 {[
-                  "Nom",
+                  "Name",
                   "Email",
-                  "Rôle",
-                  "Statut",
-                  "Date d'inscription",
+                  "Role",
+                  "Status",
+                  "Registration Date",
                   "Actions",
                 ].map((header) => (
                   <th
                     key={header}
                     scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
                   >
                     {header}
                   </th>
@@ -355,74 +367,82 @@ export default function AdminUsers() {
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
               {filteredUsers.map((user) => (
-                <tr key={user._id}>
-                  <td className="px-4 py-3 font-medium text-gray-900">
+                <tr 
+                  key={user._id}
+                  className="hover:bg-gray-50 transition-colors duration-150"
+                >
+                  <td className="px-6 py-4 font-semibold text-gray-900">
                     {user.fullname || "—"}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{user.email}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-6 py-4 text-gray-700">{user.email}</td>
+                  <td className="px-6 py-4">
                     <span
-                      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
                         roleColors[user.role] || roleColors.user
                       }`}
                     >
                       {roleLabels[user.role] || user.role}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-6 py-4">
                     <span
-                      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
                         statusColors[user.status] || statusColors.active
                       }`}
                     >
                       {statusLabels[user.status] || user.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-6 py-4 text-gray-600">
                     {user.createdAt
-                      ? new Date(user.createdAt).toLocaleDateString("fr-FR")
+                      ? new Date(user.createdAt).toLocaleDateString("en-US")
                       : "—"}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
                         onClick={() => openViewModal(user)}
-                        className="rounded-md border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                        className="flex items-center gap-1 rounded-lg border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
                       >
-                        Détails
+                        <FaEye className="w-3 h-3" />
+                        View
                       </button>
                       {!showDeleted ? (
                         <>
                           <button
                             type="button"
                             onClick={() => openEditModal(user)}
-                            className="rounded-md border border-green-200 px-3 py-1 text-xs font-semibold text-green-600 transition hover:bg-green-50"
+                            className="flex items-center gap-1 rounded-lg border border-green-200 px-3 py-1.5 text-xs font-semibold text-green-600 transition hover:bg-green-50"
                           >
-                            Modifier
+                            <FaEdit className="w-3 h-3" />
+                            Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => openActionModal(user, "softDelete")}
-                            className="rounded-md border border-yellow-200 px-3 py-1 text-xs font-semibold text-yellow-600 transition hover:bg-yellow-50"
+                            className="flex items-center gap-1 rounded-lg border border-yellow-200 px-3 py-1.5 text-xs font-semibold text-yellow-600 transition hover:bg-yellow-50"
                           >
-                            Désactiver
+                            <FaBan className="w-3 h-3" />
+                            Deactivate
                           </button>
                           <button
                             type="button"
                             onClick={() => openActionModal(user, "delete")}
-                            className="rounded-md border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                            className="flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                           >
-                            Supprimer
+                            <FaTrash className="w-3 h-3" />
+                            Delete
                           </button>
                         </>
                       ) : (
                         <button
                           type="button"
                           onClick={() => openActionModal(user, "restore")}
-                          className="rounded-md border border-green-200 px-3 py-1 text-xs font-semibold text-green-600 transition hover:bg-green-50"
+                          className="flex items-center gap-1 rounded-lg border border-green-200 px-3 py-1.5 text-xs font-semibold text-green-600 transition hover:bg-green-50"
                         >
-                          Restaurer
+                          <FaUndo className="w-3 h-3" />
+                          Restore
                         </button>
                       )}
                     </div>
@@ -433,9 +453,10 @@ export default function AdminUsers() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-8 text-center text-sm text-gray-500"
+                    className="px-6 py-12 text-center text-sm text-gray-500"
                   >
-                    Aucun utilisateur trouvé.
+                    <FaUsers className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p>No users found.</p>
                   </td>
                 </tr>
               )}
@@ -448,14 +469,14 @@ export default function AdminUsers() {
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Créer un nouvel utilisateur
+            <h3 className="text-lg font-bold text-gray-900">
+              Create New User
             </h3>
 
             <div className="mt-4 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Nom complet *
+                  Full Name *
                 </label>
                 <input
                   type="text"
@@ -463,7 +484,7 @@ export default function AdminUsers() {
                   onChange={(e) =>
                     setNewUser({ ...newUser, fullname: e.target.value })
                   }
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   placeholder="John Doe"
                 />
               </div>
@@ -478,14 +499,14 @@ export default function AdminUsers() {
                   onChange={(e) =>
                     setNewUser({ ...newUser, email: e.target.value })
                   }
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   placeholder="john@example.com"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Mot de passe *
+                  Password *
                 </label>
                 <input
                   type="password"
@@ -493,14 +514,14 @@ export default function AdminUsers() {
                   onChange={(e) =>
                     setNewUser({ ...newUser, password: e.target.value })
                   }
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   placeholder="••••••••"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Rôle
+                  Role
                 </label>
                 <select
                   value={newUser.role}
@@ -511,27 +532,27 @@ export default function AdminUsers() {
                       status: e.target.value === "seller" ? "pending" : "active",
                     })
                   }
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 >
-                  <option value="user">Utilisateur</option>
-                  <option value="seller">Vendeur</option>
-                  <option value="admin">Administrateur</option>
+                  <option value="user">User</option>
+                  <option value="seller">Seller</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Statut
+                  Status
                 </label>
                 <select
                   value={newUser.status}
                   onChange={(e) =>
                     setNewUser({ ...newUser, status: e.target.value })
                   }
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 >
-                  <option value="active">Actif</option>
-                  <option value="pending">En attente</option>
+                  <option value="active">Active</option>
+                  <option value="pending">Pending</option>
                 </select>
               </div>
             </div>
@@ -551,17 +572,17 @@ export default function AdminUsers() {
                   });
                 }}
                 disabled={creating}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Annuler
+                Cancel
               </button>
               <button
                 type="button"
                 onClick={handleCreate}
                 disabled={creating}
-                className="inline-flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-70 shadow-sm hover:shadow-md"
               >
-                {creating ? "Création..." : "Créer"}
+                {creating ? "Creating..." : "Create"}
               </button>
             </div>
           </div>
@@ -572,8 +593,8 @@ export default function AdminUsers() {
       {editingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Modifier l'utilisateur
+            <h3 className="text-lg font-bold text-gray-900">
+              Edit User
             </h3>
             <p className="mt-2 text-sm text-gray-600">
               {editingUser.fullname} ({editingUser.email})
@@ -582,30 +603,30 @@ export default function AdminUsers() {
             <div className="mt-4 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Rôle
+                  Role
                 </label>
                 <select
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value)}
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 >
-                  <option value="user">Utilisateur</option>
-                  <option value="seller">Vendeur</option>
-                  <option value="admin">Administrateur</option>
+                  <option value="user">User</option>
+                  <option value="seller">Seller</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Statut
+                  Status
                 </label>
                 <select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 >
-                  <option value="active">Actif</option>
-                  <option value="pending">En attente</option>
+                  <option value="active">Active</option>
+                  <option value="pending">Pending</option>
                 </select>
               </div>
             </div>
@@ -618,9 +639,9 @@ export default function AdminUsers() {
                   closeEditModal();
                 }}
                 disabled={saving}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Annuler
+                Cancel
               </button>
               <button
                 type="button"
@@ -630,9 +651,9 @@ export default function AdminUsers() {
                   (newStatus === editingUser.status &&
                     newRole === editingUser.role)
                 }
-                className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-70 shadow-sm hover:shadow-md"
               >
-                {saving ? "Enregistrement..." : "Enregistrer"}
+                {saving ? "Saving..." : "Save"}
               </button>
             </div>
           </div>
@@ -643,61 +664,65 @@ export default function AdminUsers() {
       {viewingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Détails de l'utilisateur
+            <h3 className="text-lg font-bold text-gray-900">
+              User Details
             </h3>
 
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
               <div>
-                <span className="text-sm font-medium text-gray-700">Nom:</span>
-                <p className="text-sm text-gray-900">
+                <span className="text-xs font-medium text-gray-500">Name:</span>
+                <p className="text-sm font-semibold text-gray-900 mt-1">
                   {viewingUser.fullname || "—"}
                 </p>
               </div>
               <div>
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-xs font-medium text-gray-500">
                   Email:
                 </span>
-                <p className="text-sm text-gray-900">{viewingUser.email}</p>
+                <p className="text-sm font-semibold text-gray-900 mt-1">{viewingUser.email}</p>
               </div>
               <div>
-                <span className="text-sm font-medium text-gray-700">Rôle:</span>
-                <span
-                  className={`ml-2 inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                    roleColors[viewingUser.role] || roleColors.user
-                  }`}
-                >
-                  {roleLabels[viewingUser.role] || viewingUser.role}
-                </span>
+                <span className="text-xs font-medium text-gray-500">Role:</span>
+                <div className="mt-1">
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
+                      roleColors[viewingUser.role] || roleColors.user
+                    }`}
+                  >
+                    {roleLabels[viewingUser.role] || viewingUser.role}
+                  </span>
+                </div>
               </div>
               <div>
-                <span className="text-sm font-medium text-gray-700">
-                  Statut:
+                <span className="text-xs font-medium text-gray-500">
+                  Status:
                 </span>
-                <span
-                  className={`ml-2 inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                    statusColors[viewingUser.status] || statusColors.active
-                  }`}
-                >
-                  {statusLabels[viewingUser.status] || viewingUser.status}
-                </span>
+                <div className="mt-1">
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
+                      statusColors[viewingUser.status] || statusColors.active
+                    }`}
+                  >
+                    {statusLabels[viewingUser.status] || viewingUser.status}
+                  </span>
+                </div>
               </div>
               {viewingUser.avatar && (
                 <div>
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-xs font-medium text-gray-500">
                     Avatar:
                   </span>
-                  <p className="text-sm text-gray-900">{viewingUser.avatar}</p>
+                  <p className="text-sm font-semibold text-gray-900 mt-1">{viewingUser.avatar}</p>
                 </div>
               )}
               <div>
-                <span className="text-sm font-medium text-gray-700">
-                  Date de création:
+                <span className="text-xs font-medium text-gray-500">
+                  Created At:
                 </span>
-                <p className="text-sm text-gray-900">
+                <p className="text-sm font-semibold text-gray-900 mt-1">
                   {viewingUser.createdAt
                     ? new Date(viewingUser.createdAt).toLocaleDateString(
-                        "fr-FR",
+                        "en-US",
                         {
                           day: "numeric",
                           month: "long",
@@ -715,9 +740,9 @@ export default function AdminUsers() {
               <button
                 type="button"
                 onClick={closeViewModal}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
               >
-                Fermer
+                Close
               </button>
             </div>
           </div>
@@ -728,23 +753,23 @@ export default function AdminUsers() {
       {actionTarget && actionType && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-bold text-gray-900">
               {actionType === "delete"
-                ? "Supprimer définitivement"
+                ? "Permanently Delete"
                 : actionType === "softDelete"
-                  ? "Désactiver l'utilisateur"
-                  : "Restaurer l'utilisateur"}
+                  ? "Deactivate User"
+                  : "Restore User"}
             </h3>
             <p className="mt-3 text-sm text-gray-600">
               {actionType === "delete" &&
-                "Cette action est irréversible. L'utilisateur sera supprimé définitivement de la base de données."}
+                "This action is irreversible. The user will be permanently deleted from the database."}
               {actionType === "softDelete" &&
-                "L'utilisateur sera désactivé mais pourra être restauré plus tard."}
+                "The user will be deactivated but can be restored later."}
               {actionType === "restore" &&
-                "L'utilisateur sera restauré et réapparaîtra dans la liste active."}
+                "The user will be restored and will reappear in the active list."}
             </p>
             <p className="mt-2 text-sm text-gray-800">
-              Utilisateur:{" "}
+              User:{" "}
               <span className="font-semibold">
                 {actionTarget.fullname} ({actionTarget.email})
               </span>
@@ -758,16 +783,16 @@ export default function AdminUsers() {
                   closeActionModal();
                 }}
                 disabled={actionLoading}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Annuler
+                Cancel
               </button>
               <button
                 type="button"
                 onClick={handleAction}
                 disabled={actionLoading}
                 className={[
-                  "inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70",
+                  "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70 shadow-sm hover:shadow-md",
                   actionType === "delete"
                     ? "bg-red-600 hover:bg-red-700"
                     : actionType === "softDelete"
@@ -775,7 +800,7 @@ export default function AdminUsers() {
                       : "bg-green-600 hover:bg-green-700",
                 ].join(" ")}
               >
-                {actionLoading ? "Traitement..." : "Confirmer"}
+                {actionLoading ? "Processing..." : "Confirm"}
               </button>
             </div>
           </div>

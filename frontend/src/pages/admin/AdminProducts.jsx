@@ -1,18 +1,28 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { adminProductsService } from "../../services/admin/adminProductsService";
+import {
+  FaEye,
+  FaEdit,
+  FaBan,
+  FaTrash,
+  FaUndo,
+  FaBox,
+  FaCheckCircle,
+  FaTimesCircle,
+} from "react-icons/fa";
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", {
+const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "MAD",
 });
 
 const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("fr-FR") : "—";
+  value ? new Date(value).toLocaleDateString("en-US") : "—";
 
 const formatDateTime = (value) =>
   value
-    ? new Date(value).toLocaleString("fr-FR", {
+    ? new Date(value).toLocaleString("en-US", {
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -34,6 +44,8 @@ export default function AdminProducts() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [productDetailsCache, setProductDetailsCache] = useState({});
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [showDeleted, setShowDeleted] = useState(false);
 
   const [pendingAction, setPendingAction] = useState(null); // { type: 'delete' | 'deactivate' | 'restore', product }
   const [actionLoading, setActionLoading] = useState(false);
@@ -63,7 +75,7 @@ export default function AdminProducts() {
       setDeletedProducts(deleted);
     } catch (err) {
       setError(
-        buildErrorMessage(err, "Erreur lors du chargement des produits."),
+        buildErrorMessage(err, "Error loading products."),
       );
     } finally {
       setLoading(false);
@@ -74,48 +86,47 @@ export default function AdminProducts() {
     loadInventory();
   }, [loadInventory]);
 
-  useEffect(() => {
-    if (!selectedProductId) {
-      setSelectedProduct(null);
-      return;
-    }
-
-    const cached = productDetailsCache[selectedProductId];
+  const openDetailsModal = async (productId) => {
+    setSelectedProductId(productId);
+    setIsDetailsModalOpen(true);
+    
+    const cached = productDetailsCache[productId];
     if (cached) {
       setSelectedProduct(cached);
       return;
     }
 
     const fallback =
-      activeProducts.find((p) => p._id === selectedProductId) ||
-      deletedProducts.find((p) => p._id === selectedProductId);
+      activeProducts.find((p) => p._id === productId) ||
+      deletedProducts.find((p) => p._id === productId);
     if (fallback) {
       setSelectedProduct(fallback);
     }
 
     setLoadingDetails(true);
-    adminProductsService
-      .fetchProductDetails(selectedProductId)
-      .then((product) => {
-        if (!product) return;
+    try {
+      const product = await adminProductsService.fetchProductDetails(productId);
+      if (product) {
         setSelectedProduct(product);
         updateCache(product);
-      })
-      .catch((err) => {
-        toast.error(
-          buildErrorMessage(
-            err,
-            "Impossible de récupérer les détails du produit.",
-          ),
-        );
-      })
-      .finally(() => setLoadingDetails(false));
-  }, [
-    selectedProductId,
-    productDetailsCache,
-    activeProducts,
-    deletedProducts,
-  ]);
+      }
+    } catch (err) {
+      toast.error(
+        buildErrorMessage(
+          err,
+          "Unable to fetch product details.",
+        ),
+      );
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedProductId(null);
+    setSelectedProduct(null);
+  };
 
   const sortedActiveProducts = useMemo(() => {
     return [...activeProducts].sort((a, b) => {
@@ -167,7 +178,7 @@ export default function AdminProducts() {
       updateCache(updated);
       toast.success(
         response?.message ||
-          (updated.published ? "Produit publié." : "Produit dépublié."),
+          (updated.published ? "Product published." : "Product unpublished."),
       );
     } catch (err) {
       setActiveProducts((prev) =>
@@ -187,7 +198,7 @@ export default function AdminProducts() {
       toast.error(
         buildErrorMessage(
           err,
-          "Impossible de changer le statut de publication.",
+          "Unable to change publication status.",
         ),
       );
     }
@@ -207,10 +218,10 @@ export default function AdminProducts() {
         setSelectedProductId(null);
         setSelectedProduct(null);
       }
-      toast.success(response?.message || "Produit supprimé définitivement.");
+      toast.success(response?.message || "Product permanently deleted.");
     } catch (err) {
       toast.error(
-        buildErrorMessage(err, "Impossible de supprimer le produit."),
+        buildErrorMessage(err, "Unable to delete product."),
       );
       throw err;
     }
@@ -236,10 +247,10 @@ export default function AdminProducts() {
       if (selectedProductId === product._id) {
         setSelectedProduct(updated);
       }
-      toast.success(response?.message || "Produit désactivé.");
+      toast.success(response?.message || "Product deactivated.");
     } catch (err) {
       toast.error(
-        buildErrorMessage(err, "Impossible de désactiver le produit."),
+        buildErrorMessage(err, "Unable to deactivate product."),
       );
       throw err;
     }
@@ -258,10 +269,10 @@ export default function AdminProducts() {
       if (selectedProductId === product._id) {
         setSelectedProduct(updated);
       }
-      toast.success(response?.message || "Produit restauré.");
+      toast.success(response?.message || "Product restored.");
     } catch (err) {
       toast.error(
-        buildErrorMessage(err, "Impossible de restaurer le produit."),
+        buildErrorMessage(err, "Unable to restore product."),
       );
       throw err;
     }
@@ -288,8 +299,11 @@ export default function AdminProducts() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+      <div className="flex h-full items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+          <p className="text-sm text-gray-500">Loading products...</p>
+        </div>
       </div>
     );
   }
@@ -297,14 +311,14 @@ export default function AdminProducts() {
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-600">
-        <div className="font-semibold">Erreur</div>
+        <div className="font-semibold">Error</div>
         <p className="mt-2 text-sm">{error}</p>
         <button
           type="button"
           onClick={loadInventory}
-          className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+          className="mt-4 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
         >
-          Réessayer
+          Try Again
         </button>
       </div>
     );
@@ -313,424 +327,406 @@ export default function AdminProducts() {
   const isModalOpen = Boolean(pendingAction);
   const modalTitle =
     pendingAction?.type === "delete"
-      ? "Supprimer définitivement"
+      ? "Permanently Delete"
       : pendingAction?.type === "deactivate"
-      ? "Désactiver le produit"
-      : "Restaurer le produit";
+      ? "Deactivate Product"
+      : "Restore Product";
   const modalMessage =
     pendingAction?.type === "delete"
-      ? "Cette action supprimera définitivement le produit de la base de données."
+      ? "This action will permanently delete the product from the database."
       : pendingAction?.type === "deactivate"
-      ? "Le produit sera retiré du catalogue mais pourra être restauré plus tard."
-      : "Le produit sera remis en ligne pour les utilisateurs.";
+      ? "The product will be removed from the catalog but can be restored later."
+      : "The product will be put back online for users.";
+
+  const currentProducts = showDeleted ? sortedDeletedProducts : sortedActiveProducts;
 
   return (
     <section className="space-y-6">
-      <header className="space-y-1">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          Gestion des produits
+      <header className="space-y-2 mb-6">
+        <h2 className="text-3xl font-bold text-gray-900">
+          Products Management
         </h2>
-        <p className="text-sm text-gray-500">
-          Publie, désactive, restaure ou supprime les produits selon les règles
-          de la boutique.
+        <p className="text-sm text-gray-600">
+          Publish, deactivate, restore, or delete products according to store rules.
         </p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Produits actifs
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {sortedActiveProducts.length} produit
-                  {sortedActiveProducts.length > 1 ? "s" : ""} visibles par les
-                  clients.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50">
-                  <tr>
-                    {[
-                      "Produit",
-                      "Vendeur",
-                      "Prix",
-                      "Stock",
-                      "Statut",
-                      "Actions",
-                    ].map((header) => (
-                      <th
-                        key={header}
-                        scope="col"
-                        className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                      >
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {sortedActiveProducts.map((product) => (
-                    <tr
-                      key={product._id}
-                      className={
-                        selectedProductId === product._id
-                          ? "bg-blue-50"
-                          : undefined
-                      }
-                    >
-                      <td className="px-4 py-3 font-medium text-gray-900">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedProductId(product._id)}
-                          className="text-left text-blue-600 hover:underline"
-                        >
-                          {product.title}
-                        </button>
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {product.seller_id?.fullname ||
-                          product.seller_id?.email ||
-                          "—"}
-                      </td>
-                      <td className="px-4 py-3 text-gray-900">
-                        {currencyFormatter.format(product.price ?? 0)}
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {product.stock ?? "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={[
-                            "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
-                            product.published
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-yellow-100 text-yellow-700",
-                          ].join(" ")}
-                        >
-                          {product.published ? "Publié" : "Non publié"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedProductId(product._id)}
-                            className="rounded-md border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
-                          >
-                            Détails
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleTogglePublish(product)}
-                            className="rounded-md border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50"
-                          >
-                            {product.published ? "Dépublier" : "Publier"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setPendingAction({
-                                type: "deactivate",
-                                product,
-                              })
-                            }
-                            className="rounded-md border border-yellow-200 px-3 py-1 text-xs font-semibold text-yellow-600 transition hover:bg-yellow-50"
-                          >
-                            Désactiver
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setPendingAction({ type: "delete", product })
-                            }
-                            className="rounded-md border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                          >
-                            Supprimer
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {sortedActiveProducts.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className="px-4 py-8 text-center text-sm text-gray-500"
-                      >
-                        Aucun produit actif pour le moment.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Produits désactivés
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {sortedDeletedProducts.length} produit
-                  {sortedDeletedProducts.length > 1 ? "s" : ""} en attente
-                  d’éventuelle restauration.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50">
-                  <tr>
-                    {["Produit", "Vendeur", "Désactivé le", "Actions"].map(
-                      (header) => (
-                        <th
-                          key={header}
-                          scope="col"
-                          className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                        >
-                          {header}
-                        </th>
-                      ),
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {sortedDeletedProducts.map((product) => (
-                    <tr
-                      key={product._id}
-                      className={
-                        selectedProductId === product._id
-                          ? "bg-red-50"
-                          : undefined
-                      }
-                    >
-                      <td className="px-4 py-3 font-medium text-gray-900">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedProductId(product._id)}
-                          className="text-left text-blue-600 hover:underline"
-                        >
-                          {product.title}
-                        </button>
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {product.seller_id?.fullname ||
-                          product.seller_id?.email ||
-                          "—"}
-                      </td>
-                      <td className="px-4 py-3 text-gray-500">
-                        {formatDateTime(product.deletedAt)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedProductId(product._id)}
-                            className="rounded-md border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
-                          >
-                            Détails
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setPendingAction({ type: "restore", product })
-                            }
-                            className="rounded-md border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50"
-                          >
-                            Restaurer
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setPendingAction({ type: "delete", product })
-                            }
-                            className="rounded-md border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                          >
-                            Supprimer
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {sortedDeletedProducts.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="px-4 py-8 text-center text-sm text-gray-500"
-                      >
-                        Aucun produit désactivé.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Détails du produit
-          </h3>
-          <p className="text-sm text-gray-500">
-            Sélectionne un produit pour consulter toutes les informations.
-          </p>
-
-          <div className="mt-4 space-y-4">
-            {!selectedProductId && (
-              <p className="text-sm text-gray-500">
-                Aucun produit sélectionné pour le moment.
-              </p>
-            )}
-
-            {selectedProductId && loadingDetails && (
-              <div className="flex h-32 items-center justify-center">
-                <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-blue-600"></div>
-              </div>
-            )}
-
-            {selectedProductId && !loadingDetails && !selectedProduct && (
-              <p className="text-sm text-red-500">
-                Impossible de charger les informations de ce produit.
-              </p>
-            )}
-
-            {selectedProduct && (
-              <article className="space-y-4">
-                <header>
-                  <h4 className="text-xl font-semibold text-gray-900">
-                    {selectedProduct.title}
-                  </h4>
-                  <p className="text-sm text-gray-500">
-                    Ajouté le {formatDate(selectedProduct.createdAt)}
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <span
-                      className={[
-                        "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
-                        selectedProduct.published
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-yellow-100 text-yellow-700",
-                      ].join(" ")}
-                    >
-                      {selectedProduct.published ? "Publié" : "Non publié"}
-                    </span>
-                    {selectedProduct.deletedAt && (
-                      <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                        Désactivé
-                      </span>
-                    )}
-                  </div>
-                </header>
-
-                {selectedProduct.primaryImage && (
-                  <img
-                    src={
-                      selectedProduct.primaryImage.startsWith("http")
-                        ? selectedProduct.primaryImage
-                        : `${import.meta.env.VITE_BACKEND_URL.replace("/api", "")}${selectedProduct.primaryImage}`
-                    }
-                    alt={selectedProduct.title}
-                    className="w-full rounded-lg border border-gray-200 object-cover"
-                  />
-                )}
-
-                <div>
-                  <h5 className="text-sm font-semibold text-gray-900">
-                    Description
-                  </h5>
-                  <p className="text-sm text-gray-600">
-                    {selectedProduct.description || "—"}
-                  </p>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <h5 className="text-sm font-semibold text-gray-900">
-                      Prix actuel
-                    </h5>
-                    <p className="text-sm text-gray-600">
-                      {currencyFormatter.format(selectedProduct.price ?? 0)}
-                    </p>
-                  </div>
-                  <div>
-                    <h5 className="text-sm font-semibold text-gray-900">
-                      Stock disponible
-                    </h5>
-                    <p className="text-sm text-gray-600">
-                      {selectedProduct.stock ?? "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <h5 className="text-sm font-semibold text-gray-900">
-                      Catégories
-                    </h5>
-                    <p className="text-sm text-gray-600">
-                      {selectedProduct.categories?.length
-                        ? selectedProduct.categories
-                            .map((cat) => cat.name)
-                            .join(", ")
-                        : "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <h5 className="text-sm font-semibold text-gray-900">
-                      Vendeur
-                    </h5>
-                    <p className="text-sm text-gray-600">
-                      {selectedProduct.seller_id?.fullname ||
-                        selectedProduct.seller_id?.email ||
-                        "—"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <div>
-                    <h5 className="text-sm font-semibold text-gray-900">
-                      Publication
-                    </h5>
-                    <p className="text-sm text-gray-600">
-                      {selectedProduct.published
-                        ? "Produit visible actuellement"
-                        : "Produit non publié"}
-                    </p>
-                  </div>
-                  <div>
-                    <h5 className="text-sm font-semibold text-gray-900">
-                      Désactivé le
-                    </h5>
-                    <p className="text-sm text-gray-600">
-                      {formatDateTime(selectedProduct.deletedAt)}
-                    </p>
-                  </div>
-                </div>
-              </article>
-            )}
-          </div>
+      {/* Toggle Active/Deleted */}
+      <div className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-md">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">Show:</label>
+          <button
+            type="button"
+            onClick={() => setShowDeleted(false)}
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+              !showDeleted
+                ? "bg-orange-600 text-white shadow-sm"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Active ({sortedActiveProducts.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowDeleted(true)}
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+              showDeleted
+                ? "bg-orange-600 text-white shadow-sm"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Deleted ({sortedDeletedProducts.length})
+          </button>
         </div>
       </div>
 
+      {/* Products Grid */}
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-gray-900">
+            {showDeleted ? "Deleted Products" : "Active Products"}
+          </h3>
+          <p className="text-sm text-gray-500 mt-1">
+            {currentProducts.length} product{currentProducts.length !== 1 ? "s" : ""} found.
+          </p>
+        </div>
+
+        {currentProducts.length === 0 ? (
+          <div className="text-center py-16">
+            <FaBox className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-sm text-gray-500">
+              {showDeleted ? "No deleted products." : "No active products."}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {currentProducts.map((product) => (
+              <div
+                key={product._id}
+                className="group relative bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-orange-500 hover:shadow-xl transition-all duration-300 flex flex-col"
+              >
+                {/* Image Container */}
+                <div className="relative w-full h-48 bg-gray-100 overflow-hidden">
+                  {product.primaryImage ? (
+                    <img
+                      src={
+                        product.primaryImage.startsWith("http")
+                          ? product.primaryImage
+                          : `${import.meta.env.VITE_BACKEND_URL?.replace("/api", "") || ""}${product.primaryImage}`
+                      }
+                      alt={product.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                      <FaBox className="w-12 h-12 text-gray-300" />
+                    </div>
+                  )}
+                  {product.stock === 0 && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <span className="text-white font-semibold text-sm">
+                        Out of Stock
+                      </span>
+                    </div>
+                  )}
+                  {/* Status Badge */}
+                  <div className="absolute top-2 right-2">
+                    {product.published ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 text-green-800 border border-green-200 px-2 py-1 text-xs font-bold shadow-sm">
+                        <FaCheckCircle className="w-3 h-3" />
+                        Published
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200 px-2 py-1 text-xs font-bold shadow-sm">
+                        <FaTimesCircle className="w-3 h-3" />
+                        Unpublished
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-4 flex-1 flex flex-col">
+                  <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 text-sm">
+                    {product.title}
+                  </h3>
+                  <p className="text-gray-500 text-xs line-clamp-2 mb-3 flex-1">
+                    {product.description || "No description"}
+                  </p>
+
+                  {/* Seller Info */}
+                  <div className="mb-3">
+                    <p className="text-xs text-gray-500">Seller:</p>
+                    <p className="text-xs font-medium text-gray-700">
+                      {product.seller_id?.fullname ||
+                        product.seller_id?.email ||
+                        "—"}
+                    </p>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex items-end justify-between pt-3 border-t border-gray-200">
+                    <div>
+                      <p className="text-xl font-bold text-orange-600">
+                        {currencyFormatter.format(product.price ?? 0)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500">Stock</p>
+                      <p
+                        className={`text-sm font-semibold ${
+                          product.stock > 0 ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        {product.stock ?? "—"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openDetailsModal(product._id)}
+                      className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-blue-200 px-3 py-2 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                    >
+                      <FaEye className="w-3 h-3" />
+                      Details
+                    </button>
+                    {!showDeleted ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePublish(product)}
+                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50"
+                        >
+                          {product.published ? (
+                            <>
+                              <FaTimesCircle className="w-3 h-3" />
+                              Unpublish
+                            </>
+                          ) : (
+                            <>
+                              <FaCheckCircle className="w-3 h-3" />
+                              Publish
+                            </>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPendingAction({
+                              type: "deactivate",
+                              product,
+                            })
+                          }
+                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-yellow-200 px-3 py-2 text-xs font-semibold text-yellow-600 transition hover:bg-yellow-50"
+                        >
+                          <FaBan className="w-3 h-3" />
+                          Deactivate
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPendingAction({ type: "delete", product })
+                          }
+                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                        >
+                          <FaTrash className="w-3 h-3" />
+                          Delete
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPendingAction({ type: "restore", product })
+                          }
+                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-green-200 px-3 py-2 text-xs font-semibold text-green-600 transition hover:bg-green-50"
+                        >
+                          <FaUndo className="w-3 h-3" />
+                          Restore
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPendingAction({ type: "delete", product })
+                          }
+                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                        >
+                          <FaTrash className="w-3 h-3" />
+                          Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+      {/* Product Details Modal */}
+      {isDetailsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
+          <div className="w-[80%] max-w-6xl max-h-[90vh] rounded-xl border border-gray-200 bg-white shadow-2xl flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+              <h3 className="text-2xl font-bold text-gray-900">
+                Product Details
+              </h3>
+              <button
+                type="button"
+                onClick={closeDetailsModal}
+                className="rounded-lg p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+              >
+                <FaTimesCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="overflow-y-auto p-6">
+              {loadingDetails ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+                    <p className="text-sm text-gray-500">Loading details...</p>
+                  </div>
+                </div>
+              ) : !selectedProduct ? (
+                <div className="flex items-center justify-center py-12">
+                  <p className="text-sm text-red-500">
+                    Unable to load product information.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Image */}
+                  <div>
+                    {selectedProduct.primaryImage ? (
+                      <img
+                        src={
+                          selectedProduct.primaryImage.startsWith("http")
+                            ? selectedProduct.primaryImage
+                            : `${import.meta.env.VITE_BACKEND_URL?.replace("/api", "") || ""}${selectedProduct.primaryImage}`
+                        }
+                        alt={selectedProduct.title}
+                        className="w-full max-w-2xl mx-auto rounded-lg border border-gray-200 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full max-w-2xl mx-auto h-64 flex items-center justify-center bg-gray-100 rounded-lg border border-gray-200">
+                        <FaBox className="w-16 h-16 text-gray-300" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-6">
+                    {/* Product Header */}
+                    <div className="border-b border-orange-200 pb-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h4 className="text-3xl font-bold text-gray-900 mb-3">
+                            {selectedProduct.title}
+                          </h4>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-semibold ${
+                                selectedProduct.published
+                                  ? "bg-green-500 text-white"
+                                  : "bg-yellow-500 text-white"
+                              }`}
+                            >
+                              {selectedProduct.published ? (
+                                <>
+                                  <FaCheckCircle className="w-4 h-4" />
+                                  Published
+                                </>
+                              ) : (
+                                <>
+                                  <FaTimesCircle className="w-4 h-4" />
+                                  Unpublished
+                                </>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div className="mb-4">
+                        <h5 className="text-sm font-semibold text-gray-900 mb-2">
+                          Description
+                        </h5>
+                        <p className="text-sm text-gray-600">
+                          {selectedProduct.description || "—"}
+                        </p>
+                      </div>
+
+                      {/* Product Info Grid */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                          <h5 className="text-xs font-medium text-gray-500 mb-1">
+                            Price
+                          </h5>
+                          <p className="text-2xl font-bold text-gray-900">
+                            {currencyFormatter.format(selectedProduct.price ?? 0)}
+                          </p>
+                        </div>
+                        <div>
+                          <h5 className="text-xs font-medium text-gray-500 mb-1">
+                            Stock
+                          </h5>
+                          <p
+                            className={`text-lg font-semibold ${
+                              selectedProduct.stock > 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {selectedProduct.stock ?? 0} available
+                          </p>
+                        </div>
+                        <div>
+                          <h5 className="text-xs font-medium text-gray-500 mb-1">
+                            Seller:
+                          </h5>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {selectedProduct.seller_id?.fullname ||
+                              selectedProduct.seller_id?.email ||
+                              "—"}
+                          </p>
+                        </div>
+                        <div>
+                          <h5 className="text-xs font-medium text-gray-500 mb-1">
+                            Created on:
+                          </h5>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {formatDate(selectedProduct.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Action Confirmation Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-bold text-gray-900">
               {modalTitle}
             </h3>
             <p className="mt-3 text-sm text-gray-600">{modalMessage}</p>
             <p className="mt-2 text-sm text-gray-800">
-              Produit ciblé :{" "}
+              Product:{" "}
               <span className="font-semibold">
-                “{pendingAction?.product?.title ?? "—"}”
+                "{pendingAction?.product?.title ?? "—"}"
               </span>
             </p>
 
@@ -742,24 +738,24 @@ export default function AdminProducts() {
                   setPendingAction(null);
                 }}
                 disabled={actionLoading}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Annuler
+                Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmAction}
                 disabled={actionLoading}
                 className={[
-                  "inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70",
+                  "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70 shadow-sm hover:shadow-md",
                   pendingAction?.type === "delete"
                     ? "bg-red-600 hover:bg-red-700"
                     : pendingAction?.type === "deactivate"
                     ? "bg-yellow-600 hover:bg-yellow-700"
-                    : "bg-emerald-600 hover:bg-emerald-700",
+                    : "bg-green-600 hover:bg-green-700",
                 ].join(" ")}
               >
-                {actionLoading ? "Traitement..." : "Confirmer"}
+                {actionLoading ? "Processing..." : "Confirm"}
               </button>
             </div>
           </div>

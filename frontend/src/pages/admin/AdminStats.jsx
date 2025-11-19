@@ -12,6 +12,14 @@ import {
   Legend,
 } from "recharts";
 import { adminStatsService } from "../../services/admin/adminStatsService";
+import {
+  FaDollarSign,
+  FaShoppingCart,
+  FaUsers,
+  FaBox,
+  FaChartLine,
+  FaChartBar,
+} from "react-icons/fa";
 
 const currencyFormatter = new Intl.NumberFormat("fr-FR", {
   style: "currency",
@@ -49,7 +57,7 @@ export default function AdminStats() {
         const message =
           err.response?.data?.message ||
           err.message ||
-          "Erreur lors du chargement des statistiques.";
+          "Error loading statistics.";
         setError(message);
       } finally {
         if (mounted) {
@@ -140,7 +148,7 @@ export default function AdminStats() {
     return Array.from(counts.entries())
       .map(([productId, quantity]) => ({
         productId,
-        name: productMap.get(productId) || "Produit inconnu",
+        name: productMap.get(productId) || "Unknown Product",
         quantity,
       }))
       .sort((a, b) => b.quantity - a.quantity)
@@ -159,8 +167,11 @@ export default function AdminStats() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex h-full items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+          <p className="text-sm text-gray-500">Loading statistics...</p>
+        </div>
       </div>
     );
   }
@@ -173,73 +184,115 @@ export default function AdminStats() {
     );
   }
 
+  const statCards = [
+    {
+      label: "Total Revenue",
+      value: currencyFormatter.format(stats.totalRevenue),
+      sub: `Average order: ${currencyFormatter.format(
+        stats.averageOrderValue,
+      )}`,
+      icon: FaDollarSign,
+      iconColor: "text-gray-900",
+      hoverColor: "group-hover:text-orange-600",
+    },
+    {
+      label: "Orders",
+      value: stats.totalOrders.toLocaleString("en-US"),
+      sub: `${monthlyRevenue.at(-1)?.orders ?? 0} orders this month`,
+      icon: FaShoppingCart,
+      iconColor: "text-gray-900",
+      hoverColor: "group-hover:text-blue-600",
+    },
+    {
+      label: "Registered Users",
+      value: stats.totalUsers.toLocaleString("en-US"),
+      sub: `${stats.totalUsers.toLocaleString("en-US")} active accounts`,
+      icon: FaUsers,
+      iconColor: "text-gray-900",
+      hoverColor: "group-hover:text-green-600",
+    },
+    {
+      label: "Products in Catalog",
+      value: stats.totalProducts.toLocaleString("en-US"),
+      sub: `${topProducts.length} products in top sales`,
+      icon: FaBox,
+      iconColor: "text-gray-900",
+      hoverColor: "group-hover:text-purple-600",
+    },
+  ];
+
   return (
     <section className="space-y-6">
-      <header className="space-y-1">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          Tableau de bord analytique
+      <header className="space-y-2 mb-6">
+        <h2 className="text-3xl font-bold text-gray-900">
+          Analytics Dashboard
         </h2>
-        <p className="text-sm text-gray-500">
-          Vue d’ensemble des ventes, utilisateurs et performances.
+        <p className="text-sm text-gray-600">
+          Overview of sales, users, and performance.
         </p>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: "Revenus totaux",
-            value: currencyFormatter.format(stats.totalRevenue),
-            sub: `Ticket moyen: ${currencyFormatter.format(
-              stats.averageOrderValue,
-            )}`,
-          },
-          {
-            label: "Commandes",
-            value: stats.totalOrders.toLocaleString("fr-FR"),
-            sub: `${monthlyRevenue.at(-1)?.orders ?? 0} commandes ce mois`,
-          },
-          {
-            label: "Utilisateurs inscrits",
-            value: stats.totalUsers.toLocaleString("fr-FR"),
-            sub: `${stats.totalUsers.toLocaleString("fr-FR")} comptes actifs`,
-          },
-          {
-            label: "Produits en catalogue",
-            value: stats.totalProducts.toLocaleString("fr-FR"),
-            sub: `${topProducts.length} produits dans le top ventes`,
-          },
-        ].map(({ label, value, sub }) => (
+      <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {statCards.map(({ label, value, sub, icon: Icon, iconColor, hoverColor }) => (
           <div
             key={label}
-            className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+            className="group relative rounded-xl border border-gray-200 bg-white p-6 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
           >
-            <p className="text-sm text-gray-500">{label}</p>
-            <p className="mt-2 text-3xl font-semibold text-gray-900">{value}</p>
-            <p className="mt-1 text-xs text-gray-500">{sub}</p>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+            <div className="relative z-10">
+              <p className="text-sm font-medium text-gray-600 mb-3">{label}</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-3xl font-bold text-gray-900">{value}</p>
+                <Icon className={`w-8 h-8 ${iconColor} ${hoverColor} transition-colors duration-300`} />
+              </div>
+              <p className="text-xs text-gray-500">{sub}</p>
+            </div>
           </div>
         ))}
       </section>
 
       <section className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm lg:col-span-2">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Revenus mensuels
-          </h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Somme des commandes finalisées sur les 6 derniers mois.
-          </p>
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300 lg:col-span-2">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <FaChartLine className="w-5 h-5 text-orange-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">
+                Monthly Revenue
+              </h3>
+              <p className="text-sm text-gray-500">
+                Sum of completed orders over the last 6 months.
+              </p>
+            </div>
+          </div>
           {monthlyRevenue.length === 0 ? (
-            <div className="text-center text-sm text-gray-500 py-10">
-              Aucune donnée de commande pour le moment.
+            <div className="text-center text-sm text-gray-500 py-16">
+              <FaChartLine className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>No order data available yet.</p>
             </div>
           ) : (
-            <div className="h-72">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={monthlyRevenue}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="label" />
-                  <YAxis tickFormatter={(value) => `${value / 1000}k`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="label" 
+                    stroke="#6b7280"
+                    style={{ fontSize: "12px" }}
+                  />
+                  <YAxis 
+                    tickFormatter={(value) => `${value / 1000}k`}
+                    stroke="#6b7280"
+                    style={{ fontSize: "12px" }}
+                  />
                   <Tooltip
+                    contentStyle={{
+                      backgroundColor: "white",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    }}
                     formatter={(value) =>
                       currencyFormatter.format(Number(value))
                     }
@@ -247,10 +300,10 @@ export default function AdminStats() {
                   <Line
                     type="monotone"
                     dataKey="revenue"
-                    stroke="#2563eb"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
+                    stroke="#ea580c"
+                    strokeWidth={3}
+                    dot={{ r: 5, fill: "#ea580c" }}
+                    activeDot={{ r: 7, fill: "#ea580c" }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -258,32 +311,57 @@ export default function AdminStats() {
           )}
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Top produits vendus
-          </h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Classement par quantité vendue.
-          </p>
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <FaChartBar className="w-5 h-5 text-orange-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">
+                Top Selling Products
+              </h3>
+              <p className="text-sm text-gray-500">
+                Ranking by quantity sold.
+              </p>
+            </div>
+          </div>
           {topProducts.length === 0 ? (
-            <div className="text-center text-sm text-gray-500 py-10">
-              Pas encore de ventes enregistrées.
+            <div className="text-center text-sm text-gray-500 py-16">
+              <FaChartBar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>No sales recorded yet.</p>
             </div>
           ) : (
-            <div className="h-72">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={topProducts} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    type="number" 
+                    stroke="#6b7280"
+                    style={{ fontSize: "12px" }}
+                  />
                   <YAxis
                     dataKey="name"
                     type="category"
                     width={120}
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: "11px" }}
+                    stroke="#6b7280"
                   />
-                  <Tooltip />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "white",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    }}
+                  />
                   <Legend />
-                  <Bar dataKey="quantity" fill="#22c55e" name="Quantité" />
+                  <Bar 
+                    dataKey="quantity" 
+                    fill="#ea580c" 
+                    name="Quantity"
+                    radius={[0, 8, 8, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -291,32 +369,32 @@ export default function AdminStats() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between">
+      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Dernières commandes
+            <h3 className="text-lg font-bold text-gray-900">
+              Recent Orders
             </h3>
-            <p className="text-sm text-gray-500">
-              Les 6 commandes les plus récentes.
+            <p className="text-sm text-gray-500 mt-1">
+              The 6 most recent orders.
             </p>
           </div>
         </div>
-        <div className="mt-6 overflow-x-auto">
+        <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
                 {[
-                  "Commande",
-                  "Client",
-                  "Montant",
+                  "Order",
+                  "Customer",
+                  "Amount",
                   "Status",
                   "Date",
                 ].map((header) => (
                   <th
                     key={header}
                     scope="col"
-                    className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider text-xs"
+                    className="px-6 py-4 text-left font-semibold text-gray-700 uppercase tracking-wider text-xs"
                   >
                     {header}
                   </th>
@@ -331,33 +409,36 @@ export default function AdminStats() {
                 const customer =
                   (typeof order.userId === "object" && order.userId !== null
                     ? order.userId.fullname || order.userId.email
-                    : undefined) || order.userId || "Client";
+                    : undefined) || order.userId || "Customer";
                 return (
-                  <tr key={order._id ?? index}>
-                    <td className="px-4 py-3 font-medium text-gray-900">
+                  <tr 
+                    key={order._id ?? index}
+                    className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+                  >
+                    <td className="px-6 py-4 font-semibold text-gray-900">
                       {orderCode}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{customer}</td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {currencyFormatter.format(order.finalAmount || 0)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={[
-                        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize",
-                        order.status === "delivered"
-                          ? "bg-green-100 text-green-700"
-                          : order.status === "pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : order.status === "shipped"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-red-100 text-red-700",
-                      ].join(" ")}
-                    >
-                      {order.status || "pending"}
-                    </span>
-                  </td>
-                    <td className="px-4 py-3 text-gray-500">
+                    <td className="px-6 py-4 text-gray-700">{customer}</td>
+                    <td className="px-6 py-4 font-semibold text-gray-900">
+                      {currencyFormatter.format(order.finalAmount || 0)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={[
+                          "inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold capitalize shadow-sm",
+                          order.status === "delivered"
+                            ? "bg-green-100 text-green-800 border border-green-200"
+                            : order.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                            : order.status === "shipped"
+                            ? "bg-blue-100 text-blue-800 border border-blue-200"
+                            : "bg-red-100 text-red-800 border border-red-200",
+                        ].join(" ")}
+                      >
+                        {order.status || "pending"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">
                       {order.createdAt
                         ? dateFormatter.format(new Date(order.createdAt))
                         : "—"}
@@ -369,9 +450,10 @@ export default function AdminStats() {
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-4 py-6 text-center text-sm text-gray-500"
+                    className="px-6 py-12 text-center text-sm text-gray-500"
                   >
-                    Aucune commande récente disponible.
+                    <FaShoppingCart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p>No recent orders available.</p>
                   </td>
                 </tr>
               )}
