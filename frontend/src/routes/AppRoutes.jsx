@@ -24,6 +24,8 @@ import EditProduct from "../pages/seller/EditProduct";
 import ProductDetails from "../pages/seller/ProductDetails";
 import Orders from "../pages/seller/Orders";
 import Coupons from "../pages/seller/Coupons";
+import AddCoupon from "../pages/seller/AddCoupon";
+import EditCoupon from "../pages/seller/EditCoupon";
 import Notifications from "../pages/seller/Notifications";
 import Profile from "../pages/seller/Profile";
 import PendingApproval from "../pages/seller/PendingApproval";
@@ -115,6 +117,8 @@ export default function AppRoutes() {
         <Route path="products/:id" element={<ProductDetails />} />
         <Route path="orders" element={<Orders />} />
         <Route path="coupons" element={<Coupons />} />
+        <Route path="coupons/add" element={<AddCoupon />} />
+        <Route path="coupons/edit/:id" element={<EditCoupon />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="profile" element={<Profile />} />
       </Route>
