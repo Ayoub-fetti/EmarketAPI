@@ -78,7 +78,6 @@ export default function EditProduct() {
         });
 
         setIsPublished(product.published || false);
-
       } catch (error) {
         console.error("Erreur lors du chargement du produit:", error);
         setErrors({ submit: "Impossible de charger le produit" });
@@ -234,9 +233,10 @@ export default function EditProduct() {
       const response = await productService.updateProduct(id, data);
 
       console.log("Produit modifié avec succès:", response);
-      const message = publishStatus === true 
-        ? "Produit publié avec succès !" 
-        : "Produit enregistré avec succès !";
+      const message =
+        publishStatus === true
+          ? "Produit publié avec succès !"
+          : "Produit enregistré avec succès !";
       setSuccessMessage(message);
 
       setTimeout(() => {

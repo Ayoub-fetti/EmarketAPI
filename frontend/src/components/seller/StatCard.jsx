@@ -3,8 +3,7 @@ export default function StatCard({
   value,
   icon: Icon,
   color = "orange",
-  trend,
-  trendValue,
+  loading = false,
 }) {
   const colorStyles = {
     orange: "bg-orange-50 text-orange-700",
@@ -29,7 +28,11 @@ export default function StatCard({
 
       {/* Main Value */}
       <div className="mb-3">
-        <p className="text-3xl font-bold text-gray-900">{value}</p>
+        {loading ? (
+          <div className="h-9 w-32 bg-gray-200 animate-pulse rounded"></div>
+        ) : (
+          <p className="text-3xl font-bold text-gray-900">{value}</p>
+        )}
       </div>
     </div>
   );
