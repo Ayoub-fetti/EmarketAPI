@@ -5,8 +5,8 @@ export const productService = {
     const response = await api.get("/products");
     return response.data;
   },
-  getPublishedProducts: async () => {
-    const response = await api.get("/products/published");
+  getPublishedProducts: async (page = 1, limit = 12) => {
+    const response = await api.get(`/products/published?page=${page}&limit=${limit}`);
     return response.data;
   },
   getProductById: async (id) => {
@@ -30,6 +30,9 @@ export const productService = {
     }
     if (filters.description) {
       params.append("description", filters.description);
+    }
+    if (filters.id) {
+      params.append("description", filters.id);
     }
 
     const response = await api.get(`/products/search?${params}`);

@@ -10,9 +10,7 @@ export const AuthProvider = ({ children }) => {
         const storedUser = localStorage.getItem('user')
         if (token && storedUser) {
             try {
-                //const payload = JSON.parse(atob(token.split('.')[1]));
                 setUser(JSON.parse(storedUser))
-                //setUser({id: payload.id, email: payload.email, role: payload.role});
             } catch {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
@@ -33,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     const updateUser = (userData) => {
         const updatedUser = {...user, ...userData};
         setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updateUser));
+        localStorage.setItem('user', JSON.stringify(updatedUser));
     }
 
     const getToken =  () => localStorage.getItem('token');

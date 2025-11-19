@@ -14,15 +14,21 @@ import AdminUsers from "../pages/admin/AdminUsers";
 import AdminProducts from "../pages/admin/AdminProducts";
 import AdminOrders from "../pages/admin/AdminOrders";
 import AdminCategories from "../pages/admin/AdminCategories";
+import AdminCoupons from "../pages/admin/AdminCoupons";
+import AdminReviews from "../pages/admin/AdminReviews";
 import Dashboard from "../layouts/seller/Dashboard";
 import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
 import AddProduct from "../pages/seller/AddProduct";
 import EditProduct from "../pages/seller/EditProduct";
+import ProductDetails from "../pages/seller/ProductDetails";
 import Orders from "../pages/seller/Orders";
 import Coupons from "../pages/seller/Coupons";
+import AddCoupon from "../pages/seller/AddCoupon";
+import EditCoupon from "../pages/seller/EditCoupon";
 import Notifications from "../pages/seller/Notifications";
 import Profile from "../pages/seller/Profile";
+import PendingApproval from "../pages/seller/PendingApproval";
 import UserOrders from "../pages/Orders";
 import OrdersHistory from "../pages/OrdersHistory";
 import ProfileUser from "../pages/Profile";
@@ -47,8 +53,7 @@ export default function AppRoutes() {
               <UserOrders />
             </ProtectedRoute>
           }
-        >
-        </Route>           
+        ></Route>
         <Route
           path="profile/user"
           element={
@@ -56,8 +61,7 @@ export default function AppRoutes() {
               <ProfileUser />
             </ProtectedRoute>
           }
-        >
-        </Route>        
+        ></Route>
         <Route
           path="orders/history"
           element={
@@ -65,8 +69,7 @@ export default function AppRoutes() {
               <OrdersHistory />
             </ProtectedRoute>
           }
-        >
-        </Route>
+        ></Route>
       </Route>
 
       <Route
@@ -83,8 +86,20 @@ export default function AppRoutes() {
         <Route path="products" element={<AdminProducts />} />
         <Route path="categories" element={<AdminCategories />} />
         <Route path="orders" element={<AdminOrders />} />
+        <Route path="coupons" element={<AdminCoupons />} />
+        <Route path="reviews" element={<AdminReviews />} />
         <Route path="*" element={<NotFound />} />
       </Route>
+      {/* Seller Pending Approval - Outside Dashboard Layout */}
+      <Route
+        path="/seller/pending"
+        element={
+          <ProtectedRoute allowedRoles={["seller"]}>
+            <PendingApproval />
+          </ProtectedRoute>
+        }
+      />
+
       {/* Seller Dashboard Routes */}
       <Route
         path="/seller"
@@ -99,8 +114,11 @@ export default function AppRoutes() {
         <Route path="products" element={<SellerProducts />} />
         <Route path="products/add" element={<AddProduct />} />
         <Route path="products/edit/:id" element={<EditProduct />} />
+        <Route path="products/:id" element={<ProductDetails />} />
         <Route path="orders" element={<Orders />} />
         <Route path="coupons" element={<Coupons />} />
+        <Route path="coupons/add" element={<AddCoupon />} />
+        <Route path="coupons/edit/:id" element={<EditCoupon />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="profile" element={<Profile />} />
       </Route>
