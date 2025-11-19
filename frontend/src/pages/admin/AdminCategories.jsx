@@ -9,6 +9,9 @@ import {
   FaUndo,
   FaTags,
   FaTimesCircle,
+  FaSearch,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 
 export default function AdminCategories() {
@@ -31,6 +34,9 @@ export default function AdminCategories() {
   const [softDeletingId, setSoftDeletingId] = useState(null);
   const [categoryPendingSoftDelete, setCategoryPendingSoftDelete] = useState(null);
   const [restoringId, setRestoringId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
@@ -65,6 +71,35 @@ export default function AdminCategories() {
       return dateB - dateA;
     });
   }, [categories, deletedCategories, showDeleted]);
+
+  const filteredCategories = useMemo(() => {
+    let source = sortedCategories;
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      source = source.filter(
+        (category) =>
+          category.name?.toLowerCase().includes(query) ||
+          new Date(category.createdAt).toLocaleDateString("en-US").toLowerCase().includes(query)
+      );
+    }
+    
+    return source;
+  }, [sortedCategories, searchQuery]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+  const paginatedCategories = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredCategories.slice(startIndex, endIndex);
+  }, [filteredCategories, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, showDeleted]);
 
   const resetEditing = () => {
     setEditingCategory(null);
@@ -265,132 +300,163 @@ export default function AdminCategories() {
   }
 
   return (
-    <section className="space-y-6">
-      <header className="space-y-2 mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">
+    <section className="space-y-4 sm:space-y-6">
+      <header className="space-y-2 mb-4 sm:mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
           Categories Management
         </h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-xs sm:text-sm text-gray-600">
           Create, modify, or delete categories available in the catalog.
         </p>
       </header>
 
-      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-md">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700">Show:</label>
-          <button
-            type="button"
-            onClick={() => setShowDeleted(false)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-              !showDeleted
-                ? "bg-orange-600 text-white shadow-sm"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            Active ({categories.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowDeleted(true)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-              showDeleted
-                ? "bg-orange-600 text-white shadow-sm"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            Deleted ({deletedCategories.length})
-          </button>
+      {/* Search, Filters and Actions */}
+      <div className="flex flex-col gap-3 sm:gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-md">
+        {/* Search Bar */}
+        <div className="relative">
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by category name or date..."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+          />
         </div>
-        <div className="ml-auto">
-          <button
-            type="button"
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 shadow-sm hover:shadow-md"
-          >
-            <FaPlus className="w-4 h-4" />
-            Create Category
-          </button>
+
+        {/* Filters and Actions */}
+        <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Show:</label>
+            <button
+              type="button"
+              onClick={() => setShowDeleted(false)}
+              className={`rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
+                !showDeleted
+                  ? "bg-orange-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Active ({categories.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowDeleted(true)}
+              className={`rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
+                showDeleted
+                  ? "bg-orange-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Deleted ({deletedCategories.length})
+            </button>
+          </div>
+          <div className="ml-auto w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center justify-center gap-2 rounded-lg bg-green-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white transition hover:bg-green-700 shadow-sm hover:shadow-md w-full sm:w-auto"
+            >
+              <FaPlus className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="whitespace-nowrap">Create Category</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md">
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-gray-900">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-md">
+        <div className="mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900">
             {showDeleted ? "Deleted Categories" : "Active Categories"}
           </h3>
-          <p className="text-sm text-gray-500 mt-1">
-            {sortedCategories.length} categor{sortedCategories.length !== 1 ? "ies" : "y"} found.
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
+            {filteredCategories.length} categor{filteredCategories.length !== 1 ? "ies" : "y"} found.
+            {searchQuery && ` (filtered from ${sortedCategories.length} total)`}
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-              <tr>
-                {["Name", "Created On", "Actions"].map((header) => (
-                  <th
-                    key={header}
-                    scope="col"
-                    className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
-              {sortedCategories.map((category) => (
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                <tr>
+                  {["Name", "Created On", "Actions"].map((header) => (
+                    <th
+                      key={header}
+                      scope="col"
+                      className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {paginatedCategories.map((category) => (
                 <tr 
                   key={category._id}
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
-                  <td className="px-6 py-4 font-semibold text-gray-900">
-                    {category.name}
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 font-semibold text-gray-900">
+                    <div className="truncate max-w-[200px] sm:max-w-none">
+                      {category.name}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
                     {category.createdAt
-                      ? new Date(category.createdAt).toLocaleDateString("en-US")
+                      ? new Date(category.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
                       : "—"}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-2">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4">
+                    <div className="flex flex-wrap gap-1 sm:gap-2">
                       {!showDeleted ? (
                         <>
                           <button
                             type="button"
                             onClick={() => beginEdit(category)}
-                            className="flex items-center gap-1 rounded-lg border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                            className="flex items-center gap-1 rounded-lg border border-blue-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                            title="Edit"
                           >
                             <FaEdit className="w-3 h-3" />
-                            Edit
+                            <span className="hidden sm:inline">Edit</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => confirmSoftDelete(category)}
                             disabled={softDeletingId === category._id}
                             className={[
-                              "flex items-center gap-1 rounded-lg border border-yellow-200 px-3 py-1.5 text-xs font-semibold transition",
+                              "flex items-center gap-1 rounded-lg border border-yellow-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold transition",
                               softDeletingId === category._id
                                 ? "bg-yellow-100 text-yellow-400 cursor-not-allowed"
                                 : "text-yellow-600 hover:bg-yellow-50",
                             ].join(" ")}
+                            title="Deactivate"
                           >
                             <FaBan className="w-3 h-3" />
-                            {softDeletingId === category._id ? "Deactivating..." : "Deactivate"}
+                            <span className="hidden sm:inline">
+                              {softDeletingId === category._id ? "Deactivating..." : "Deactivate"}
+                            </span>
                           </button>
                           <button
                             type="button"
                             onClick={() => confirmDelete(category)}
                             disabled={deletingId === category._id}
                             className={[
-                              "flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold transition",
+                              "flex items-center gap-1 rounded-lg border border-red-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold transition",
                               deletingId === category._id
                                 ? "bg-red-100 text-red-400 cursor-not-allowed"
                                 : "text-red-600 hover:bg-red-50",
                             ].join(" ")}
+                            title="Delete"
                           >
                             <FaTrash className="w-3 h-3" />
-                            {deletingId === category._id ? "Deleting..." : "Delete"}
+                            <span className="hidden sm:inline">
+                              {deletingId === category._id ? "Deleting..." : "Delete"}
+                            </span>
                           </button>
                         </>
                       ) : (
@@ -399,40 +465,108 @@ export default function AdminCategories() {
                           onClick={() => handleRestore(category)}
                           disabled={restoringId === category._id}
                           className={[
-                            "flex items-center gap-1 rounded-lg border border-green-200 px-3 py-1.5 text-xs font-semibold transition",
+                            "flex items-center gap-1 rounded-lg border border-green-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold transition",
                             restoringId === category._id
                               ? "bg-green-100 text-green-400 cursor-not-allowed"
                               : "text-green-600 hover:bg-green-50",
                           ].join(" ")}
+                          title="Restore"
                         >
                           <FaUndo className="w-3 h-3" />
-                          {restoringId === category._id ? "Restoring..." : "Restore"}
+                          <span className="hidden sm:inline">
+                            {restoringId === category._id ? "Restoring..." : "Restore"}
+                          </span>
                         </button>
                       )}
                     </div>
                   </td>
                 </tr>
               ))}
-              {sortedCategories.length === 0 && (
+              {paginatedCategories.length === 0 && (
                 <tr>
                   <td
                     colSpan={3}
-                    className="px-6 py-12 text-center text-sm text-gray-500"
+                    className="px-3 sm:px-6 py-12 text-center text-xs sm:text-sm text-gray-500"
                   >
-                    <FaTags className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p>No categories found. Start by creating a new one.</p>
+                    <FaTags className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
+                    <p>{searchQuery ? "No categories match your search." : "No categories found. Start by creating a new one."}</p>
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+          </div>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
+            <div className="text-xs sm:text-sm text-gray-600">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+              {Math.min(currentPage * itemsPerPage, filteredCategories.length)} of{" "}
+              {filteredCategories.length} categories
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+              >
+                <FaChevronLeft className="w-3 h-3" />
+                <span className="hidden sm:inline">Previous</span>
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    // Show first page, last page, current page, and pages around current
+                    if (page === 1 || page === totalPages) return true;
+                    if (Math.abs(page - currentPage) <= 1) return true;
+                    return false;
+                  })
+                  .map((page, index, array) => {
+                    // Add ellipsis if there's a gap
+                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
+                    return (
+                      <div key={page} className="flex items-center gap-1">
+                        {showEllipsisBefore && (
+                          <span className="px-2 text-xs sm:text-sm text-gray-500">...</span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentPage(page)}
+                          className={`rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
+                            currentPage === page
+                              ? "bg-orange-600 text-white shadow-sm"
+                              : "border border-gray-300 text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <FaChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create Category Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-900">
               Create New Category
             </h3>
@@ -487,8 +621,8 @@ export default function AdminCategories() {
 
       {/* Edit Category Modal */}
       {editingCategory && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-900">
               Edit Category
             </h3>
@@ -541,8 +675,8 @@ export default function AdminCategories() {
 
       {/* Deactivate Category Modal */}
       {categoryPendingSoftDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-900">
               Deactivate Category
             </h3>
@@ -588,8 +722,8 @@ export default function AdminCategories() {
 
       {/* Delete Category Modal */}
       {categoryPendingDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-900">
               Confirm Deletion
             </h3>

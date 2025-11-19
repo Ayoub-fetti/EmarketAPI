@@ -9,6 +9,9 @@ import {
   FaTrash,
   FaUndo,
   FaUsers,
+  FaSearch,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 
 const statusLabels = {
@@ -57,6 +60,9 @@ export default function AdminUsers() {
     role: "user",
     status: "active",
   });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -84,10 +90,40 @@ export default function AdminUsers() {
   }, [fetchUsers]);
 
   const filteredUsers = useMemo(() => {
-    const source = showDeleted ? deletedUsers : users;
-    if (roleFilter === "all") return source;
-    return source.filter((user) => user.role === roleFilter);
-  }, [users, deletedUsers, roleFilter, showDeleted]);
+    let source = showDeleted ? deletedUsers : users;
+    
+    // Filter by role
+    if (roleFilter !== "all") {
+      source = source.filter((user) => user.role === roleFilter);
+    }
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      source = source.filter(
+        (user) =>
+          user.fullname?.toLowerCase().includes(query) ||
+          user.email?.toLowerCase().includes(query) ||
+          user.role?.toLowerCase().includes(query) ||
+          user.status?.toLowerCase().includes(query)
+      );
+    }
+    
+    return source;
+  }, [users, deletedUsers, roleFilter, showDeleted, searchQuery]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredUsers.slice(startIndex, endIndex);
+  }, [filteredUsers, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, roleFilter, showDeleted]);
 
   const openEditModal = (user) => {
     setEditingUser(user);
@@ -267,208 +303,306 @@ export default function AdminUsers() {
   }
 
   return (
-    <section className="space-y-6">
-      <header className="space-y-2 mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">
+    <section className="space-y-4 sm:space-y-6">
+      <header className="space-y-2 mb-4 sm:mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
           Users Management
         </h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-xs sm:text-sm text-gray-600">
           View and manage users, their statuses, and roles.
         </p>
       </header>
 
-      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-md">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700">
-            Filter by role:
-          </label>
-          <select
-            value={roleFilter}
-            onChange={(e) => {
-              setRoleFilter(e.target.value);
-              handleFilterByRole(e.target.value);
-            }}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-          >
-            <option value="all">All</option>
-            <option value="user">User</option>
-            <option value="seller">Seller</option>
-            <option value="admin">Admin</option>
-          </select>
+      {/* Search, Filters and Actions */}
+      <div className="flex flex-col gap-3 sm:gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-md">
+        {/* Search Bar */}
+        <div className="relative">
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by name, email, role, or status..."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700">Show:</label>
-          <button
-            type="button"
-            onClick={() => setShowDeleted(false)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-              !showDeleted
-                ? "bg-orange-600 text-white shadow-sm"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            Active ({users.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowDeleted(true)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-              showDeleted
-                ? "bg-orange-600 text-white shadow-sm"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            Deleted ({deletedUsers.length})
-          </button>
-        </div>
-        <div className="ml-auto">
-          <button
-            type="button"
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 shadow-sm hover:shadow-md"
-          >
-            <FaUserPlus className="w-4 h-4" />
-            Create User
-          </button>
+
+        {/* Filters and Actions */}
+        <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">
+              Filter by role:
+            </label>
+            <select
+              value={roleFilter}
+              onChange={(e) => {
+                setRoleFilter(e.target.value);
+                handleFilterByRole(e.target.value);
+              }}
+              className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+            >
+              <option value="all">All</option>
+              <option value="user">User</option>
+              <option value="seller">Seller</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Show:</label>
+            <button
+              type="button"
+              onClick={() => setShowDeleted(false)}
+              className={`rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
+                !showDeleted
+                  ? "bg-orange-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Active ({users.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowDeleted(true)}
+              className={`rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
+                showDeleted
+                  ? "bg-orange-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Deleted ({deletedUsers.length})
+            </button>
+          </div>
+          <div className="ml-auto w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center justify-center gap-2 rounded-lg bg-green-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white transition hover:bg-green-700 shadow-sm hover:shadow-md w-full sm:w-auto"
+            >
+              <FaUserPlus className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="whitespace-nowrap">Create User</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md">
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-gray-900">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-md">
+        <div className="mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900">
             {showDeleted ? "Deleted Users" : "Active Users"}
           </h3>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
             {filteredUsers.length} user{filteredUsers.length !== 1 ? "s" : ""} found.
+            {searchQuery && ` (filtered from ${(showDeleted ? deletedUsers : users).length} total)`}
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-              <tr>
-                {[
-                  "Name",
-                  "Email",
-                  "Role",
-                  "Status",
-                  "Registration Date",
-                  "Actions",
-                ].map((header) => (
-                  <th
-                    key={header}
-                    scope="col"
-                    className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
-              {filteredUsers.map((user) => (
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                <tr>
+                  {[
+                    "Name",
+                    "Email",
+                    "Role",
+                    "Status",
+                    "Registration Date",
+                    "Actions",
+                  ].map((header) => (
+                    <th
+                      key={header}
+                      scope="col"
+                      className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {paginatedUsers.map((user) => (
                 <tr 
                   key={user._id}
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
-                  <td className="px-6 py-4 font-semibold text-gray-900">
-                    {user.fullname || "—"}
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 font-semibold text-gray-900">
+                    <div className="truncate max-w-[120px] sm:max-w-none">
+                      {user.fullname || "—"}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-700">{user.email}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-700">
+                    <div className="truncate max-w-[150px] sm:max-w-none">
+                      {user.email}
+                    </div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4">
                     <span
-                      className={`inline-flex rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
+                      className={`inline-flex rounded-full px-2 sm:px-3 py-1 text-xs font-bold shadow-sm whitespace-nowrap ${
                         roleColors[user.role] || roleColors.user
                       }`}
                     >
                       {roleLabels[user.role] || user.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4">
                     <span
-                      className={`inline-flex rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
+                      className={`inline-flex rounded-full px-2 sm:px-3 py-1 text-xs font-bold shadow-sm whitespace-nowrap ${
                         statusColors[user.status] || statusColors.active
                       }`}
                     >
                       {statusLabels[user.status] || user.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
                     {user.createdAt
-                      ? new Date(user.createdAt).toLocaleDateString("en-US")
+                      ? new Date(user.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
                       : "—"}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-2">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4">
+                    <div className="flex flex-wrap gap-1 sm:gap-2">
                       <button
                         type="button"
                         onClick={() => openViewModal(user)}
-                        className="flex items-center gap-1 rounded-lg border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                        className="flex items-center gap-1 rounded-lg border border-blue-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                        title="View"
                       >
                         <FaEye className="w-3 h-3" />
-                        View
+                        <span className="hidden sm:inline">View</span>
                       </button>
                       {!showDeleted ? (
                         <>
                           <button
                             type="button"
                             onClick={() => openEditModal(user)}
-                            className="flex items-center gap-1 rounded-lg border border-green-200 px-3 py-1.5 text-xs font-semibold text-green-600 transition hover:bg-green-50"
+                            className="flex items-center gap-1 rounded-lg border border-green-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-green-600 transition hover:bg-green-50"
+                            title="Edit"
                           >
                             <FaEdit className="w-3 h-3" />
-                            Edit
+                            <span className="hidden sm:inline">Edit</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => openActionModal(user, "softDelete")}
-                            className="flex items-center gap-1 rounded-lg border border-yellow-200 px-3 py-1.5 text-xs font-semibold text-yellow-600 transition hover:bg-yellow-50"
+                            className="flex items-center gap-1 rounded-lg border border-yellow-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-yellow-600 transition hover:bg-yellow-50"
+                            title="Deactivate"
                           >
                             <FaBan className="w-3 h-3" />
-                            Deactivate
+                            <span className="hidden sm:inline">Deactivate</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => openActionModal(user, "delete")}
-                            className="flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                            className="flex items-center gap-1 rounded-lg border border-red-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                            title="Delete"
                           >
                             <FaTrash className="w-3 h-3" />
-                            Delete
+                            <span className="hidden sm:inline">Delete</span>
                           </button>
                         </>
                       ) : (
                         <button
                           type="button"
                           onClick={() => openActionModal(user, "restore")}
-                          className="flex items-center gap-1 rounded-lg border border-green-200 px-3 py-1.5 text-xs font-semibold text-green-600 transition hover:bg-green-50"
+                          className="flex items-center gap-1 rounded-lg border border-green-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-green-600 transition hover:bg-green-50"
+                          title="Restore"
                         >
                           <FaUndo className="w-3 h-3" />
-                          Restore
+                          <span className="hidden sm:inline">Restore</span>
                         </button>
                       )}
                     </div>
                   </td>
                 </tr>
               ))}
-              {filteredUsers.length === 0 && (
+              {paginatedUsers.length === 0 && (
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-6 py-12 text-center text-sm text-gray-500"
+                    className="px-3 sm:px-6 py-12 text-center text-xs sm:text-sm text-gray-500"
                   >
-                    <FaUsers className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p>No users found.</p>
+                    <FaUsers className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
+                    <p>{searchQuery ? "No users match your search." : "No users found."}</p>
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+          </div>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
+            <div className="text-xs sm:text-sm text-gray-600">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+              {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of{" "}
+              {filteredUsers.length} users
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+              >
+                <FaChevronLeft className="w-3 h-3" />
+                <span className="hidden sm:inline">Previous</span>
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    // Show first page, last page, current page, and pages around current
+                    if (page === 1 || page === totalPages) return true;
+                    if (Math.abs(page - currentPage) <= 1) return true;
+                    return false;
+                  })
+                  .map((page, index, array) => {
+                    // Add ellipsis if there's a gap
+                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
+                    return (
+                      <div key={page} className="flex items-center gap-1">
+                        {showEllipsisBefore && (
+                          <span className="px-2 text-xs sm:text-sm text-gray-500">...</span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentPage(page)}
+                          className={`rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
+                            currentPage === page
+                              ? "bg-orange-600 text-white shadow-sm"
+                              : "border border-gray-300 text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <FaChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create User Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-900">
               Create New User
             </h3>
@@ -591,8 +725,8 @@ export default function AdminUsers() {
 
       {/* Edit User Modal */}
       {editingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-900">
               Edit User
             </h3>
@@ -662,8 +796,8 @@ export default function AdminUsers() {
 
       {/* View User Details Modal */}
       {viewingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-900">
               User Details
             </h3>
@@ -751,8 +885,8 @@ export default function AdminUsers() {
 
       {/* Action Confirmation Modal */}
       {actionTarget && actionType && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-900">
               {actionType === "delete"
                 ? "Permanently Delete"

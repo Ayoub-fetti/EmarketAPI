@@ -10,6 +10,9 @@ import {
   FaBox,
   FaCheckCircle,
   FaTimesCircle,
+  FaSearch,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -49,6 +52,9 @@ export default function AdminProducts() {
 
   const [pendingAction, setPendingAction] = useState(null); // { type: 'delete' | 'deactivate' | 'restore', product }
   const [actionLoading, setActionLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
 
   const updateCache = (product) => {
     if (!product?._id) return;
@@ -143,6 +149,40 @@ export default function AdminProducts() {
       return dateB - dateA;
     });
   }, [deletedProducts]);
+
+  const filteredProducts = useMemo(() => {
+    const source = showDeleted ? sortedDeletedProducts : sortedActiveProducts;
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      return source.filter(
+        (product) =>
+          product.title?.toLowerCase().includes(query) ||
+          product.description?.toLowerCase().includes(query) ||
+          product.seller_id?.fullname?.toLowerCase().includes(query) ||
+          product.seller_id?.email?.toLowerCase().includes(query) ||
+          product.category_id?.name?.toLowerCase().includes(query) ||
+          String(product.price || "").includes(query) ||
+          String(product.stock || "").includes(query)
+      );
+    }
+    
+    return source;
+  }, [sortedActiveProducts, sortedDeletedProducts, showDeleted, searchQuery]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredProducts.slice(startIndex, endIndex);
+  }, [filteredProducts, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, showDeleted]);
 
   const handleTogglePublish = async (product) => {
     const originalState = product.published;
@@ -338,27 +378,38 @@ export default function AdminProducts() {
       ? "The product will be removed from the catalog but can be restored later."
       : "The product will be put back online for users.";
 
-  const currentProducts = showDeleted ? sortedDeletedProducts : sortedActiveProducts;
-
   return (
-    <section className="space-y-6">
-      <header className="space-y-2 mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">
+    <section className="space-y-4 sm:space-y-6">
+      <header className="space-y-2 mb-4 sm:mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
           Products Management
         </h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-xs sm:text-sm text-gray-600">
           Publish, deactivate, restore, or delete products according to store rules.
         </p>
       </header>
 
-      {/* Toggle Active/Deleted */}
-      <div className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-md">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700">Show:</label>
+      {/* Search, Filters and Actions */}
+      <div className="flex flex-col gap-3 sm:gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-md">
+        {/* Search Bar */}
+        <div className="relative">
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by title, description, seller, category, price, or stock..."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+          />
+        </div>
+
+        {/* Toggle Active/Deleted */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Show:</label>
           <button
             type="button"
             onClick={() => setShowDeleted(false)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+            className={`rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
               !showDeleted
                 ? "bg-orange-600 text-white shadow-sm"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -369,7 +420,7 @@ export default function AdminProducts() {
           <button
             type="button"
             onClick={() => setShowDeleted(true)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+            className={`rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
               showDeleted
                 ? "bg-orange-600 text-white shadow-sm"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -381,31 +432,33 @@ export default function AdminProducts() {
       </div>
 
       {/* Products Grid */}
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-gray-900">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-md">
+        <div className="mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900">
             {showDeleted ? "Deleted Products" : "Active Products"}
           </h3>
-          <p className="text-sm text-gray-500 mt-1">
-            {currentProducts.length} product{currentProducts.length !== 1 ? "s" : ""} found.
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
+            {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""} found.
+            {searchQuery && ` (filtered from ${(showDeleted ? sortedDeletedProducts : sortedActiveProducts).length} total)`}
           </p>
         </div>
 
-        {currentProducts.length === 0 ? (
-          <div className="text-center py-16">
-            <FaBox className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-sm text-gray-500">
-              {showDeleted ? "No deleted products." : "No active products."}
+        {paginatedProducts.length === 0 ? (
+          <div className="text-center py-12 sm:py-16">
+            <FaBox className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-xs sm:text-sm text-gray-500">
+              {searchQuery ? "No products match your search." : (showDeleted ? "No deleted products." : "No active products.")}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {currentProducts.map((product) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            {paginatedProducts.map((product) => (
               <div
                 key={product._id}
-                className="group relative bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-orange-500 hover:shadow-xl transition-all duration-300 flex flex-col"
+                className="group relative bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-orange-500 hover:shadow-xl transition-all duration-300 flex flex-col h-full"
               >
                 {/* Image Container */}
-                <div className="relative w-full h-48 bg-gray-100 overflow-hidden">
+                <div className="relative w-full h-40 sm:h-48 bg-gray-100 overflow-hidden">
                   {product.primaryImage ? (
                     <img
                       src={
@@ -483,31 +536,33 @@ export default function AdminProducts() {
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-4 flex flex-wrap gap-1 sm:gap-2">
                     <button
                       type="button"
                       onClick={() => openDetailsModal(product._id)}
-                      className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-blue-200 px-3 py-2 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                      className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-blue-200 px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
+                      title="View Details"
                     >
                       <FaEye className="w-3 h-3" />
-                      Details
+                      <span className="hidden sm:inline">Details</span>
                     </button>
                     {!showDeleted ? (
                       <>
                         <button
                           type="button"
                           onClick={() => handleTogglePublish(product)}
-                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50"
+                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-emerald-200 px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50"
+                          title={product.published ? "Unpublish" : "Publish"}
                         >
                           {product.published ? (
                             <>
                               <FaTimesCircle className="w-3 h-3" />
-                              Unpublish
+                              <span className="hidden sm:inline">Unpublish</span>
                             </>
                           ) : (
                             <>
                               <FaCheckCircle className="w-3 h-3" />
-                              Publish
+                              <span className="hidden sm:inline">Publish</span>
                             </>
                           )}
                         </button>
@@ -519,20 +574,22 @@ export default function AdminProducts() {
                               product,
                             })
                           }
-                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-yellow-200 px-3 py-2 text-xs font-semibold text-yellow-600 transition hover:bg-yellow-50"
+                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-yellow-200 px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-yellow-600 transition hover:bg-yellow-50"
+                          title="Deactivate"
                         >
                           <FaBan className="w-3 h-3" />
-                          Deactivate
+                          <span className="hidden sm:inline">Deactivate</span>
                         </button>
                         <button
                           type="button"
                           onClick={() =>
                             setPendingAction({ type: "delete", product })
                           }
-                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-red-200 px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                          title="Delete"
                         >
                           <FaTrash className="w-3 h-3" />
-                          Delete
+                          <span className="hidden sm:inline">Delete</span>
                         </button>
                       </>
                     ) : (
@@ -542,20 +599,22 @@ export default function AdminProducts() {
                           onClick={() =>
                             setPendingAction({ type: "restore", product })
                           }
-                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-green-200 px-3 py-2 text-xs font-semibold text-green-600 transition hover:bg-green-50"
+                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-green-200 px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-green-600 transition hover:bg-green-50"
+                          title="Restore"
                         >
                           <FaUndo className="w-3 h-3" />
-                          Restore
+                          <span className="hidden sm:inline">Restore</span>
                         </button>
                         <button
                           type="button"
                           onClick={() =>
                             setPendingAction({ type: "delete", product })
                           }
-                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                          className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-red-200 px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                          title="Delete"
                         >
                           <FaTrash className="w-3 h-3" />
-                          Delete
+                          <span className="hidden sm:inline">Delete</span>
                         </button>
                       </>
                     )}
@@ -566,13 +625,78 @@ export default function AdminProducts() {
           </div>
         )}
 
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
+            <div className="text-xs sm:text-sm text-gray-600">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+              {Math.min(currentPage * itemsPerPage, filteredProducts.length)} of{" "}
+              {filteredProducts.length} products
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+              >
+                <FaChevronLeft className="w-3 h-3" />
+                <span className="hidden sm:inline">Previous</span>
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    // Show first page, last page, current page, and pages around current
+                    if (page === 1 || page === totalPages) return true;
+                    if (Math.abs(page - currentPage) <= 1) return true;
+                    return false;
+                  })
+                  .map((page, index, array) => {
+                    // Add ellipsis if there's a gap
+                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
+                    return (
+                      <div key={page} className="flex items-center gap-1">
+                        {showEllipsisBefore && (
+                          <span className="px-2 text-xs sm:text-sm text-gray-500">...</span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentPage(page)}
+                          className={`rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
+                            currentPage === page
+                              ? "bg-orange-600 text-white shadow-sm"
+                              : "border border-gray-300 text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <FaChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Product Details Modal */}
       {isDetailsModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
-          <div className="w-[80%] max-w-6xl max-h-[90vh] rounded-xl border border-gray-200 bg-white shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 sm:py-6 overflow-y-auto">
+          <div className="w-full sm:w-[90%] lg:w-[80%] max-w-6xl max-h-[90vh] rounded-xl border border-gray-200 bg-white shadow-2xl flex flex-col overflow-hidden my-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
-              <h3 className="text-2xl font-bold text-gray-900">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Product Details
               </h3>
               <button
@@ -585,7 +709,7 @@ export default function AdminProducts() {
             </div>
 
             {/* Modal Content */}
-            <div className="overflow-y-auto p-6">
+            <div className="overflow-y-auto p-4 sm:p-6">
               {loadingDetails ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="flex flex-col items-center gap-4">
@@ -623,10 +747,10 @@ export default function AdminProducts() {
                   {/* Details */}
                   <div className="space-y-6">
                     {/* Product Header */}
-                    <div className="border-b border-orange-200 pb-6">
+                    <div className="border-b border-orange-200 pb-4 sm:pb-6">
                       <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h4 className="text-3xl font-bold text-gray-900 mb-3">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 break-words">
                             {selectedProduct.title}
                           </h4>
                           <div className="flex items-center gap-3 flex-wrap">
@@ -664,7 +788,7 @@ export default function AdminProducts() {
                       </div>
 
                       {/* Product Info Grid */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                         <div>
                           <h5 className="text-xs font-medium text-gray-500 mb-1">
                             Price
@@ -717,8 +841,8 @@ export default function AdminProducts() {
 
       {/* Action Confirmation Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-900">
               {modalTitle}
             </h3>

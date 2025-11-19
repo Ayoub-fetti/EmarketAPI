@@ -7,6 +7,7 @@ import {
   FaShoppingCart,
   FaTicketAlt,
   FaStar,
+  FaTimes,
 } from "react-icons/fa";
 
 const navLinks = [
@@ -19,35 +20,50 @@ const navLinks = [
   { to: "/admin/reviews", label: "Reviews", icon: FaStar },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ isOpen, onClose }) {
   return (
-    <aside className="w-64 border-r border-gray-200 bg-white shadow-sm">
-      <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-        <span className="text-lg font-bold text-gray-900">Navigation</span>
-      </div>
-      <nav className="flex flex-col p-4 gap-1">
-        {navLinks.map((link) => {
-          const Icon = link.icon;
-          return (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                [
-                  "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-orange-500 text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
-                ].join(" ")
-              }
+    <>
+      {/* Mobile Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-gray-200 bg-white shadow-sm transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+            <span className="text-lg font-bold text-gray-900">Navigation</span>
+            <button
+              onClick={onClose}
+              className="lg:hidden rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition"
             >
-              <Icon className="w-5 h-5" />
-              <span>{link.label}</span>
-            </NavLink>
-          );
-        })}
-      </nav>
-    </aside>
+              <FaTimes className="w-5 h-5" />
+            </button>
+          </div>
+          <nav className="flex flex-col p-4 gap-1 overflow-y-auto">
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    [
+                      "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200",
+                      isActive
+                        ? "bg-orange-500 text-white shadow-md"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+                    ].join(" ")
+                  }
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{link.label}</span>
+                </NavLink>
+              );
+            })}
+          </nav>
+        </div>
+      </aside>
+    </>
   );
 }
-
