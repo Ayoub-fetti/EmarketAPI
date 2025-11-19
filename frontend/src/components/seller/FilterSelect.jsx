@@ -2,7 +2,7 @@
 
 export default function FilterSelect({
   options,
-  placeholder = "Sélectionner...",
+  placeholder,
   value,
   onChange,
 }) {
@@ -10,7 +10,7 @@ export default function FilterSelect({
     <select
       value={value}
       onChange={onChange}
-      className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm focus:outline-none "
+      className="px-4 py-2.5 border border-gray-300 rounded-md bg-white text-gray-700 text-sm focus:outline-none "
     >
       <option value="">{placeholder}</option>
       {options.map((option) => (
