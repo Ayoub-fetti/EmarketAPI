@@ -4,6 +4,7 @@ import SearchBar from "../../components/seller/SearchBar";
 import FilterSelect from "../../components/seller/FilterSelect";
 import ActionButton from "../../components/seller/ActionButton";
 import CouponsTable from "../../components/seller/CouponsTable";
+import DeleteConfirmModal from "../../components/seller/DeleteConfirmModal";
 import { couponService } from "../../services/couponService";
 
 export default function Coupons() {
@@ -18,6 +19,11 @@ export default function Coupons() {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // États pour le modal de suppression
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [couponToDelete, setCouponToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   // Charger les coupons
   useEffect(() => {
     fetchCoupons();
@@ -62,9 +68,41 @@ export default function Coupons() {
     return matchesSearch && matchesStatus && matchesType;
   });
 
-  // Fonctions de gestion (hardcodées pour l'instant)
-  const handleDelete = (id) => {
-    console.log("Supprimer coupon:", id);
+  // Ouvrir le modal de suppression
+  const handleDelete = (coupon) => {
+    setCouponToDelete(coupon);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Confirmer la suppression
+  const confirmDelete = async () => {
+    if (!couponToDelete) return;
+
+    try {
+      setIsDeleting(true);
+      await couponService.deleteCoupon(couponToDelete._id);
+
+      // Recharger les coupons
+      await fetchCoupons();
+
+      // Fermer le modal
+      setIsDeleteModalOpen(false);
+      setCouponToDelete(null);
+    } catch (error) {
+      console.error("Erreur lors de la suppression du coupon:", error);
+      setError(
+        error.response?.data?.message ||
+          "Erreur lors de la suppression du coupon"
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Annuler la suppression
+  const cancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setCouponToDelete(null);
   };
 
   return (
@@ -178,6 +216,16 @@ export default function Coupons() {
           )}
         </>
       )}
+
+      {/* Modal de confirmation de suppression */}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        itemName={couponToDelete?.code}
+        itemType="coupon"
+        loading={isDeleting}
+      />
     </div>
   );
 }
