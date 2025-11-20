@@ -146,11 +146,11 @@ export default function Register() {
           </div>
           <span className="span">Forgot password?</span>
         </div>
-        <button className="button-submit">Sign In</button>
+        <button className="button-submit">Sign Up</button>
         <p className="p">
           Don't have an account?{" "}
-          <Link className="span" to="/register">
-            Sign Up
+          <Link className="span" to="/login">
+            Sign In
           </Link>
         </p>
       </form>
