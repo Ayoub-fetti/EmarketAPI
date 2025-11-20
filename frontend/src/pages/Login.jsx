@@ -13,9 +13,13 @@ export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const getRedirectPath = (role) => {
+    const getRedirectPath = (role, status) => {
         if (role === 'admin') return '/admin';
-        if (role === 'seller') return '/seller';
+        if (role === 'seller') {
+            // If seller status is pending, redirect to pending approval page
+            if (status === 'pending') return '/seller/pending';
+            return '/seller';
+        }
         return '/products';
     };
 
@@ -25,7 +29,10 @@ export default function Login() {
             const response = await authService.login(formData);
             login(response.data.token, response.data.user);
             toast.success('Connexion réussie !');
-            const targetPath = getRedirectPath(response.data.user?.role);
+            const targetPath = getRedirectPath(
+                response.data.user?.role,
+                response.data.user?.status
+            );
             navigate(targetPath, { replace: true });
         } catch (err) {
             setErrors(err.response?.data?.errors || {});

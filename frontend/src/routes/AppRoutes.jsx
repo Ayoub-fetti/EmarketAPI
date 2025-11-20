@@ -14,6 +14,7 @@ import AdminUsers from "../pages/admin/AdminUsers";
 import AdminProducts from "../pages/admin/AdminProducts";
 import AdminOrders from "../pages/admin/AdminOrders";
 import AdminCategories from "../pages/admin/AdminCategories";
+import AdminCoupons from "../pages/admin/AdminCoupons";
 import Dashboard from "../layouts/seller/Dashboard";
 import Overview from "../pages/seller/Overview";
 import SellerProducts from "../pages/seller/Products";
@@ -26,6 +27,7 @@ import AddCoupon from "../pages/seller/AddCoupon";
 import EditCoupon from "../pages/seller/EditCoupon";
 import Notifications from "../pages/seller/Notifications";
 import Profile from "../pages/seller/Profile";
+import PendingApproval from "../pages/seller/PendingApproval";
 import UserOrders from "../pages/Orders";
 import OrdersHistory from "../pages/OrdersHistory";
 import ProfileUser from "../pages/Profile";
@@ -83,8 +85,19 @@ export default function AppRoutes() {
         <Route path="products" element={<AdminProducts />} />
         <Route path="categories" element={<AdminCategories />} />
         <Route path="orders" element={<AdminOrders />} />
+        <Route path="coupons" element={<AdminCoupons />} />
         <Route path="*" element={<NotFound />} />
       </Route>
+      {/* Seller Pending Approval - Outside Dashboard Layout */}
+      <Route
+        path="/seller/pending"
+        element={
+          <ProtectedRoute allowedRoles={["seller"]}>
+            <PendingApproval />
+          </ProtectedRoute>
+        }
+      />
+
       {/* Seller Dashboard Routes */}
       <Route
         path="/seller"
