@@ -1,10 +1,11 @@
 import '@testing-library/jest-dom';
-import { server } from './mocks/server';
+import { TextEncoder, TextDecoder } from 'util';
 
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 
-global.crypto = {
-  randomUUID: () => 'test-uuid-123'
+// Mock import.meta.env
+global.importMetaEnv = {
+  VITE_BACKEND_URL: 'http://localhost:3000/api',
+  VITE_BACKEND_BASE_URL: 'http://localhost:3000'
 };
