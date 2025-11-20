@@ -7,7 +7,7 @@ export const hasUserPurchasedProduct = async (userId, productId) => {
   const order = await Order.findOne({
     userId,
     "items.productId": productId,
-    status: { $in: ["delivered", "shipped"] },
+    status: "delivered",
   });
   return !!order;
 };
