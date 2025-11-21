@@ -1,6 +1,3 @@
-// frontend/src/__tests__/Profile.test.jsx
-
-
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Profile from '../../pages/Profile';
