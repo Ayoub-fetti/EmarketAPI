@@ -7,6 +7,7 @@ import { isAuthenticated } from "../middlewares/auth.js";
 
 const router = express.Router();
 
+router.get("/", CategoryController.getCategories);
 router.use(isAuthenticated);
 
 router.post(
@@ -15,7 +16,6 @@ router.post(
   authorizeRoles("seller", "admin"),
   CategoryController.createCategory,
 );
-router.get("/", CategoryController.getCategories);
 router.get(
   "/deleted",
   authorizeRoles("admin"),

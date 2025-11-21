@@ -128,6 +128,20 @@ export const deleteReview = async (req, res, next) => {
   }
 };
 
+// Récupérer tous les avis (Admin uniquement)
+export const getAllReviews = async (req, res, next) => {
+  try {
+    const reviews = await Review.find()
+      .populate("user", "fullname email")
+      .populate("product", "title primaryImage")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ data: reviews });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Modérer un avis (Admin uniquement)
 export const moderateReview = async (req, res, next) => {
   try {
@@ -138,7 +152,9 @@ export const moderateReview = async (req, res, next) => {
       id,
       { status },
       { new: true },
-    );
+    )
+      .populate("user", "fullname email")
+      .populate("product", "title primaryImage");
 
     if (!review) {
       return res.status(404).json({ error: "Review not found" });

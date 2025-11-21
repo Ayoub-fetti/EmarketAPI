@@ -53,12 +53,18 @@ router.put(
 );
 
 // Permanent delete a product
-router.delete("/:id", authorizeRoles("admin"), productController.deleteProduct);
+router.delete(
+  "/:id",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  productController.deleteProduct,
+);
 
 // soft delete a product
 router.delete(
   "/:id/soft",
-  authorizeRoles("seller"),
+  isAuthenticated,
+  authorizeRoles("seller", "admin"),
   checkProductOwnership,
   productController.softDeleteProduct,
 );
@@ -66,7 +72,8 @@ router.delete(
 // restore a soft-deleted product
 router.patch(
   "/:id/restore",
-  authorizeRoles("seller"),
+  isAuthenticated,
+  authorizeRoles("seller", "admin"),
   checkProductOwnership,
   productController.restoreProduct,
 );
@@ -75,7 +82,7 @@ router.patch(
 router.patch(
   "/:id/publish",
   isAuthenticated,
-  authorizeRoles("seller"),
+  authorizeRoles("seller", "admin"),
   checkProductOwnership,
   productController.publishProduct,
 );

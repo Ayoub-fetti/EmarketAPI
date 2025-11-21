@@ -209,6 +209,43 @@ export const changeRole = async (req, res, next) => {
   }
 };
 
+// Admin update user status and/or role
+export const adminUpdateUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status, role } = req.body;
+
+    const user = await User.findById(id).notDeleted();
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (status && ["active", "pending"].includes(status)) {
+      user.status = status;
+    }
+
+    if (role && ["user", "admin", "seller"].includes(role)) {
+      user.role = role;
+      // If changing to seller and status is active, keep it active
+      // If changing to seller and status is not set, set to pending
+      if (role === "seller" && !status && user.status === "active") {
+        // Keep active if admin explicitly sets it
+      } else if (role === "seller" && !status) {
+        user.status = "pending";
+      }
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      message: "User updated successfully",
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const searchSellers = async (req, res, next) => {
   try {
     const { search } = req.query;

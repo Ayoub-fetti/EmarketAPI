@@ -87,6 +87,8 @@ describe("Order API", function () {
         email: "emptycart@test.com",
         password: "123456",
       });
+      await Cart.create({ userId: emptyUser._id, items: [] });
+
 
       // Log in the user to get token
       const resLogin = await request(app)

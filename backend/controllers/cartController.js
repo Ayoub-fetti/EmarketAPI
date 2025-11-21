@@ -13,13 +13,20 @@ function getCartIdentifier(req) {
   return { sessionId };
 }
 
+const populateCart = async (cart) => {
+  return await Cart.findById(cart._id).populate(
+    "items.productId",
+    "title price images primaryImage"
+  );
+};
+
 export const getCart = async (req, res, next) => {
   try {
     const identifier = getCartIdentifier(req);
 
     const cart = await Cart.findOne(identifier).populate(
       "items.productId",
-      "title price images",
+      "title price images primaryImage",
     );
 
     if (!cart) {
@@ -49,10 +56,13 @@ export const addToCart = async (req, res, next) => {
       productId,
       quantity,
     );
+    
+    const populatedCart = await populateCart(cart);
+    
     res.status(cart.createdAt === cart.updatedAt ? 201 : 200).json({
       success: true,
       message: message,
-      data: cart,
+      data: populatedCart,
     });
   } catch (error) {
     next(error);
@@ -69,10 +79,13 @@ export const updateCartItemQuantity = async (req, res, next) => {
       productId,
       quantity,
     );
+    
+    const populatedCart = await populateCart(cart);
+    
     return res.status(200).json({
       success: true,
       message: message,
-      data: cart,
+      data: populatedCart,
     });
   } catch (error) {
     next(error);
@@ -88,10 +101,13 @@ export const removeCartItem = async (req, res, next) => {
       identifier,
       productId,
     );
+    
+    const populatedCart = await populateCart(cart);
+    
     return res.status(200).json({
       success: true,
       message: message,
-      data: cart,
+      data: populatedCart,
     });
   } catch (error) {
     next(error);
@@ -103,10 +119,13 @@ export const clearCart = async (req, res, next) => {
     const identifier = getCartIdentifier(req);
 
     const { cart, message } = await CartService.clearCart(identifier);
+    
+    const populatedCart = await populateCart(cart);
+    
     res.status(200).json({
       success: true,
       message: message,
-      data: cart,
+      data: populatedCart,
     });
   } catch (error) {
     next(error);

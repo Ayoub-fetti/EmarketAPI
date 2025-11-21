@@ -17,11 +17,16 @@ export const register = async (req, res, next) => {
     if (existingUser)
       return res.status(400).json({ message: "Email already in use" });
 
+    const userRole = role === 'seller' ? "seller" : "user";
+    const userStatus = userRole === 'seller' ? "pending" : "active";
+    
     const user = new User({
        fullname, 
        email: email.toLowerCase(), 
        password,
-       role: role === 'seller' ? "seller" : "user"});
+       role: userRole,
+       status: userStatus,
+    });
     await user.save();
 
     // generate token
@@ -44,6 +49,7 @@ export const register = async (req, res, next) => {
           fullname: user.fullname,
           email: user.email,
           role: user.role,
+          status: user.status,
           avatar: user.avatar,
         },
       },
@@ -103,6 +109,7 @@ export const login = async (req, res, next) => {
           fullname: user.fullname,
           email: user.email,
           role: user.role,
+          status: user.status,
           avatar: user.avatar,
         },
       },

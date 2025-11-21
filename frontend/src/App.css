@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+@keyframes slide {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(20px); } /* move 2px to the right */
+  100% { transform: translateX(0); }  /* back to original */
+}
+
+.slide-image {
+  animation: slide 2s infinite; 
+}
+
