@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import Login from '../../pages/Login';
-import { AuthProvider } from '../../context/AuthContext';
-import { authService } from '../../services/authService';
+import Login from '../../../pages/Login';
+import { AuthProvider } from '../../../context/AuthContext';
+import { authService } from '../../../services/authService';
 import { toast } from 'react-toastify';
 
 jest.mock('../../services/axios', () => ({
