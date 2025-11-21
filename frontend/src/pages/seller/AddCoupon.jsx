@@ -210,11 +210,15 @@ export default function AddCoupon() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Code du coupon */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="code"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Code du coupon *
             </label>
             <input
               type="text"
+              id="code"
               name="code"
               value={formData.code}
               onChange={handleChange}
@@ -240,6 +244,7 @@ export default function AddCoupon() {
                 Type de réduction *
               </label>
               <select
+                aria-label="type_reduction"
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
@@ -252,11 +257,15 @@ export default function AddCoupon() {
 
             {/* Valeur */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="value"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Valeur *
               </label>
               <input
                 type="number"
+                id="value"
                 name="value"
                 value={formData.value}
                 onChange={handleChange}
@@ -283,11 +292,15 @@ export default function AddCoupon() {
 
           {/* Achat minimum */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="minimumPurchase"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Achat minimum (DH)
             </label>
             <input
               type="number"
+              id="minimumPurchase"
               name="minimumPurchase"
               value={formData.minimumPurchase}
               onChange={handleChange}
@@ -306,11 +319,15 @@ export default function AddCoupon() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Date de début */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="startDate"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Date de début *
               </label>
               <input
                 type="datetime-local"
+                id="startDate"
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
@@ -325,11 +342,15 @@ export default function AddCoupon() {
 
             {/* Date d'expiration */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="expirationDate"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Date d'expiration *
               </label>
               <input
                 type="datetime-local"
+                id="expirationDate"
                 name="expirationDate"
                 value={formData.expirationDate}
                 onChange={handleChange}
@@ -349,11 +370,15 @@ export default function AddCoupon() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Utilisation maximale totale */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="maxUsage"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Utilisation maximale totale
               </label>
               <input
                 type="number"
+                id="maxUsage"
                 name="maxUsage"
                 value={formData.maxUsage}
                 onChange={handleChange}
@@ -369,11 +394,15 @@ export default function AddCoupon() {
 
             {/* Utilisation maximale par utilisateur */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="maxUsagePerUser"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Utilisation maximale par utilisateur *
               </label>
               <input
                 type="number"
+                id="maxUsagePerUser"
                 name="maxUsagePerUser"
                 value={formData.maxUsagePerUser}
                 onChange={handleChange}
@@ -388,10 +417,14 @@ export default function AddCoupon() {
 
           {/* Statut */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Statut
             </label>
             <select
+              id="status"
               name="status"
               value={formData.status}
               onChange={handleChange}
