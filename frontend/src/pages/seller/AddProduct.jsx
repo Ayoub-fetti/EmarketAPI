@@ -259,11 +259,12 @@ export default function AddProduct() {
             <div className="space-y-4">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                   Nom du Produit <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
+                  id="title"
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
@@ -280,10 +281,11 @@ export default function AddProduct() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
                   Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
+                  id="description"
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
@@ -303,7 +305,7 @@ export default function AddProduct() {
 
               {/* Categories */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label aria-label="Catégories" className="block text-sm font-medium text-gray-700 mb-3">
                   Catégories <span className="text-red-500">*</span>
                   <span className="text-gray-500 text-xs ml-2">
                     ({formData.categories.length} sélectionnée
@@ -323,7 +325,8 @@ export default function AddProduct() {
                     }`}
                   >
                     {categories.map((category) => (
-                      <label
+                      <label 
+                       htmlFor="categories"
                         key={category._id}
                         className={`flex items-center gap-2 p-3 rounded-sm border-2 cursor-pointer transition-all ${
                           formData.categories.includes(category._id)
@@ -337,6 +340,7 @@ export default function AddProduct() {
                       >
                         <input
                           type="checkbox"
+                          id="categories"
                           checked={formData.categories.includes(category._id)}
                           onChange={() => handleCategoryChange(category._id)}
                           disabled={loading || loadingCategories}
@@ -369,11 +373,12 @@ export default function AddProduct() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Price */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
                     Prix de Vente (DH) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
+                    id="price"
                     name="price"
                     value={formData.price}
                     onChange={handleInputChange}
@@ -391,11 +396,12 @@ export default function AddProduct() {
 
                 {/* Original Price */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="ex-price" className="block text-sm font-medium text-gray-700 mb-2">
                     Prix Original (DH) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
+                    id="ex-price"
                     name="ex_price"
                     value={formData.ex_price}
                     onChange={handleInputChange}
@@ -416,11 +422,12 @@ export default function AddProduct() {
 
               {/* Stock - Pleine largeur en dessous */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-2">
                   Quantité en Stock <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
+                  id="stock"
                   name="stock"
                   value={formData.stock}
                   onChange={handleInputChange}
@@ -451,6 +458,7 @@ export default function AddProduct() {
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-sm p-6 text-center hover:border-orange-500 transition-colors">
                   <input
+                    aria-label="Image Principale"
                     type="file"
                     accept="image/*"
                     onChange={handlePrimaryImageChange}
@@ -482,6 +490,7 @@ export default function AddProduct() {
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-sm p-6 hover:border-orange-500 transition-colors">
                   <input
+                    aria-label="Images Secondaires"
                     type="file"
                     accept="image/*"
                     multiple
