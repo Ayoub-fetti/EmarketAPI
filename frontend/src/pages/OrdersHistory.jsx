@@ -272,7 +272,6 @@ export default function OrdersHistory() {
           productId={selectedProductId}
         />
       </div>
-      {/* J'ai retiré le deuxième ReviewModal, car il était en double dans votre code original */}
     </div>
   );
 }
