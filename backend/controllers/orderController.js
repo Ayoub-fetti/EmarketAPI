@@ -3,12 +3,12 @@ import Order from '../models/Order.js';
 import OrderService from '../services/orderServices.js';
 import { notificationEmitter } from '../events/notificationEmitter.js';
 import Product from '../models/Product.js';
+import StockService from '../services/StockService.js';
 
 export const createOrder = async (req, res, next) => {
   let session = null;
 
   try {
-    // Only use transactions in production or when explicitly supported
     if (process.env.NODE_ENV === 'production') {
       session = await mongoose.startSession();
       session.startTransaction();
@@ -80,7 +80,6 @@ export const updateOrderStatus = async (req, res, next) => {
       delivered: 4,
     };
 
-    // Only allow status updates if newStatus is same or higher priority
     if (statusPriority[newStatus] < statusPriority[order.status]) {
       return res.status(400).json({
         success: false,
@@ -88,7 +87,24 @@ export const updateOrderStatus = async (req, res, next) => {
       });
     }
 
+    const oldStatus = order.status;
     order.status = newStatus;
+
+    // Decrease stock when status changes to shipped or delivered
+    if ((newStatus === 'shipped' || newStatus === 'delivered') && 
+        oldStatus !== 'shipped' && oldStatus !== 'delivered') {
+      for (const item of order.items) {
+        await StockService.decreaseStock(item.productId, item.quantity);
+      }
+    }
+
+    // Restore stock if order is cancelled
+    if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
+      for (const item of order.items) {
+        await StockService.increaseStock(item.productId, item.quantity);
+      }
+    }
+
     await order.save();
 
     if (newStatus === 'cancelled') {
@@ -101,7 +117,6 @@ export const updateOrderStatus = async (req, res, next) => {
         ...new Set(products.map((p) => p.seller_id.toString())),
       ];
 
-      // Notification pour chaque vendeur concerné
       sellerIds.forEach((sellerId) => {
         notificationEmitter.emit('orderDeleted', {
           orderId: order._id,
@@ -122,7 +137,6 @@ export const updateOrderStatus = async (req, res, next) => {
   }
 };
 
-// Admin can update order status without restrictions
 export const adminUpdateOrderStatus = async (req, res, next) => {
   try {
     const { id: orderId } = req.params;
@@ -143,9 +157,24 @@ export const adminUpdateOrderStatus = async (req, res, next) => {
 
     const oldStatus = order.status;
     order.status = newStatus;
+
+    // Decrease stock when status changes to shipped or delivered
+    if ((newStatus === 'shipped' || newStatus === 'delivered') && 
+        oldStatus !== 'shipped' && oldStatus !== 'delivered') {
+      for (const item of order.items) {
+        await StockService.decreaseStock(item.productId, item.quantity);
+      }
+    }
+
+    // Restore stock if order is cancelled
+    if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
+      for (const item of order.items) {
+        await StockService.increaseStock(item.productId, item.quantity);
+      }
+    }
+
     await order.save();
 
-    // Populate order data for response
     await order.populate('userId', 'fullname email');
     await order.populate({
       path: 'items.productId',
@@ -154,7 +183,6 @@ export const adminUpdateOrderStatus = async (req, res, next) => {
     });
     await order.populate('appliedCoupons', 'code type value');
 
-    // Send notification if status changed to cancelled
     if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
       const productIds = order.items.map((i) => i.productId);
       const products = await Product.find(
@@ -185,7 +213,6 @@ export const adminUpdateOrderStatus = async (req, res, next) => {
   }
 };
 
-// Seller can update order status for orders containing their products
 export const sellerUpdateOrderStatus = async (req, res, next) => {
   try {
     const { id: orderId } = req.params;
@@ -205,7 +232,6 @@ export const sellerUpdateOrderStatus = async (req, res, next) => {
         .status(404)
         .json({ success: false, message: 'Order not found' });
 
-    // Verify that the seller owns at least one product in this order
     const productIds = order.items.map((item) => item.productId);
     const sellerProducts = await Product.find({
       _id: { $in: productIds },
@@ -221,9 +247,24 @@ export const sellerUpdateOrderStatus = async (req, res, next) => {
 
     const oldStatus = order.status;
     order.status = newStatus;
+
+    // Decrease stock when status changes to shipped or delivered
+    if ((newStatus === 'shipped' || newStatus === 'delivered') && 
+        oldStatus !== 'shipped' && oldStatus !== 'delivered') {
+      for (const item of order.items) {
+        await StockService.decreaseStock(item.productId, item.quantity);
+      }
+    }
+
+    // Restore stock if order is cancelled
+    if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
+      for (const item of order.items) {
+        await StockService.increaseStock(item.productId, item.quantity);
+      }
+    }
+
     await order.save();
 
-    // Populate order data for response
     await order.populate('userId', 'fullname email');
     await order.populate({
       path: 'items.productId',
@@ -231,7 +272,6 @@ export const sellerUpdateOrderStatus = async (req, res, next) => {
     });
     await order.populate('appliedCoupons', 'code type value');
 
-    // Send notification if status changed to cancelled
     if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
       notificationEmitter.emit('orderDeleted', {
         orderId: order._id,
@@ -251,7 +291,6 @@ export const sellerUpdateOrderStatus = async (req, res, next) => {
   }
 };
 
-// get all orders
 export const getOrders = async (req, res, next) => {
   try {
     const orders = await Order.find().notDeleted();
@@ -265,9 +304,6 @@ export const getOrders = async (req, res, next) => {
   }
 };
 
-// ======================== soft delte functions ================================
-
-// Soft delete
 export const softDeleteOrder = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -281,14 +317,13 @@ export const softDeleteOrder = async (req, res, next) => {
   }
 };
 
-// Restore
 export const restoreOrder = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order)
       return res.status(404).json({ success: false, error: 'Order not found' });
 
-    await order.restore(); // <-- helper
+    await order.restore();
     res.status(200).json({
       success: true,
       message: 'Order restored',
@@ -299,7 +334,6 @@ export const restoreOrder = async (req, res, next) => {
   }
 };
 
-// Get all soft-deleted Orders
 export const getDeletedOrders = async (req, res, next) => {
   try {
     const orders = await Order.find().deleted();
@@ -313,7 +347,6 @@ export const getDeletedOrders = async (req, res, next) => {
   }
 };
 
-// get user not deleted orders
 export const getUserOrders = async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -328,16 +361,13 @@ export const getUserOrders = async (req, res, next) => {
   }
 };
 
-// get seller orders (orders containing seller's products)
 export const getSellerOrders = async (req, res, next) => {
   try {
     const { sellerId } = req.params;
 
-    // Find all products of this seller
     const sellerProducts = await Product.find({ seller_id: sellerId }, '_id');
     const productIds = sellerProducts.map((p) => p._id);
 
-    // Find all orders containing at least one of seller's products
     const orders = await Order.find({
       'items.productId': { $in: productIds },
     })
@@ -350,18 +380,15 @@ export const getSellerOrders = async (req, res, next) => {
       .populate('appliedCoupons', 'code type value')
       .sort({ createdAt: -1 });
 
-    // Filter items to only show seller's products and recalculate amounts
     const filteredOrders = orders.map((order) => {
       const orderObj = order.toObject();
 
-      // Filter items to only include seller's products
       const sellerItems = orderObj.items.filter((item) => {
         const productIdStr =
           item.productId?._id?.toString() || item.productId?.toString();
         return productIds.some((id) => id.toString() === productIdStr);
       });
 
-      // Calculate total for seller's items
       const sellerTotal = sellerItems.reduce((sum, item) => {
         return sum + item.price * item.quantity;
       }, 0);
@@ -369,7 +396,7 @@ export const getSellerOrders = async (req, res, next) => {
       return {
         ...orderObj,
         items: sellerItems,
-        sellerTotal, // Total for this seller's items only
+        sellerTotal,
       };
     });
 
