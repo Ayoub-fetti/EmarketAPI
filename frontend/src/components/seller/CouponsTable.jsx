@@ -52,9 +52,9 @@ export default function CouponsTable({ coupons, onDelete }) {
     return { used, maxUsage: null, percentage: null };
   };
 
-  const handleDelete = (couponId) => {
+  const handleDelete = (coupon) => {
     if (onDelete) {
-      onDelete(couponId);
+      onDelete(coupon);
     }
   };
 
@@ -188,7 +188,7 @@ export default function CouponsTable({ coupons, onDelete }) {
                       <button
                         className="p-2 bg-gray-700 hover:bg-gray-800 rounded-md transition-colors"
                         title="Supprimer"
-                        onClick={() => handleDelete(coupon._id)}
+                        onClick={() => handleDelete(coupon)}
                       >
                         <MdDelete className="text-lg text-white" />
                       </button>

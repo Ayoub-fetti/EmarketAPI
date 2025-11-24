@@ -4,7 +4,8 @@ export default function DeleteConfirmModal({
   isOpen,
   onClose,
   onConfirm,
-  productName,
+  itemName,
+  itemType = "produit",
   loading,
 }) {
   if (!isOpen) return null;
@@ -39,8 +40,9 @@ export default function DeleteConfirmModal({
 
         {/* Message */}
         <p className="text-gray-600 text-center mb-6">
-          Êtes-vous sûr de vouloir supprimer le produit{" "}
-          <span className="font-semibold text-gray-900">"{productName}"</span> ?
+          Êtes-vous sûr de vouloir supprimer{" "}
+          {itemType === "coupon" ? "le coupon" : "le produit"}{" "}
+          <span className="font-semibold text-gray-900">"{itemName}"</span> ?
           <br />
           <span className="text-sm text-red-700 mt-2 block">
             Cette action peut être annulée plus tard.
