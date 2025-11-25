@@ -21,6 +21,13 @@ export default function Products() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // determine backend base url for images
+  const BACKEND_BASE =
+    import.meta.env.VITE_BACKEND_BASE_URL ||
+    (import.meta.env.VITE_BACKEND_URL
+      ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
+      : "");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -262,9 +269,9 @@ export default function Products() {
                       <img
                         src={
                           product.primaryImage
-                            ? `${import.meta.env.VITE_BACKEND_BASE_URL}${
-                                product.primaryImage
-                              }`
+                            ? product.primaryImage.startsWith("http")
+                              ? product.primaryImage
+                              : `${BACKEND_BASE}${product.primaryImage}`
                             : "/placeholder.jpg"
                         }
                         alt={product.name}
