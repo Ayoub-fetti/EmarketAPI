@@ -14,6 +14,13 @@ export function Details() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // determine backend base url for images (fallback to VITE_BACKEND_URL without /api)
+  const BACKEND_BASE =
+    import.meta.env.VITE_BACKEND_BASE_URL ||
+    (import.meta.env.VITE_BACKEND_URL
+      ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
+      : "");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -66,7 +73,11 @@ export function Details() {
           {product.primaryImage && (
             <div className="aspect-square bg-gray-100 rounded-xl border border-orange-700 overflow-hidden shadow-sm">
               <img
-                src={`${import.meta.env.VITE_BACKEND_BASE_URL}${product.primaryImage}`}
+                src={
+                  product.primaryImage.startsWith("http")
+                    ? product.primaryImage
+                    : `${BACKEND_BASE}${product.primaryImage}`
+                }
                 alt={product.title}
                 className="w-full h-full object-cover"
               />
@@ -81,7 +92,9 @@ export function Details() {
                   className="aspect-square bg-gray-100 rounded-md overflow-hidden shadow-sm border border-orange-700"
                 >
                   <img
-                    src={`${import.meta.env.VITE_BACKEND_BASE_URL}${image}`}
+                    src={
+                      image.startsWith("http") ? image : `${BACKEND_BASE}${image}`
+                    }
                     alt=""
                     className="w-full h-full object-cover"
                   />

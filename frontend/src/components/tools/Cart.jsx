@@ -25,6 +25,13 @@ const Cart = ({ isOpen, onClose }) => {
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [creatingOrder, setCreatingOrder] = useState(false);
   const [orderError, setOrderError] = useState("");
+  
+  // determine backend base url for images
+  const BACKEND_BASE =
+    import.meta.env.VITE_BACKEND_BASE_URL ||
+    (import.meta.env.VITE_BACKEND_URL
+      ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
+      : "");
 
   const handleValidateCoupon = async () => {
     if (!couponCode.trim()) {
@@ -120,7 +127,13 @@ const Cart = ({ isOpen, onClose }) => {
                 {items.map((item) => (
                   <div key={item.productId._id} className="flex gap-3 p-3 border rounded-lg">
                     <img
-                      src={item.productId.primaryImage ? `${import.meta.env.VITE_BACKEND_BASE_URL}${item.productId.primaryImage}` : "/placeholder.jpg"}
+                      src={
+                        item.productId.primaryImage
+                          ? item.productId.primaryImage.startsWith("http")
+                            ? item.productId.primaryImage
+                            : `${BACKEND_BASE}${item.productId.primaryImage}`
+                          : "/placeholder.jpg"
+                      }
                       alt={item.productId.title}
                       className="w-16 h-16 object-cover rounded"
                       onError={(e) => { e.target.src = "/placeholder.jpg"; }}
