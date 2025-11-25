@@ -14,6 +14,26 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  // Compute backend base URL robustly. Prefer explicit base, otherwise derive from VITE_BACKEND_URL
+ const BACKEND_BASE =
+    import.meta.env.VITE_BACKEND_BASE_URL ||
+    (import.meta.env.VITE_BACKEND_URL
+        ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
+        : "");
+
+    const getImageUrl = (path) => {
+      if (!path) return null;
+      // absolute URL — return as-is
+      if (path.startsWith("http://") || path.startsWith("https://")) return path;
+      // join with BACKEND_BASE if available
+      if (BACKEND_BASE) {
+        return `${BACKEND_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+      }
+      // fallback: return raw path
+      return path;
+    };
+  
+
   useEffect(() => {
     if (user) {
       setFormData({
@@ -21,11 +41,7 @@ export default function Profile() {
         email: user.email || "",
         avatar: null,
       });
-      setPreview(
-        user.avatar
-          ? `${import.meta.env.VITE_BACKEND_BASE_URL}${user.avatar}`
-          : null
-      );
+        setPreview(user.avatar ? getImageUrl(user.avatar) : null);
     }
   }, [user]);
 
