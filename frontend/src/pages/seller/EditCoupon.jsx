@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
 import { couponService } from "../../services/couponService";
+import { useCoupon } from "../../hooks/seller/useCoupon";
 
 export default function EditCoupon() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { coupon, loading: loadingCoupon, error: errorCoupon } = useCoupon(id);
 
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [alertMessage, setAlertMessage] = useState({ type: "", message: "" });
   const [formData, setFormData] = useState({
@@ -26,15 +27,7 @@ export default function EditCoupon() {
 
   // Charger les données du coupon
   useEffect(() => {
-    fetchCoupon();
-  }, [id]);
-
-  const fetchCoupon = async () => {
-    try {
-      setLoading(true);
-      const response = await couponService.getCouponById(id);
-      const coupon = response.data;
-
+    if (coupon) {
       setFormData({
         code: coupon.code,
         type: coupon.type,
@@ -48,18 +41,15 @@ export default function EditCoupon() {
         maxUsagePerUser: coupon.maxUsagePerUser.toString(),
         status: coupon.status,
       });
-    } catch (error) {
-      console.error("Erreur lors du chargement du coupon:", error);
+    }
+
+    if (errorCoupon) {
       setAlertMessage({
         type: "error",
-        message:
-          error.response?.data?.message ||
-          "Erreur lors du chargement du coupon",
+        message: errorCoupon,
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [coupon, errorCoupon]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -191,7 +181,7 @@ export default function EditCoupon() {
     }
   };
 
-  if (loading) {
+  if (loadingCoupon) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="bg-white rounded-lg p-12 text-center">
