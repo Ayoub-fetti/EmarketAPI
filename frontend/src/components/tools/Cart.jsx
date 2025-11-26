@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { Trash2, Plus, Minus, ShoppingCart, Tag, X } from "lucide-react";
 import Button from "./Button";
+import LazyImage from "./LazyImage";
 import { validateCoupon } from "../../services/cartService";
 import { createOrder } from "../../services/orderService";
 import { toast } from "react-toastify";
@@ -126,16 +127,11 @@ const Cart = ({ isOpen, onClose }) => {
               <div className="space-y-4">
                 {items.map((item) => (
                   <div key={item.productId._id} className="flex gap-3 p-3 border rounded-lg">
-                    <img
-                      src={
-                        item.productId.primaryImage
-                          ? item.productId.primaryImage.startsWith("http")
-                            ? item.productId.primaryImage
-                            : `${BACKEND_BASE}${item.productId.primaryImage}`
-                          : "/placeholder.jpg"
-                      }
+                    <LazyImage
+                      src={item.productId.primaryImage ? `${import.meta.env.VITE_BACKEND_BASE_URL}${item.productId.primaryImage}` : "/placeholder.jpg"}
                       alt={item.productId.title}
                       className="w-16 h-16 object-cover rounded"
+                      placeholderClassName="rounded"
                       onError={(e) => { e.target.src = "/placeholder.jpg"; }}
                     />
                     <div className="flex-1">

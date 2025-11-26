@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { productService } from "../services/productService";
 import { categoryService } from "../services/categoryService";
 import Loader from "../components/tools/Loader";
+import LazyImage from "../components/tools/LazyImage";
 import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import discountImage from "../../public/discount.png";
 import "../App.css";
@@ -266,7 +267,7 @@ export default function Products() {
                   >
                     {/* Image Container */}
                     <div className="relative w-full h-48 bg-muted overflow-hidden">
-                      <img
+                      <LazyImage
                         src={
                           product.primaryImage
                             ? product.primaryImage.startsWith("http")
@@ -276,6 +277,7 @@ export default function Products() {
                         }
                         alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        placeholderClassName="rounded-t-xl"
                       />
                       {product.stock === 0 && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

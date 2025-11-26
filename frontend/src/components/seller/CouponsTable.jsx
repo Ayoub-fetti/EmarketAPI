@@ -1,8 +1,8 @@
 import { MdEdit, MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import React from "react";
 
-export default function CouponsTable({ coupons, onDelete }) {
+function CouponsTable({ coupons, onDelete }) {
   const navigate = useNavigate();
 
   const formatDate = (date) => {
@@ -203,3 +203,5 @@ export default function CouponsTable({ coupons, onDelete }) {
     </div>
   );
 }
+
+export default React.memo(CouponsTable);

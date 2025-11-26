@@ -1,4 +1,5 @@
 import Button from "../components/tools/Button";
+import LazyImage from "../components/tools/LazyImage";
 import homeImage from "../../public/home.png";
 import { Link } from "react-router-dom";
 
@@ -29,7 +30,7 @@ export default function Home() {
           {/* Right Image Section - overlays on top of h1 */}
           <div className="flex-1 flex justify-center relative z-10">
             <div className="relative top-12 w-full max-w-md h-96 flex items-center justify-center">
-              <img
+              <LazyImage
                 src={homeImage}
                 alt="Woman wearing red headphones - FETTY inspiration"
                 className="w-full h-full object-contain drop-shadow-lg"
@@ -46,7 +47,7 @@ export default function Home() {
           </span>
           <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mt-2">
             L'Âge de la{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-500">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-600 to-red-500">
               Tech Accessible
             </span>
           </h2>
