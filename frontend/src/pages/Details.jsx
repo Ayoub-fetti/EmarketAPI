@@ -4,6 +4,7 @@ import { reviewService } from "../services/reviewService";
 import { useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/tools/Loader";
+import LazyImage from "../components/tools/LazyImage";
 import Button from "../components/tools/Button";
 
 export function Details() {
@@ -65,10 +66,11 @@ export function Details() {
         <div className="space-y-3">
           {product.primaryImage && (
             <div className="aspect-square bg-gray-100 rounded-xl border border-orange-700 overflow-hidden shadow-sm">
-              <img
+              <LazyImage
                 src={`${import.meta.env.VITE_BACKEND_BASE_URL}${product.primaryImage}`}
                 alt={product.title}
                 className="w-full h-full object-cover"
+                placeholderClassName="rounded-xl"
               />
             </div>
           )}
@@ -80,10 +82,11 @@ export function Details() {
                   key={index}
                   className="aspect-square bg-gray-100 rounded-md overflow-hidden shadow-sm border border-orange-700"
                 >
-                  <img
+                  <LazyImage
                     src={`${import.meta.env.VITE_BACKEND_BASE_URL}${image}`}
                     alt=""
                     className="w-full h-full object-cover"
+                    placeholderClassName="rounded-md"
                   />
                 </div>
               ))}
