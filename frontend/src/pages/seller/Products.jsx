@@ -15,6 +15,7 @@ export default function Products() {
     error,
     filters,
     deleteProduct,
+    resetFilters,
   } = useSellerProducts();
 
   const {
@@ -77,6 +78,21 @@ export default function Products() {
           onClick={() => navigate("/seller/products/add")}
         />
       </div>
+
+      {/* Results count */}
+      {(searchQuery || selectedCategory || selectedStock) && (
+        <div className="mb-4 text-sm text-gray-600">
+          {filteredProducts.length} produit(s) trouvé(s)
+          {(searchQuery || selectedCategory || selectedStock) && (
+            <button
+              onClick={resetFilters}
+              className="ml-4 text-orange-700 hover:text-orange-800 font-medium"
+            >
+              Réinitialiser les filtres
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Loading State */}
       {loading && (
@@ -155,30 +171,12 @@ export default function Products() {
             <p className="text-gray-600 mb-6">
               Essayez de modifier vos critères de recherche ou de filtrage
             </p>
-            <button
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCategory("");
-                setSelectedStock("");
-              }}
-              className="px-6 py-2 bg-orange-700 text-white rounded-md hover:bg-orange-800 transition-colors"
-            >
-              Réinitialiser les filtres
-            </button>
           </div>
         )}
 
       {/* Products Table */}
       {!loading && !error && filteredProducts.length > 0 && (
         <>
-          <div className="mb-4 text-sm text-gray-600">
-            {filteredProducts.length} produit
-            {filteredProducts.length > 1 ? "s" : ""} trouvé
-            {filteredProducts.length > 1 ? "s" : ""}
-            {(searchQuery || selectedCategory || selectedStock) && (
-              <span className="ml-2">sur {products.length} au total</span>
-            )}
-          </div>
           <ProductsTable
             products={filteredProducts}
             onProductDeleted={deleteProduct}

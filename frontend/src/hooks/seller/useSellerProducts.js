@@ -113,6 +113,12 @@ export function useSellerProducts() {
     }
   }, []);
 
+  const resetFilters = useCallback(() => {
+    setSearchQuery("");
+    setSelectedCategory("");
+    setSelectedStock("");
+  }, []);
+
   return {
     products,
     filteredProducts,
@@ -129,5 +135,6 @@ export function useSellerProducts() {
       setSelectedStock,
     },
     deleteProduct,
+    resetFilters,
   };
 }

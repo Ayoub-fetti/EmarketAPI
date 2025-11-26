@@ -54,32 +54,20 @@ export default function Orders() {
               placeholder="Tous les statuts"
               className="w-full sm:w-48"
             />
-
-            {(searchQuery || selectedStatus) && (
-              <button
-                onClick={resetFilters}
-                className="px-4 py-2 text-md text-white border bg-orange-700 rounded-md hover:bg-orange-800"
-              >
-                Réinitialiser
-              </button>
-            )}
           </div>
         </div>
 
         {/* Results Counter */}
-        {!loading && (
+        {(searchQuery || selectedStatus) && (
           <div className="mt-6 text-sm text-gray-600">
-            {filteredOrders.length === orders.length ? (
-              <span>
-                {orders.length} commande{orders.length > 1 ? "s" : ""} au total
-              </span>
-            ) : (
-              <span>
-                {filteredOrders.length} commande
-                {filteredOrders.length > 1 ? "s" : ""} trouvée
-                {filteredOrders.length > 1 ? "s" : ""} sur {orders.length} au
-                total
-              </span>
+            {filteredOrders.length} commande(s) trouvée(s)
+            {(searchQuery || selectedStatus) && (
+              <button
+                onClick={resetFilters}
+                className="ml-4 text-orange-700 hover:text-orange-800 font-medium"
+              >
+                Réinitialiser les filtres
+              </button>
             )}
           </div>
         )}
@@ -126,14 +114,6 @@ export default function Orders() {
                 ? "Essayez de modifier vos critères de recherche"
                 : "Les commandes de vos produits apparaîtront ici"}
             </p>
-            {(searchQuery || selectedStatus) && (
-              <button
-                onClick={resetFilters}
-                className="mt-4 px-4 py-2 bg-orange-700 text-white rounded-md hover:bg-orange-800 transition-colors"
-              >
-                Réinitialiser les filtres
-              </button>
-            )}
           </div>
         </div>
       ) : (

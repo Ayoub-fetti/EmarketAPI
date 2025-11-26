@@ -1,7 +1,7 @@
 import { MdVisibility } from "react-icons/md";
-import { useState } from "react";
+import React, { useState } from "react";
 
-export default function OrdersTable({ orders, onStatusChange }) {
+function OrdersTable({ orders, onStatusChange }) {
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -166,3 +166,5 @@ export default function OrdersTable({ orders, onStatusChange }) {
     </div>
   );
 }
+
+export default React.memo(OrdersTable);

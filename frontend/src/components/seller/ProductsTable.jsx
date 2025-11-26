@@ -1,10 +1,10 @@
 import { MdEdit, MdDelete, MdVisibility } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import React, { useState } from "react";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import { productService } from "../../services/productService";
 
-export default function ProductsTable({ products, onProductDeleted }) {
+function ProductsTable({ products, onProductDeleted }) {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
@@ -53,7 +53,6 @@ export default function ProductsTable({ products, onProductDeleted }) {
       setDeleting(false);
     }
   };
-
 
   const formatPrice = (price) => {
     return `${parseFloat(price).toFixed(2)} DH`;
@@ -140,9 +139,7 @@ export default function ProductsTable({ products, onProductDeleted }) {
 
                 {/* Stock */}
                 <td className="px-4 py-4">
-                  <span
-                    className="px-3 py-1 rounded-full text-sm font-medium text-orange-700"
-                  >
+                  <span className="px-3 py-1 rounded-full text-sm font-medium text-orange-700">
                     {product.stock}
                   </span>
                 </td>
@@ -199,3 +196,5 @@ export default function ProductsTable({ products, onProductDeleted }) {
     </div>
   );
 }
+
+export default React.memo(ProductsTable);

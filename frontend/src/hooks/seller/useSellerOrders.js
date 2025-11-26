@@ -95,6 +95,11 @@ export function useSellerOrders() {
     }
   }, []);
 
+  const resetFilters = useCallback(() => {
+    setSearchQuery("");
+    setSelectedStatus("");
+  }, []);
+
   return {
     orders,
     filteredOrders,
@@ -107,5 +112,6 @@ export function useSellerOrders() {
       setSelectedStatus,
     },
     updateOrderStatus,
+    resetFilters,
   };
 }
