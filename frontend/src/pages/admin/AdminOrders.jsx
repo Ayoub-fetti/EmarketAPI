@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { adminOrdersService } from "../../services/admin/adminOrdersService";
+import { adminUsersService } from "../../services/admin/adminUsersService";
 import {
   FaBan,
   FaUndo,
@@ -72,8 +73,46 @@ export default function AdminOrders() {
         adminOrdersService.fetchAllOrders(),
         adminOrdersService.fetchDeletedOrders(),
       ]);
-      setOrders(active);
-      setDeletedOrders(deleted);
+
+      // If backend returns only user ids (strings) for orders, fetch missing user details
+      const allOrders = [...active, ...deleted];
+      const userIdsToFetch = Array.from(
+        new Set(
+          allOrders
+            .map((o) => (o && typeof o.userId === "string" ? o.userId : null))
+            .filter(Boolean)
+        )
+      );
+
+      let usersMap = {};
+      if (userIdsToFetch.length > 0) {
+        try {
+          const fetched = await Promise.all(
+            userIdsToFetch.map((id) =>
+              adminUsersService.fetchUserById(id).catch(() => null)
+            )
+          );
+          fetched.forEach((u, idx) => {
+            if (u && userIdsToFetch[idx]) usersMap[userIdsToFetch[idx]] = u;
+          });
+        } catch (e) {
+          // ignore individual fetch errors — we'll fallback to id
+          console.warn("Could not fetch some users for orders", e);
+        }
+      }
+
+      // Replace string userId with fetched user object where possible
+      const normalize = (order) => {
+        if (!order) return order;
+        if (order.userId && typeof order.userId === "string") {
+          const u = usersMap[order.userId];
+          if (u) return { ...order, userId: u };
+        }
+        return order;
+      };
+
+      setOrders(active.map(normalize));
+      setDeletedOrders(deleted.map(normalize));
     } catch (err) {
       const message =
         err.response?.data?.message ||
@@ -100,15 +139,27 @@ export default function AdminOrders() {
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      source = source.filter(
-        (order) =>
-          order._id?.toLowerCase().includes(query) ||
-          order.userId?.fullname?.toLowerCase().includes(query) ||
-          order.userId?.email?.toLowerCase().includes(query) ||
-          order.status?.toLowerCase().includes(query) ||
+      source = source.filter((order) => {
+        const userFull =
+          typeof order.userId === "object" && order.userId
+            ? order.userId.fullname?.toLowerCase() || ""
+            : "";
+        const userEmail =
+          typeof order.userId === "object" && order.userId
+            ? order.userId.email?.toLowerCase() || ""
+            : "";
+        const userString = typeof order.userId === "string" ? order.userId.toLowerCase() : "";
+
+        return (
+          (order._id || "").toLowerCase().includes(query) ||
+          userFull.includes(query) ||
+          userEmail.includes(query) ||
+          userString.includes(query) ||
+          (order.status || "").toLowerCase().includes(query) ||
           String(order.finalAmount || "").includes(query) ||
           formatDate(order.createdAt).toLowerCase().includes(query)
-      );
+        );
+      });
     }
     
     return source;
@@ -381,13 +432,13 @@ export default function AdminOrders() {
                     <td className="px-3 sm:px-6 py-3 sm:py-4">
                       <div className="min-w-0">
                         <div className="font-semibold text-gray-900 truncate max-w-[150px] sm:max-w-none">
-                          {order.userId?.fullname || order.userId?.email || "—"}
+                          {
+                            // show only fullname when available, otherwise fall back to id or dash
+                            (typeof order.userId === "object" && order.userId !== null)
+                              ? order.userId.fullname || order.userId || "—"
+                              : order.userId || "—"
+                          }
                         </div>
-                        {order.userId?.email && order.userId?.fullname && (
-                          <div className="text-xs text-gray-500 truncate max-w-[150px] sm:max-w-none">
-                            {order.userId.email}
-                          </div>
-                        )}
                       </div>
                     </td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
@@ -581,13 +632,12 @@ export default function AdminOrders() {
                       Customer
                     </h5>
                     <p className="text-sm text-gray-600">
-                      {selectedOrder.userId?.fullname || "—"}
+                      {(
+                        typeof selectedOrder.userId === "object" && selectedOrder.userId !== null
+                          ? selectedOrder.userId.fullname || selectedOrder.userId || "—"
+                          : selectedOrder.userId || "—"
+                      )}
                     </p>
-                    {selectedOrder.userId?.email && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {selectedOrder.userId.email}
-                      </p>
-                    )}
                   </div>
 
                   <div>

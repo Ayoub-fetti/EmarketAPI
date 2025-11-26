@@ -1,10 +1,10 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { CartProvider, useCart } from '../../context/CartContext';
-import { AuthProvider } from '../../context/AuthContext';
-import * as cartService from '../../services/cartService';
+import { CartProvider, useCart } from '../../../context/CartContext';
+import { AuthProvider } from '../../../context/AuthContext';
+import * as cartService from '../../../services/cartService';
 import { toast } from 'react-toastify';
 
-jest.mock('../../services/cartService');
+jest.mock('../../../services/cartService');
 jest.mock('react-toastify');
 
 const wrapper = ({ children }) => (

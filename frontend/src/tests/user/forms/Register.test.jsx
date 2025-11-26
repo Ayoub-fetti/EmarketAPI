@@ -1,10 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import Register from '../../pages/Register';
-import { AuthProvider } from '../../context/AuthContext';
-import { authService } from '../../services/authService';
+import Register from '../../../pages/Register';
+import { AuthProvider } from '../../../context/AuthContext';
+import { authService } from '../../../services/authService';
 import { toast } from 'react-toastify';
-jest.mock('../../services/axios', () => ({
+jest.mock('../../../services/axios', () => ({
   __esModule: true,
   default: {
     post: jest.fn(),
@@ -13,7 +13,7 @@ jest.mock('../../services/axios', () => ({
     }
   }
 }));
-jest.mock('../../services/authService');
+jest.mock('../../../services/authService');
 jest.mock('react-toastify');
 
 const MockedRegister = () => (

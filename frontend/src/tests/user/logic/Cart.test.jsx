@@ -1,5 +1,4 @@
 describe('Cart Logic - Total Calculation', () => {
-  const TAX_RATE = 0.2;
 
   const mockItems = [
     { productId: { _id: '1', price: 100 }, quantity: 2 },
@@ -40,34 +39,19 @@ describe('Cart Logic - Total Calculation', () => {
     });
   });
 
-  describe('getTax', () => {
-    it('should calculate tax correctly', () => {
-      const subtotal = 100;
-      const tax = subtotal * TAX_RATE;
-      expect(tax).toBe(20);
-    });
-
-    it('should return 0 tax for empty cart', () => {
-      const subtotal = 0;
-      const tax = subtotal * TAX_RATE;
-      expect(tax).toBe(0);
-    });
-  });
 
   describe('getTotal', () => {
-    it('should calculate total with tax', () => {
+    it('should calculate total', () => {
       const subtotal = mockItems.reduce((total, item) => 
         total + (item.productId.price * item.quantity), 0
       );
-      const tax = subtotal * TAX_RATE;
-      const total = subtotal + tax;
-      expect(total).toBe(391.8);
+      const total = subtotal;
+      expect(total).toBe(326.5);
     });
 
     it('should return 0 for empty cart', () => {
       const subtotal = 0;
-      const tax = subtotal * TAX_RATE;
-      const total = subtotal + tax;
+      const total = subtotal;
       expect(total).toBe(0);
     });
   });

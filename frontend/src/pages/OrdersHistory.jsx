@@ -78,15 +78,15 @@ export default function OrdersHistory() {
   const getStatusIcon = (status) => {
     switch (status) {
       case "pending":
-        return <i className="fa-solid fa-spinner"></i>;
+        return <i className="fa-solid fa-spinner animate-spin text-yellow-500"></i>;
       case "shipped":
-        return <Truck className="text-blue-500" size={20} />;
+        return <Truck className="text-blue-500" size={18} />;
       case "delivered":
-        return <CheckCircle className="text-green-500" size={20} />;
+        return <CheckCircle className="text-green-500" size={18} />;
       case "cancelled":
-        return <XCircle className="text-red-500" size={20} />;
+        return <XCircle className="text-red-500" size={18} />;
       default:
-        return <Package className="text-gray-500" size={20} />;
+        return <Package className="text-gray-500" size={18} />;
     }
   };
 
@@ -100,126 +100,171 @@ export default function OrdersHistory() {
     return statusMap[status] || status;
   };
 
+  const getStatusClasses = (status) => {
+    switch (status) {
+        case "pending":
+            return "bg-yellow-100 text-yellow-800";
+        case "shipped":
+            return "bg-blue-100 text-blue-800";
+        case "delivered":
+            return "bg-green-100 text-green-800";
+        case "cancelled":
+            return "bg-red-100 text-red-800";
+        default:
+            return "bg-gray-100 text-gray-800";
+    }
+  };
+
+
   if (loading) {
     return <Loader />;
   }
 
   if (orders.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <Package className="text-gray-400 mb-4" size={64} />
-        <h2 className="text-2xl font-semibold text-gray-700">
-          Aucune commande
+      <div className="flex flex-col items-center justify-center min-h-[60vh] py-10">
+        <Package className="text-indigo-500 mb-6" size={80} />
+        <h2 className="text-3xl font-bold text-gray-800">
+          Aucune commande trouvée
         </h2>
-        <p className="text-gray-500 mt-2">
-          Vous n'avez pas encore passé de commande
+        <p className="text-gray-500 mt-2 text-lg">
+          On dirait que vous n'avez pas encore passé de commande.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 mb-60 mt-10">
-      <div className="bg-white border rounded-lg shadow-md p-6 overflow-x-auto">
-        <h1 className="text-3xl font-bold mb-6">Historique de mes commandes</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="bg-white rounded-xl shadow-2xl p-6 lg:p-8">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 border-b pb-4">
+          <Truck className="inline-block mr-3 text-indigo-600" size={32} />
+          Historique des Commandes
+        </h1>
 
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-left text-sm">
-              <th className="p-3 border">Commande</th>
-              <th className="p-3 border">Date</th>
-              <th className="p-3 border">Produit</th>
-              <th className="p-3 border">Quantité</th>
-              <th className="p-3 border">PU</th>
-              <th className="p-3 border">Total</th>
-              <th className="p-3 border">Avis</th>
-              <th className="p-3 border">Statut</th>
-            </tr>
-          </thead>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">
+                  Commande #
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Produit
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Qté
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Prix Unitaire
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Total Ligne
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Avis
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg">
+                  Statut
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {orders.map((order) =>
+                order.items.map((item, index) => {
+                  const isDelivered = order.status === "delivered";
+                  const alreadyReviewed = hasReviewed(item.productId);
+                  const isFirstItem = index === 0;
 
-          <tbody>
-            {orders.map((order) =>
-              order.items.map((item, index) => {
-                const isDelivered = order.status === "delivered";
-                const alreadyReviewed = hasReviewed(item.productId);
+                  return (
+                    <tr
+                      key={order._id + index}
+                      className="hover:bg-indigo-50 transition duration-150 ease-in-out"
+                    >
+                      {/* ORDER ID */}
+                      <td className={`px-4 py-4 whitespace-nowrap text-sm font-semibold ${isFirstItem ? 'text-indigo-600' : 'text-gray-400'}`}>
+                        {isFirstItem ? `#${order._id.slice(-8)}` : ""}
+                      </td>
 
-                return (
-                  <tr
-                    key={order._id + index}
-                    className="hover:bg-gray-50 text-sm"
-                  >
-                    {/* ORDER ID (only on first item row) */}
-                    <td className="p-3 border font-medium">
-                      {index === 0 ? `#${order._id.slice(-8)}` : ""}
-                    </td>
+                      {/* ORDER DATE */}
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {isFirstItem
+                          ? new Date(order.createdAt).toLocaleDateString(
+                              "fr-FR",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )
+                          : ""}
+                      </td>
 
-                    {/* ORDER DATE */}
-                    <td className="p-3 border">
-                      {index === 0
-                        ? new Date(order.createdAt).toLocaleDateString(
-                            "fr-FR",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            }
+                      {/* PRODUCT */}
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <span className="truncate max-w-xs block">Produit ID: {item.productId}</span>
+                      </td>
+
+                      {/* QUANTITY */}
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {item.quantity}
+                      </td>
+
+                      {/* PRICE */}
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {item.price.toFixed(2)} <span className="font-semibold text-xs">MAD</span>
+                      </td>
+
+                      {/* TOTAL LIGNE */}
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                        {(item.price * item.quantity).toFixed(2)} <span className="font-semibold text-xs">MAD</span>
+                      </td>
+
+                      {/* REVIEW ACTION */}
+                      <td className="px-4 py-4 whitespace-nowrap text-center">
+                        {isDelivered ? (
+                          alreadyReviewed ? (
+                            <span className="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 gap-1">
+                              <CheckCircle size={14} /> Avis Ajouté
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                handleOpenReviewModal(item.productId)
+                              }
+                              className="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-yellow-600 text-white hover:bg-indigo-700 transition duration-150 ease-in-out shadow-md gap-1"
+                            >
+                              <Star size={14} fill="white" /> Évaluer
+                            </button>
                           )
-                        : ""}
-                    </td>
+                        ) : (
+                          <span className="text-xs text-gray-400">-</span>
+                        )}
+                      </td>
 
-                    {/* PRODUCT */}
-                    <td className="p-3 border">Produit ID: {item.productId}</td>
-
-                    {/* QUANTITY */}
-                    <td className="p-3 border">{item.quantity}</td>
-
-                    {/* PRICE */}
-                    <td className="p-3 border">{item.price.toFixed(2)} MAD</td>
-
-                    {/* TOTAL */}
-                    <td className="p-3 border font-semibold">
-                      {(item.price * item.quantity).toFixed(2)} MAD
-                    </td>
-
-                    {/* REVIEW ACTION */}
-                    <td className="p-3 border text-center">
-                      {isDelivered ? (
-                        alreadyReviewed ? (
-                          <span className="text-xs text-green-600 flex items-center gap-1 justify-center">
-                            <CheckCircle size={14} /> Avis ajouté
+                      {/* STATUS */}
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        {isFirstItem ? (
+                          <span className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full ${getStatusClasses(order.status)} gap-1`}>
+                            {getStatusIcon(order.status)}
+                            <span className="ml-1">{getStatusText(order.status)}</span>
                           </span>
                         ) : (
-                          <button
-                            onClick={() =>
-                              handleOpenReviewModal(item.productId)
-                            }
-                            className="text-xs bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 flex items-center gap-1 justify-center"
-                          >
-                            <Star size={14} /> Ajouter
-                          </button>
-                        )
-                      ) : (
-                        <span className="text-xs text-gray-400">-</span>
-                      )}
-                    </td>
-                                        {/* STATUS */}
-                    <td className="p-3 border flex items-center">
-                      {index === 0 ? (
-                        <>
-                          {getStatusIcon(order.status)}
-                          <span>{getStatusText(order.status)}</span>
-                        </>
-                      ) : (
-                        ""
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                          ""
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
+        {/* Le ReviewModal est inclus ici, à la fin du conteneur principal */}
         <ReviewModal
           isOpen={reviewModalOpen}
           onClose={() => setReviewModalOpen(false)}
@@ -227,13 +272,7 @@ export default function OrdersHistory() {
           productId={selectedProductId}
         />
       </div>
-
-      <ReviewModal
-        isOpen={reviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
-        onSubmit={handleSubmitReview}
-        productId={selectedProductId}
-      />
+      {/* J'ai retiré le deuxième ReviewModal, car il était en double dans votre code original */}
     </div>
   );
 }

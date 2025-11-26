@@ -13,6 +13,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
 
 const statusLabels = {
   active: "Active",
@@ -63,6 +64,7 @@ export default function AdminUsers() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const { user: authUser } = useAuth();
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -91,6 +93,10 @@ export default function AdminUsers() {
 
   const filteredUsers = useMemo(() => {
     let source = showDeleted ? deletedUsers : users;
+    // Exclude the currently authenticated user from the list
+    if (authUser && source && Array.isArray(source)) {
+      source = source.filter((u) => u._id !== authUser._id && u.email !== authUser.email);
+    }
     
     // Filter by role
     if (roleFilter !== "all") {

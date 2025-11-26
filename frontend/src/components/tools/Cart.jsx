@@ -26,6 +26,13 @@ const Cart = ({ isOpen, onClose }) => {
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [creatingOrder, setCreatingOrder] = useState(false);
   const [orderError, setOrderError] = useState("");
+  
+  // determine backend base url for images
+  const BACKEND_BASE =
+    import.meta.env.VITE_BACKEND_BASE_URL ||
+    (import.meta.env.VITE_BACKEND_URL
+      ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
+      : "");
 
   const handleValidateCoupon = async () => {
     if (!couponCode.trim()) {

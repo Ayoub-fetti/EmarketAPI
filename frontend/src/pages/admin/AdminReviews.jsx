@@ -34,8 +34,7 @@ export default function AdminReviews() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedReview, setSelectedReview] = useState(null);
   const [isModerateModalOpen, setIsModerateModalOpen] = useState(false);
-  const [newStatus, setNewStatus] = useState("");
-  const [moderating, setModerating] = useState(false);
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -106,40 +105,15 @@ export default function AdminReviews() {
 
   const openModerateModal = (review) => {
     setSelectedReview(review);
-    setNewStatus(review.status);
     setIsModerateModalOpen(true);
   };
 
   const closeModerateModal = () => {
     setIsModerateModalOpen(false);
     setSelectedReview(null);
-    setNewStatus("");
-    setModerating(false);
   };
 
-  const handleModerate = async () => {
-    if (!selectedReview || !newStatus) return;
-    setModerating(true);
-    try {
-      const updated = await adminReviewsService.moderateReview(
-        selectedReview._id,
-        newStatus,
-      );
-      setReviews((prev) =>
-        prev.map((r) => (r._id === selectedReview._id ? updated : r)),
-      );
-      toast.success("Review moderated successfully.");
-      closeModerateModal();
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to moderate review.";
-      toast.error(message);
-    } finally {
-      setModerating(false);
-    }
-  };
+  
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -465,44 +439,13 @@ export default function AdminReviews() {
               </div>
             </div>
 
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700">
-                New Status
-              </label>
-              <select
-                value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-                className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              >
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="mt-6 flex justify-end">
               <button
                 type="button"
-                onClick={() => {
-                  if (moderating) return;
-                  closeModerateModal();
-                }}
-                disabled={moderating}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
+                onClick={closeModerateModal}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
               >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleModerate}
-                disabled={
-                  moderating ||
-                  !newStatus ||
-                  newStatus === selectedReview.status
-                }
-                className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-70 shadow-sm hover:shadow-md"
-              >
-                {moderating ? "Moderating..." : "Confirm"}
+                Close
               </button>
             </div>
           </div>

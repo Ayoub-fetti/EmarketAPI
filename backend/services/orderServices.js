@@ -22,7 +22,6 @@ class OrderService {
         throw new Error("Product not found in cart item");
       }
       await StockService.checkStock(item.productId._id, item.quantity);
-      await StockService.decreaseStock(item.productId._id, item.quantity);
     }
 
     // Calculate total
