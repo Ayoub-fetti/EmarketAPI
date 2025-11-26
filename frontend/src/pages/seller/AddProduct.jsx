@@ -259,7 +259,10 @@ export default function AddProduct() {
             <div className="space-y-4">
               {/* Title */}
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Nom du Produit <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -281,7 +284,10 @@ export default function AddProduct() {
 
               {/* Description */}
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -305,7 +311,10 @@ export default function AddProduct() {
 
               {/* Categories */}
               <div>
-                <label aria-label="Catégories" className="block text-sm font-medium text-gray-700 mb-3">
+                <label
+                  aria-label="Catégories"
+                  className="block text-sm font-medium text-gray-700 mb-3"
+                >
                   Catégories <span className="text-red-500">*</span>
                   <span className="text-gray-500 text-xs ml-2">
                     ({formData.categories.length} sélectionnée
@@ -325,8 +334,8 @@ export default function AddProduct() {
                     }`}
                   >
                     {categories.map((category) => (
-                      <label 
-                       htmlFor="categories"
+                      <label
+                        htmlFor="categories"
                         key={category._id}
                         className={`flex items-center gap-2 p-3 rounded-sm border-2 cursor-pointer transition-all ${
                           formData.categories.includes(category._id)
@@ -373,7 +382,10 @@ export default function AddProduct() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Price */}
                 <div>
-                  <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="price"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Prix de Vente (DH) <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -396,7 +408,10 @@ export default function AddProduct() {
 
                 {/* Original Price */}
                 <div>
-                  <label htmlFor="ex-price" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="ex-price"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Prix Original (DH) <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -422,7 +437,10 @@ export default function AddProduct() {
 
               {/* Stock - Pleine largeur en dessous */}
               <div>
-                <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="stock"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Quantité en Stock <span className="text-red-500">*</span>
                 </label>
                 <input

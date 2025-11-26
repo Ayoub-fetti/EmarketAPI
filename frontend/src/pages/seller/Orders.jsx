@@ -1,130 +1,21 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
 import SearchBar from "../../components/seller/SearchBar";
 import FilterSelect from "../../components/seller/FilterSelect";
 import OrdersTable from "../../components/seller/OrdersTable";
-import { orderService } from "../../services/orderService";
-import api from "../../services/axios";
+import { useSellerOrders } from "../../hooks/seller/useSellerOrders";
 
 export default function Orders() {
-  const { user } = useAuth();
+  const {
+    orders,
+    filteredOrders,
+    loading,
+    error,
+    filters,
+    updateOrderStatus,
+    resetFilters,
+  } = useSellerOrders();
 
-  // États pour la recherche et les filtres
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
-
-  // États pour les commandes
-  const [orders, setOrders] = useState([]);
-  const [filteredOrders, setFilteredOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Charger les commandes du seller (via les produits)
-  useEffect(() => {
-    const fetchOrders = async () => {
-      if (!user || !user.id) {
-        setError("Utilisateur non connecté");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        console.log("=== Chargement des commandes du seller ===");
-        console.log("Seller ID:", user.id);
-
-        const response = await orderService.getSellerOrders(user.id);
-        console.log("Response:", response);
-        console.log("Orders:", response.orders);
-
-        setOrders(response.orders || []);
-        setFilteredOrders(response.orders || []);
-        setError(null);
-      } catch (err) {
-        console.error("Erreur lors du chargement des commandes:", err);
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Erreur lors du chargement des commandes"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, [user]);
-
-  // Filtrer les commandes
-  useEffect(() => {
-    let filtered = [...orders];
-
-    // Filtre par recherche (ID de commande ou nom client ou email)
-    if (searchQuery) {
-      filtered = filtered.filter((order) => {
-        const query = searchQuery.toLowerCase();
-        const orderId = order._id?.toLowerCase() || "";
-        const customerName = order.userId?.fullname?.toLowerCase() || "";
-        const customerEmail = order.userId?.email?.toLowerCase() || "";
-
-        // Générer le numéro de commande pour la recherche
-        const date = new Date(order.createdAt);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const shortId = order._id.substring(order._id.length - 6).toUpperCase();
-        const orderNumber = `CMD-${year}${month}-${shortId}`.toLowerCase();
-
-        return (
-          orderId.includes(query) ||
-          customerName.includes(query) ||
-          customerEmail.includes(query) ||
-          orderNumber.includes(query)
-        );
-      });
-    }
-
-    // Filtre par statut
-    if (selectedStatus) {
-      filtered = filtered.filter((order) => order.status === selectedStatus);
-    }
-
-    setFilteredOrders(filtered);
-  }, [searchQuery, selectedStatus, orders]);
-
-  const handleResetFilters = () => {
-    setSearchQuery("");
-    setSelectedStatus("");
-  };
-
-  const handleStatusChange = async (orderId, newStatus) => {
-    try {
-      console.log(
-        `Changement de statut pour la commande ${orderId} vers ${newStatus}`
-      );
-
-      // Appel API pour mettre à jour le statut (route seller)
-      const response = await api.patch(`/orders/${orderId}/status/seller`, {
-        newStatus: newStatus,
-      });
-
-      console.log("Statut mis à jour:", response.data);
-
-      // Mettre à jour localement la commande dans la liste
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order._id === orderId ? { ...order, status: newStatus } : order
-        )
-      );
-
-      setFilteredOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order._id === orderId ? { ...order, status: newStatus } : order
-        )
-      );
-    } catch (err) {
-      console.error("Erreur lors du changement de statut:", err);
-    }
-  };
+  const { searchQuery, setSearchQuery, selectedStatus, setSelectedStatus } =
+    filters;
 
   // Options de statut fixes
   const statusOptions = [
@@ -166,7 +57,7 @@ export default function Orders() {
 
             {(searchQuery || selectedStatus) && (
               <button
-                onClick={handleResetFilters}
+                onClick={resetFilters}
                 className="px-4 py-2 text-md text-white border bg-orange-700 rounded-md hover:bg-orange-800"
               >
                 Réinitialiser
@@ -237,7 +128,7 @@ export default function Orders() {
             </p>
             {(searchQuery || selectedStatus) && (
               <button
-                onClick={handleResetFilters}
+                onClick={resetFilters}
                 className="mt-4 px-4 py-2 bg-orange-700 text-white rounded-md hover:bg-orange-800 transition-colors"
               >
                 Réinitialiser les filtres
@@ -248,7 +139,7 @@ export default function Orders() {
       ) : (
         <OrdersTable
           orders={filteredOrders}
-          onStatusChange={handleStatusChange}
+          onStatusChange={updateOrderStatus}
         />
       )}
     </div>
