@@ -4,11 +4,17 @@ import { useState, useEffect } from "react";
 import { productService } from "../../services/productService";
 import { categoryService } from "../../services/categoryService";
 import { useAuth } from "../../context/AuthContext";
+import { useProduct } from "../../hooks/seller/useProduct";
 
 export default function EditProduct() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuth();
+  const {
+    product,
+    loading: loadingProduct,
+    error: errorProduct,
+  } = useProduct(id);
 
   // États du formulaire
   const [formData, setFormData] = useState({
@@ -29,7 +35,6 @@ export default function EditProduct() {
 
   const [isPublished, setIsPublished] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loadingProduct, setLoadingProduct] = useState(true);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [categories, setCategories] = useState([]);
@@ -55,41 +60,30 @@ export default function EditProduct() {
 
   // Charger le produit à éditer
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setLoadingProduct(true);
-        const response = await productService.getProductById(id);
-        const product = response.data;
+    if (product) {
+      setFormData({
+        title: product.title || "",
+        description: product.description || "",
+        price: product.price || "",
+        ex_price: product.ex_price || "",
+        stock: product.stock || "",
+        categories: product.categories?.map((cat) => cat._id || cat) || [],
+        primaryImage: null,
+        secondaryImages: [],
+      });
 
-        setFormData({
-          title: product.title || "",
-          description: product.description || "",
-          price: product.price || "",
-          ex_price: product.ex_price || "",
-          stock: product.stock || "",
-          categories: product.categories?.map((cat) => cat._id || cat) || [],
-          primaryImage: null,
-          secondaryImages: [],
-        });
+      setExistingImages({
+        primaryImage: product.primaryImage || null,
+        secondaryImages: product.secondaryImages || [],
+      });
 
-        setExistingImages({
-          primaryImage: product.primaryImage || null,
-          secondaryImages: product.secondaryImages || [],
-        });
-
-        setIsPublished(product.published || false);
-      } catch (error) {
-        console.error("Erreur lors du chargement du produit:", error);
-        setErrors({ submit: "Impossible de charger le produit" });
-      } finally {
-        setLoadingProduct(false);
-      }
-    };
-
-    if (id) {
-      fetchProduct();
+      setIsPublished(product.published || false);
     }
-  }, [id]);
+
+    if (errorProduct) {
+      setErrors({ submit: "Impossible de charger le produit" });
+    }
+  }, [product, errorProduct]);
 
   const handleCancel = () => {
     navigate("/seller/products");
