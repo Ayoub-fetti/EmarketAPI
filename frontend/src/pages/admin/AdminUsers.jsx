@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { adminUsersService } from "../../services/admin/adminUsersService";
 import {
-  FaUserPlus,
   FaEye,
   FaEdit,
   FaBan,
@@ -52,15 +51,6 @@ export default function AdminUsers() {
   const [actionTarget, setActionTarget] = useState(null);
   const [actionType, setActionType] = useState(null); // 'delete', 'softDelete', 'restore'
   const [actionLoading, setActionLoading] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [newUser, setNewUser] = useState({
-    fullname: "",
-    email: "",
-    password: "",
-    role: "user",
-    status: "active",
-  });
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -197,35 +187,6 @@ export default function AdminUsers() {
     }
   };
 
-  const handleCreate = async () => {
-    if (!newUser.fullname || !newUser.email || !newUser.password) {
-      toast.error("Please fill all required fields.");
-      return;
-    }
-    setCreating(true);
-    try {
-      const createdUser = await adminUsersService.createUser(newUser);
-      toast.success("User created successfully.");
-      setNewUser({
-        fullname: "",
-        email: "",
-        password: "",
-        role: "user",
-        status: "active",
-      });
-      setIsCreateModalOpen(false);
-      await fetchUsers();
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to create user.";
-      toast.error(message);
-    } finally {
-      setCreating(false);
-    }
-  };
-
   const handleAction = async () => {
     if (!actionTarget || !actionType) return;
     setActionLoading(true);
@@ -319,23 +280,13 @@ export default function AdminUsers() {
         </p>
       </header>
 
-      {/* Search, Filters and Actions */}
+      {/* Search, Filters and Actions - All in One Row */}
       <div className="flex flex-col gap-3 sm:gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-md">
-        {/* Search Bar */}
-        <div className="relative">
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, email, role, or status..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-          />
-        </div>
+        <div className="flex flex-col lg:flex-row flex-wrap items-start lg:items-center gap-3 lg:gap-4">
 
-        {/* Filters and Actions */}
-        <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4">
-          <div className="flex items-center gap-2 flex-wrap">
+
+          {/* Filter by role */}
+          <div className="flex items-center gap-2">
             <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">
               Filter by role:
             </label>
@@ -353,6 +304,10 @@ export default function AdminUsers() {
               <option value="admin">Admin</option>
             </select>
           </div>
+
+          
+          
+          {/* Show Active/Deleted */}
           <div className="flex items-center gap-2 flex-wrap">
             <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Show:</label>
             <button
@@ -378,15 +333,17 @@ export default function AdminUsers() {
               Deleted ({deletedUsers.length})
             </button>
           </div>
-          <div className="ml-auto w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center justify-center gap-2 rounded-lg bg-green-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white transition hover:bg-green-700 shadow-sm hover:shadow-md w-full sm:w-auto"
-            >
-              <FaUserPlus className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="whitespace-nowrap">Create User</span>
-            </button>
+
+                    {/* Search Bar */}
+          <div className="relative flex-1 min-w-[200px]">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by name, email, role, or status..."
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+            />
           </div>
         </div>
       </div>
@@ -604,130 +561,6 @@ export default function AdminUsers() {
           </div>
         )}
       </div>
-
-      {/* Create User Modal */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
-          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
-            <h3 className="text-lg font-bold text-gray-900">
-              Create New User
-            </h3>
-
-            <div className="mt-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  value={newUser.fullname}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, fullname: e.target.value })
-                  }
-                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                  placeholder="John Doe"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, email: e.target.value })
-                  }
-                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                  placeholder="john@example.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Password *
-                </label>
-                <input
-                  type="password"
-                  value={newUser.password}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, password: e.target.value })
-                  }
-                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Role
-                </label>
-                <select
-                  value={newUser.role}
-                  onChange={(e) =>
-                    setNewUser({
-                      ...newUser,
-                      role: e.target.value,
-                      status: e.target.value === "seller" ? "pending" : "active",
-                    })
-                  }
-                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                >
-                  <option value="user">User</option>
-                  <option value="seller">Seller</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Status
-                </label>
-                <select
-                  value={newUser.status}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, status: e.target.value })
-                  }
-                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                >
-                  <option value="active">Active</option>
-                  <option value="pending">Pending</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  if (creating) return;
-                  setIsCreateModalOpen(false);
-                  setNewUser({
-                    fullname: "",
-                    email: "",
-                    password: "",
-                    role: "user",
-                    status: "active",
-                  });
-                }}
-                disabled={creating}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleCreate}
-                disabled={creating}
-                className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-70 shadow-sm hover:shadow-md"
-              >
-                {creating ? "Creating..." : "Create"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Edit User Modal */}
       {editingUser && (
