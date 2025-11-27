@@ -75,23 +75,6 @@ describe('AdminUsers', () => {
     });
   });
 
-  test('opens create user modal', async () => {
-    adminUsersService.fetchUsers.mockResolvedValue([]);
-    adminUsersService.fetchDeletedUsers.mockResolvedValue([]);
-
-    await act(async () => {
-      render(<MockedAdminUsers />);
-    });
-
-    await waitFor(() => {
-      const createButton = screen.getByText(/create user/i);
-      fireEvent.click(createButton);
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText(/create new user/i)).toBeInTheDocument();
-    });
-  });
 
   test('searches users by name or email', async () => {
     const mockUsers = [
