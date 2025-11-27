@@ -46,6 +46,15 @@ export function Details() {
     await addToCart(product);
   };
 
+  // helper to build a valid image src. If the image is already a full URL or data URL, return it as-is.
+  const getImageSrc = (path) => {
+    if (!path) return "/placeholder.jpg";
+    if (path.startsWith("http") || path.startsWith("data:")) return path;
+    // fallback to computed BACKEND_BASE or env var
+    const base = BACKEND_BASE || import.meta.env.VITE_BACKEND_BASE_URL || "";
+    return `${base}${path}`;
+  };
+
   if (loading) return <Loader />;
 
   if (error)
@@ -74,7 +83,7 @@ export function Details() {
           {product.primaryImage && (
             <div className="aspect-square bg-gray-100 rounded-xl border border-orange-700 overflow-hidden shadow-sm">
               <LazyImage
-                src={`${import.meta.env.VITE_BACKEND_BASE_URL}${product.primaryImage}`}
+                src={getImageSrc(product.primaryImage)}
                 alt={product.title}
                 className="w-full h-full object-cover"
                 placeholderClassName="rounded-xl"
@@ -90,7 +99,7 @@ export function Details() {
                   className="aspect-square bg-gray-100 rounded-md overflow-hidden shadow-sm border border-orange-700"
                 >
                   <LazyImage
-                    src={`${import.meta.env.VITE_BACKEND_BASE_URL}${image}`}
+                    src={getImageSrc(image)}
                     alt=""
                     className="w-full h-full object-cover"
                     placeholderClassName="rounded-md"
