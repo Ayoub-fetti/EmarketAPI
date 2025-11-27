@@ -3,15 +3,8 @@ import { BrowserRouter } from 'react-router-dom';
 import AdminReviews from '../../../pages/admin/AdminReviews';
 import { adminReviewsService } from '../../../services/admin/adminReviewsService';
 import { AuthProvider } from '../../../context/AuthContext';
-import { toast } from 'react-toastify';
 
 jest.mock('../../../services/admin/adminReviewsService');
-jest.mock('react-toastify', () => ({
-  toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-  },
-}));
 
 const MockedAdminReviews = () => (
   <BrowserRouter>

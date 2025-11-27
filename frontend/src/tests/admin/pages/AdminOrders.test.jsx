@@ -6,12 +6,7 @@ import { AuthProvider } from '../../../context/AuthContext';
 import { toast } from 'react-toastify';
 
 jest.mock('../../../services/admin/adminOrdersService');
-jest.mock('react-toastify', () => ({
-  toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-  },
-}));
+
 
 const MockedAdminOrders = () => (
   <BrowserRouter>

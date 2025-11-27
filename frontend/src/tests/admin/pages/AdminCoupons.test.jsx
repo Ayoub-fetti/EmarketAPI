@@ -3,15 +3,9 @@ import { BrowserRouter } from 'react-router-dom';
 import AdminCoupons from '../../../pages/admin/AdminCoupons';
 import { adminCouponsService } from '../../../services/admin/adminCouponsService';
 import { AuthProvider } from '../../../context/AuthContext';
-import { toast } from 'react-toastify';
 
 jest.mock('../../../services/admin/adminCouponsService');
-jest.mock('react-toastify', () => ({
-  toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-  },
-}));
+
 
 const MockedAdminCoupons = () => (
   <BrowserRouter>
