@@ -220,7 +220,6 @@ export default function AdminReviews() {
                     "Product",
                     "Rating",
                     "Comment",
-                    "Status",
                     "Date",
                     "Actions",
                   ].map((header) => (
@@ -272,15 +271,6 @@ export default function AdminReviews() {
                       {review.comment || "—"}
                     </div>
                   </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2 sm:px-2.5 py-0.5 text-xs font-semibold shadow-sm whitespace-nowrap ${
-                        statusColors[review.status] || statusColors.pending
-                      }`}
-                    >
-                      {statusLabels[review.status] || review.status}
-                    </span>
-                  </td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
                     {formatDate(review.createdAt)}
                   </td>
@@ -300,7 +290,7 @@ export default function AdminReviews() {
               {paginatedReviews.length === 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={6}
                     className="px-3 sm:px-6 py-12 text-center text-xs sm:text-sm text-gray-500"
                   >
                     <FaComments className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
