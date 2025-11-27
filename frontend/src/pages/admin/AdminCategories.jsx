@@ -1,276 +1,53 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "react-toastify";
-import { adminCategoriesService } from "../../services/admin/adminCategoriesService";
 import {
   FaPlus,
-  FaEdit,
-  FaBan,
-  FaTrash,
-  FaUndo,
-  FaTags,
-  FaTimesCircle,
   FaSearch,
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import useAdminCategories from "../../hooks/admin/useAdminCategories";
+import AdminCategoriesTable from "../../components/admin/AdminCategoriesTable";
 
 export default function AdminCategories() {
-  const [categories, setCategories] = useState([]);
-  const [deletedCategories, setDeletedCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showDeleted, setShowDeleted] = useState(false);
-
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
-  const [editingCategory, setEditingCategory] = useState(null);
-  const [editingName, setEditingName] = useState("");
-  const [savingEdit, setSavingEdit] = useState(false);
-
-  const [deletingId, setDeletingId] = useState(null);
-  const [categoryPendingDelete, setCategoryPendingDelete] = useState(null);
-  const [softDeletingId, setSoftDeletingId] = useState(null);
-  const [categoryPendingSoftDelete, setCategoryPendingSoftDelete] = useState(null);
-  const [restoringId, setRestoringId] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-
-  const fetchCategories = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [active, deleted] = await Promise.all([
-        adminCategoriesService.fetchCategories(),
-        adminCategoriesService.fetchDeletedCategories(),
-      ]);
-      setCategories(active);
-      setDeletedCategories(deleted);
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Error loading categories.";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
-
-  const sortedCategories = useMemo(() => {
-    const source = showDeleted ? deletedCategories : categories;
-    return [...source].sort((a, b) => {
-      const dateA = new Date(a.createdAt || 0).getTime();
-      const dateB = new Date(b.createdAt || 0).getTime();
-      return dateB - dateA;
-    });
-  }, [categories, deletedCategories, showDeleted]);
-
-  const filteredCategories = useMemo(() => {
-    let source = sortedCategories;
-    
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      source = source.filter(
-        (category) =>
-          category.name?.toLowerCase().includes(query) ||
-          new Date(category.createdAt).toLocaleDateString("en-US").toLowerCase().includes(query)
-      );
-    }
-    
-    return source;
-  }, [sortedCategories, searchQuery]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
-  const paginatedCategories = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredCategories.slice(startIndex, endIndex);
-  }, [filteredCategories, currentPage, itemsPerPage]);
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, showDeleted]);
-
-  const resetEditing = () => {
-    setEditingCategory(null);
-    setEditingName("");
-    setSavingEdit(false);
-  };
-
-  const normaliseErrorMessage = (err, fallback) => {
-    const rawMessage =
-      err.response?.data?.message ||
-      err.response?.data?.error ||
-      err.message ||
-      fallback;
-    if (typeof rawMessage === "string" && rawMessage.includes("E11000")) {
-      return "This category already exists.";
-    }
-    return rawMessage;
-  };
-
-  const handleCreate = async (event) => {
-    event.preventDefault();
-    const trimmedName = newCategoryName.trim();
-    if (!trimmedName) {
-      toast.error("Please enter a valid category name.");
-      return;
-    }
-    setCreating(true);
-    try {
-      const created = await adminCategoriesService.createCategory({
-        name: trimmedName,
-      });
-      if (created?._id) {
-        setCategories((prev) => [created, ...prev]);
-      } else {
-        await fetchCategories();
-      }
-      toast.success("Category created successfully.");
-      setNewCategoryName("");
-      setIsCreateModalOpen(false);
-    } catch (err) {
-      const message = normaliseErrorMessage(
-        err,
-        "Unable to create category.",
-      );
-      toast.error(message);
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const beginEdit = (category) => {
-    setEditingCategory(category);
-    setEditingName(category.name);
-  };
-
-  const handleUpdate = async (event) => {
-    event.preventDefault();
-    if (!editingCategory) return;
-    const trimmedName = editingName.trim();
-    if (!trimmedName) {
-      toast.error("Please enter a valid category name.");
-      return;
-    }
-    setSavingEdit(true);
-    try {
-      const updated = await adminCategoriesService.updateCategory(
-        editingCategory._id,
-        {
-        name: trimmedName,
-        },
-      );
-      if (updated?._id) {
-        setCategories((prev) =>
-          prev.map((category) =>
-            category._id === updated._id ? { ...category, ...updated } : category,
-          ),
-        );
-      } else {
-        await fetchCategories();
-      }
-      toast.success("Category updated successfully.");
-      resetEditing();
-    } catch (err) {
-      const message = normaliseErrorMessage(
-        err,
-        "Unable to update category.",
-      );
-      toast.error(message);
-      setSavingEdit(false);
-    }
-  };
-
-  const confirmDelete = (category) => {
-    setCategoryPendingDelete(category);
-  };
-
-  const performDelete = async () => {
-    if (!categoryPendingDelete) return;
-    const category = categoryPendingDelete;
-    setDeletingId(category._id);
-    try {
-      await adminCategoriesService.deleteCategory(category._id);
-      setCategories((prev) =>
-        prev.filter((item) => item._id !== category._id),
-      );
-      toast.success("Category deleted successfully.");
-      if (editingCategory?._id === category._id) {
-        resetEditing();
-      }
-      await fetchCategories();
-    } catch (err) {
-      const message = normaliseErrorMessage(
-        err,
-        "Unable to delete category.",
-      );
-      toast.error(message);
-    } finally {
-      setDeletingId(null);
-      setCategoryPendingDelete(null);
-    }
-  };
-
-  const confirmSoftDelete = (category) => {
-    setCategoryPendingSoftDelete(category);
-  };
-
-  const performSoftDelete = async () => {
-    if (!categoryPendingSoftDelete) return;
-    const category = categoryPendingSoftDelete;
-    setSoftDeletingId(category._id);
-    try {
-      await adminCategoriesService.softDeleteCategory(category._id);
-      setCategories((prev) =>
-        prev.filter((item) => item._id !== category._id),
-      );
-      toast.success("Category deactivated successfully.");
-      if (editingCategory?._id === category._id) {
-        resetEditing();
-      }
-      await fetchCategories();
-    } catch (err) {
-      const message = normaliseErrorMessage(
-        err,
-        "Unable to deactivate category.",
-      );
-      toast.error(message);
-    } finally {
-      setSoftDeletingId(null);
-      setCategoryPendingSoftDelete(null);
-    }
-  };
-
-  const handleRestore = async (category) => {
-    setRestoringId(category._id);
-    try {
-      const restored = await adminCategoriesService.restoreCategory(category._id);
-      setDeletedCategories((prev) =>
-        prev.filter((item) => item._id !== category._id),
-      );
-      toast.success("Category restored successfully.");
-      await fetchCategories();
-    } catch (err) {
-      const message = normaliseErrorMessage(
-        err,
-        "Unable to restore category.",
-      );
-      toast.error(message);
-    } finally {
-      setRestoringId(null);
-    }
-  };
+  const {
+    categories,
+    deletedCategories,
+    loading,
+    error,
+    showDeleted,
+    setShowDeleted,
+    newCategoryName,
+    setNewCategoryName,
+    creating,
+    isCreateModalOpen,
+    setIsCreateModalOpen,
+    editingCategory,
+    editingName,
+    setEditingName,
+    savingEdit,
+    deletingId,
+    categoryPendingDelete,
+    setCategoryPendingDelete,
+    softDeletingId,
+    categoryPendingSoftDelete,
+    setCategoryPendingSoftDelete,
+    restoringId,
+    searchQuery,
+    setSearchQuery,
+    currentPage,
+    setCurrentPage,
+    filteredCategories,
+    paginatedCategories,
+    totalPages,
+    handleCreate,
+    beginEdit,
+    handleUpdate,
+    confirmDelete,
+    performDelete,
+    confirmSoftDelete,
+    performSoftDelete,
+    handleRestore,
+    resetEditing,
+  } = useAdminCategories();
 
   if (loading) {
     return (
@@ -290,7 +67,7 @@ export default function AdminCategories() {
         <p className="mt-2 text-sm">{error}</p>
         <button
           type="button"
-          onClick={fetchCategories}
+          onClick={() => window.location.reload()}
           className="mt-4 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
         >
           Try Again
@@ -327,7 +104,9 @@ export default function AdminCategories() {
         {/* Filters and Actions */}
         <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-2 flex-wrap">
-            <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Show:</label>
+            <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">
+              Show:
+            </label>
             <button
               type="button"
               onClick={() => setShowDeleted(false)}
@@ -370,140 +149,34 @@ export default function AdminCategories() {
             {showDeleted ? "Deleted Categories" : "Active Categories"}
           </h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            {filteredCategories.length} categor{filteredCategories.length !== 1 ? "ies" : "y"} found.
-            {searchQuery && ` (filtered from ${sortedCategories.length} total)`}
+            {filteredCategories.length} categor
+            {filteredCategories.length !== 1 ? "ies" : "y"} found.
+            {searchQuery &&
+              ` (filtered from ${
+                (showDeleted ? deletedCategories : categories).length
+              } total)`}
           </p>
         </div>
 
-        <div className="overflow-x-auto -mx-4 sm:mx-0">
-          <div className="inline-block min-w-full align-middle">
-            <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                <tr>
-                  {["Name", "Created On", "Actions"].map((header) => (
-                    <th
-                      key={header}
-                      scope="col"
-                      className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {paginatedCategories.map((category) => (
-                <tr 
-                  key={category._id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 font-semibold text-gray-900">
-                    <div className="truncate max-w-[200px] sm:max-w-none">
-                      {category.name}
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
-                    {category.createdAt
-                      ? new Date(category.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
-                      : "—"}
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="flex flex-wrap gap-1 sm:gap-2">
-                      {!showDeleted ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => beginEdit(category)}
-                            className="flex items-center gap-1 rounded-lg border border-blue-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
-                            title="Edit"
-                          >
-                            <FaEdit className="w-3 h-3" />
-                            <span className="hidden sm:inline">Edit</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => confirmSoftDelete(category)}
-                            disabled={softDeletingId === category._id}
-                            className={[
-                              "flex items-center gap-1 rounded-lg border border-yellow-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold transition",
-                              softDeletingId === category._id
-                                ? "bg-yellow-100 text-yellow-400 cursor-not-allowed"
-                                : "text-yellow-600 hover:bg-yellow-50",
-                            ].join(" ")}
-                            title="Deactivate"
-                          >
-                            <FaBan className="w-3 h-3" />
-                            <span className="hidden sm:inline">
-                              {softDeletingId === category._id ? "Deactivating..." : "Deactivate"}
-                            </span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => confirmDelete(category)}
-                            disabled={deletingId === category._id}
-                            className={[
-                              "flex items-center gap-1 rounded-lg border border-red-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold transition",
-                              deletingId === category._id
-                                ? "bg-red-100 text-red-400 cursor-not-allowed"
-                                : "text-red-600 hover:bg-red-50",
-                            ].join(" ")}
-                            title="Delete"
-                          >
-                            <FaTrash className="w-3 h-3" />
-                            <span className="hidden sm:inline">
-                              {deletingId === category._id ? "Deleting..." : "Delete"}
-                            </span>
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleRestore(category)}
-                          disabled={restoringId === category._id}
-                          className={[
-                            "flex items-center gap-1 rounded-lg border border-green-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold transition",
-                            restoringId === category._id
-                              ? "bg-green-100 text-green-400 cursor-not-allowed"
-                              : "text-green-600 hover:bg-green-50",
-                          ].join(" ")}
-                          title="Restore"
-                        >
-                          <FaUndo className="w-3 h-3" />
-                          <span className="hidden sm:inline">
-                            {restoringId === category._id ? "Restoring..." : "Restore"}
-                          </span>
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {paginatedCategories.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={3}
-                    className="px-3 sm:px-6 py-12 text-center text-xs sm:text-sm text-gray-500"
-                  >
-                    <FaTags className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
-                    <p>{searchQuery ? "No categories match your search." : "No categories found. Start by creating a new one."}</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          </div>
-        </div>
+        <AdminCategoriesTable
+          categories={paginatedCategories}
+          showDeleted={showDeleted}
+          onEdit={beginEdit}
+          onSoftDelete={confirmSoftDelete}
+          onDelete={confirmDelete}
+          onRestore={handleRestore}
+          softDeletingId={softDeletingId}
+          deletingId={deletingId}
+          restoringId={restoringId}
+          searchQuery={searchQuery}
+        />
 
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
             <div className="text-xs sm:text-sm text-gray-600">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, filteredCategories.length)} of{" "}
+              Showing {(currentPage - 1) * 10 + 1} to{" "}
+              {Math.min(currentPage * 10, filteredCategories.length)} of{" "}
               {filteredCategories.length} categories
             </div>
             <div className="flex items-center gap-2">
@@ -516,7 +189,7 @@ export default function AdminCategories() {
                 <FaChevronLeft className="w-3 h-3" />
                 <span className="hidden sm:inline">Previous</span>
               </button>
-              
+
               <div className="flex items-center gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter((page) => {
@@ -527,11 +200,14 @@ export default function AdminCategories() {
                   })
                   .map((page, index, array) => {
                     // Add ellipsis if there's a gap
-                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
+                    const showEllipsisBefore =
+                      index > 0 && array[index - 1] !== page - 1;
                     return (
                       <div key={page} className="flex items-center gap-1">
                         {showEllipsisBefore && (
-                          <span className="px-2 text-xs sm:text-sm text-gray-500">...</span>
+                          <span className="px-2 text-xs sm:text-sm text-gray-500">
+                            ...
+                          </span>
                         )}
                         <button
                           type="button"
@@ -551,7 +227,9 @@ export default function AdminCategories() {
 
               <button
                 type="button"
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
               >
@@ -623,9 +301,7 @@ export default function AdminCategories() {
       {editingCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
-            <h3 className="text-lg font-bold text-gray-900">
-              Edit Category
-            </h3>
+            <h3 className="text-lg font-bold text-gray-900">Edit Category</h3>
             <p className="mt-2 text-sm text-gray-600">
               Update the name of the selected category.
             </p>
@@ -685,7 +361,8 @@ export default function AdminCategories() {
               <span className="font-semibold text-gray-900">
                 "{categoryPendingSoftDelete.name}"
               </span>
-              . The category will be removed from the active list but can be restored later.
+              . The category will be removed from the active list but can be
+              restored later.
             </p>
 
             <div className="mt-6 flex justify-end gap-3">
@@ -769,5 +446,3 @@ export default function AdminCategories() {
     </section>
   );
 }
-
-
