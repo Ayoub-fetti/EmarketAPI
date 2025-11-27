@@ -5,6 +5,18 @@ import { adminOrdersService } from "../../services/admin/adminOrdersService";
 const formatDate = (value) =>
   value ? new Date(value).toLocaleDateString("en-US") : "—";
 
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "MAD",
+});
+
+const statusLabels = {
+  pending: "Pending",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
+};
+
 export const useAdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [deletedOrders, setDeletedOrders] = useState([]);
@@ -231,5 +243,8 @@ export const useAdminOrders = () => {
     handleRestore,
     openStatusModal,
     handleUpdateStatus,
+    formatDate,
+    currencyFormatter,
+    statusLabels,
   };
 };

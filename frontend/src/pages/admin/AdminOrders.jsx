@@ -13,7 +13,7 @@ import {
   FaClock,
   FaBan,
 } from "react-icons/fa";
-import useAdminOrders from "../../hooks/admin/useAdminOrders";
+import { useAdminOrders } from "../../hooks/admin/useAdminOrders";
 import AdminOrdersTable from "../../components/admin/AdminOrdersTable";
 
 const AdminOrders = () => {
@@ -33,6 +33,9 @@ const AdminOrders = () => {
     statusLabels,
     currencyFormatter,
     formatDate,
+    filteredOrders,
+    statusFilter,
+    setStatusFilter,
   } = useAdminOrders();
 
   if (loading) {
@@ -87,22 +90,39 @@ const AdminOrders = () => {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative max-w-md">
-        <FaSearch className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search orders by ID, customer, or email..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full rounded-xl border-gray-200 pl-10 py-2.5 text-sm focus:border-orange-500 focus:ring-orange-500 shadow-sm"
-        />
+      {/* Search and Filter Section */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        {/* Search Bar */}
+        <div className="relative flex-1 max-w-md">
+          <FaSearch className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search orders by ID, customer, or email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-xl border-gray-200 pl-10 py-2.5 text-sm focus:border-orange-500 focus:ring-orange-500 shadow-sm"
+          />
+        </div>
+
+        {/* Status Filter */}
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-xl border-gray-200 py-2.5 pl-3 pr-10 text-sm focus:border-orange-500 focus:ring-orange-500 shadow-sm bg-white"
+        >
+          <option value="all">All</option>
+          {Object.entries(statusLabels).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Orders Table */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
         <AdminOrdersTable
-          orders={orders}
+          orders={filteredOrders}
           showDeleted={showDeleted}
           selectedOrderId={selectedOrder?._id}
           onSelectOrder={setSelectedOrderId}
