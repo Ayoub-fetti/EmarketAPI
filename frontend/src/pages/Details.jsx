@@ -15,6 +15,13 @@ export function Details() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // determine backend base url for images (fallback to VITE_BACKEND_URL without /api)
+  const BACKEND_BASE =
+    import.meta.env.VITE_BACKEND_BASE_URL ||
+    (import.meta.env.VITE_BACKEND_URL
+      ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
+      : "");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
