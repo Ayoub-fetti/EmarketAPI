@@ -11,6 +11,7 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 import { useAdminUsers } from "../../hooks/admin/useAdminUsers";
+import { useAuth } from "../../context/AuthContext";
 import AdminUsersTable from "../../components/admin/AdminUsersTable";
 
 const roleLabels = {
@@ -36,45 +37,42 @@ const statusLabels = {
 };
 
 export default function AdminUsers() {
-  const [users, setUsers] = useState([]);
-  const [deletedUsers, setDeletedUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showDeleted, setShowDeleted] = useState(false);
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [editingUser, setEditingUser] = useState(null);
-  const [viewingUser, setViewingUser] = useState(null);
-  const [newStatus, setNewStatus] = useState("");
-  const [newRole, setNewRole] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [actionTarget, setActionTarget] = useState(null);
-  const [actionType, setActionType] = useState(null); // 'delete', 'softDelete', 'restore'
-  const [actionLoading, setActionLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
   const { user: authUser } = useAuth();
-
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [active, deleted] = await Promise.all([
-        adminUsersService.fetchUsers(),
-        adminUsersService.fetchDeletedUsers(),
-      ]);
-      setUsers(active);
-      setDeletedUsers(deleted);
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Error loading users.";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  
+  const {
+    users,
+    deletedUsers,
+    filteredUsers,
+    paginatedUsers,
+    loading,
+    error,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    showDeleted,
+    setShowDeleted,
+    roleFilter,
+    setRoleFilter,
+    searchQuery,
+    setSearchQuery,
+    handleFilterByRole,
+    editingUser,
+    setEditingUser,
+    viewingUser,
+    setViewingUser,
+    actionTarget,
+    setActionTarget,
+    actionType,
+    setActionType,
+    saving,
+    actionLoading,
+    fetchUsers,
+    updateUser,
+    deleteUser,
+    softDeleteUser,
+    restoreUser,
+    fetchUserDetails,
+  } = useAdminUsers();
 
   const [editForm, setEditForm] = useState({
     status: "",
@@ -130,7 +128,7 @@ export default function AdminUsers() {
     }
   };
 
-  const handleAction = async () => {
+  const onConfirmAction = async () => {
     if (!actionTarget || !actionType) return;
 
     if (actionType === "delete") {

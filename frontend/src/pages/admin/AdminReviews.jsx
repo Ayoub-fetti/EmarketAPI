@@ -4,9 +4,10 @@ import {
   FaSearch,
   FaChevronLeft,
   FaChevronRight,
+  FaComments,
+  FaEdit,
 } from "react-icons/fa";
 import useAdminReviews from "../../hooks/admin/useAdminReviews";
-import AdminReviewsTable from "../../components/admin/AdminReviewsTable";
 
 const statusLabels = {
   pending: "Pending",
@@ -19,6 +20,13 @@ const statusColors = {
   approved: "bg-green-100 text-green-800 border border-green-200",
   rejected: "bg-red-100 text-red-800 border border-red-200",
 };
+
+const formatDate = (value) =>
+  value ? new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }) : "—";
 
 const renderStars = (rating) => {
   return Array.from({ length: 5 }, (_, i) => (
@@ -364,15 +372,38 @@ export default function AdminReviews() {
                   </span>
                 </div>
               </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-2">
+                  Change Status:
+                </label>
+                <select
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={closeModerateModal}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                disabled={moderating}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Close
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleModerate}
+                disabled={moderating || !newStatus || newStatus === selectedReview.status}
+                className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-70 shadow-sm hover:shadow-md"
+              >
+                {moderating ? "Moderating..." : "Save Changes"}
               </button>
             </div>
           </div>
