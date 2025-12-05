@@ -20,8 +20,7 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   currency: "MAD",
 });
 
-const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("en-US") : "—";
+const formatDate = (value) => (value ? new Date(value).toLocaleDateString("en-US") : "—");
 
 const AdminOrdersTable = memo(
   ({
@@ -39,17 +38,15 @@ const AdminOrdersTable = memo(
           <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
-                {["ID", "Customer", "Date", "Amount", "Status", "Actions"].map(
-                  (header) => (
-                    <th
-                      key={header}
-                      scope="col"
-                      className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
-                    >
-                      {header}
-                    </th>
-                  )
-                )}
+                {["ID", "Customer", "Date", "Amount", "Status", "Actions"].map((header) => (
+                  <th
+                    key={header}
+                    scope="col"
+                    className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
+                  >
+                    {header}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
@@ -133,11 +130,7 @@ const AdminOrdersTable = memo(
                     className="px-3 sm:px-6 py-12 text-center text-xs sm:text-sm text-gray-500"
                   >
                     <FaShoppingCart className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
-                    <p>
-                      {searchQuery
-                        ? "No orders match your search."
-                        : "No orders found."}
-                    </p>
+                    <p>{searchQuery ? "No orders match your search." : "No orders found."}</p>
                   </td>
                 </tr>
               )}

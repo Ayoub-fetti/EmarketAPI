@@ -39,14 +39,11 @@ export default function PendingApproval() {
           </div>
         </div>
 
-        <h1 className="mb-4 text-2xl font-bold text-gray-900">
-          Demande en attente d'approbation
-        </h1>
+        <h1 className="mb-4 text-2xl font-bold text-gray-900">Demande en attente d'approbation</h1>
 
         <p className="mb-6 text-gray-600">
-          Votre demande de compte vendeur est en cours de traitement. Un
-          administrateur examinera votre demande et vous notifiera une fois
-          votre compte approuvé.
+          Votre demande de compte vendeur est en cours de traitement. Un administrateur examinera
+          votre demande et vous notifiera une fois votre compte approuvé.
         </p>
 
         <div className="mb-6 rounded-lg bg-blue-50 p-4 text-left">
@@ -78,4 +75,3 @@ export default function PendingApproval() {
     </div>
   );
 }
-

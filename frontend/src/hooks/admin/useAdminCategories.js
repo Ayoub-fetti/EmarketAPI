@@ -20,8 +20,7 @@ const useAdminCategories = () => {
   const [deletingId, setDeletingId] = useState(null);
   const [categoryPendingDelete, setCategoryPendingDelete] = useState(null);
   const [softDeletingId, setSoftDeletingId] = useState(null);
-  const [categoryPendingSoftDelete, setCategoryPendingSoftDelete] =
-    useState(null);
+  const [categoryPendingSoftDelete, setCategoryPendingSoftDelete] = useState(null);
   const [restoringId, setRestoringId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,10 +37,7 @@ const useAdminCategories = () => {
       setCategories(active);
       setDeletedCategories(deleted);
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Error loading categories.";
+      const message = err.response?.data?.message || err.message || "Error loading categories.";
       setError(message);
     } finally {
       setLoading(false);
@@ -70,10 +66,7 @@ const useAdminCategories = () => {
       source = source.filter(
         (category) =>
           category.name?.toLowerCase().includes(query) ||
-          new Date(category.createdAt)
-            .toLocaleDateString("en-US")
-            .toLowerCase()
-            .includes(query)
+          new Date(category.createdAt).toLocaleDateString("en-US").toLowerCase().includes(query)
       );
     }
 
@@ -101,10 +94,7 @@ const useAdminCategories = () => {
 
   const normaliseErrorMessage = (err, fallback) => {
     const rawMessage =
-      err.response?.data?.message ||
-      err.response?.data?.error ||
-      err.message ||
-      fallback;
+      err.response?.data?.message || err.response?.data?.error || err.message || fallback;
     if (typeof rawMessage === "string" && rawMessage.includes("E11000")) {
       return "This category already exists.";
     }
@@ -154,18 +144,13 @@ const useAdminCategories = () => {
     }
     setSavingEdit(true);
     try {
-      const updated = await adminCategoriesService.updateCategory(
-        editingCategory._id,
-        {
-          name: trimmedName,
-        }
-      );
+      const updated = await adminCategoriesService.updateCategory(editingCategory._id, {
+        name: trimmedName,
+      });
       if (updated?._id) {
         setCategories((prev) =>
           prev.map((category) =>
-            category._id === updated._id
-              ? { ...category, ...updated }
-              : category
+            category._id === updated._id ? { ...category, ...updated } : category
           )
         );
       } else {
@@ -222,10 +207,7 @@ const useAdminCategories = () => {
       }
       await fetchCategories();
     } catch (err) {
-      const message = normaliseErrorMessage(
-        err,
-        "Unable to deactivate category."
-      );
+      const message = normaliseErrorMessage(err, "Unable to deactivate category.");
       toast.error(message);
     } finally {
       setSoftDeletingId(null);
@@ -236,12 +218,8 @@ const useAdminCategories = () => {
   const handleRestore = async (category) => {
     setRestoringId(category._id);
     try {
-      const restored = await adminCategoriesService.restoreCategory(
-        category._id
-      );
-      setDeletedCategories((prev) =>
-        prev.filter((item) => item._id !== category._id)
-      );
+      await adminCategoriesService.restoreCategory(category._id);
+      setDeletedCategories((prev) => prev.filter((item) => item._id !== category._id));
       toast.success("Category restored successfully.");
       await fetchCategories();
     } catch (err) {

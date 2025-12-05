@@ -3,15 +3,8 @@ import useAdminStats from "../../hooks/admin/useAdminStats";
 import AdminStatsDashboard from "../../components/admin/AdminStatsDashboard";
 
 export default function AdminStats() {
-  const {
-    loading,
-    error,
-    stats,
-    monthlyRevenue,
-    topProducts,
-    recentOrders,
-    refetch,
-  } = useAdminStats();
+  const { loading, error, stats, monthlyRevenue, topProducts, recentOrders, refetch } =
+    useAdminStats();
 
   if (loading) {
     return (
@@ -43,9 +36,7 @@ export default function AdminStats() {
   return (
     <section className="space-y-4 sm:space-y-6">
       <header className="space-y-2 mb-4 sm:mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Analytics Dashboard
-        </h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Analytics Dashboard</h2>
         <p className="text-xs sm:text-sm text-gray-600">
           Overview of sales, users, and performance.
         </p>

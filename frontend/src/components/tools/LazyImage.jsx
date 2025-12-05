@@ -1,13 +1,6 @@
 import { useState } from "react";
 
-const LazyImage = ({
-  src,
-  alt,
-  className = "",
-  placeholderClassName = "",
-  onError,
-  ...props
-}) => {
+const LazyImage = ({ src, alt, className = "", placeholderClassName = "", onError, ...props }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 

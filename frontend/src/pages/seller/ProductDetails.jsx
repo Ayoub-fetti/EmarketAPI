@@ -42,9 +42,7 @@ export default function ProductDetails() {
 
   const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
-    return imagePath.startsWith("http")
-      ? imagePath
-      : `http://localhost:3000${imagePath}`;
+    return imagePath.startsWith("http") ? imagePath : `http://localhost:3000${imagePath}`;
   };
 
   if (loading) {
@@ -64,9 +62,7 @@ export default function ProductDetails() {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <p className="text-red-600 font-medium">
-            {error || "Produit non trouvé"}
-          </p>
+          <p className="text-red-600 font-medium">{error || "Produit non trouvé"}</p>
           <button
             onClick={handleCancel}
             className="mt-4 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
@@ -91,12 +87,8 @@ export default function ProductDetails() {
         </button>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-6">
-              {product.title}
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-4">
-              Détails du produit
-            </p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-6">{product.title}</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-4">Détails du produit</p>
           </div>
         </div>
       </div>
@@ -149,9 +141,7 @@ export default function ProductDetails() {
           <div className="space-y-4">
             {/* Title */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                {product.title}
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900">{product.title}</h2>
             </div>
 
             {/* Reviews */}
@@ -165,25 +155,18 @@ export default function ProductDetails() {
 
             {/* Price */}
             <div className="flex items-baseline gap-3 my-6">
-              <span className="text-3xl font-bold text-gray-900">
-                {formatPrice(product.price)}
-              </span>
-              {product.ex_price &&
-                parseFloat(product.ex_price) !== parseFloat(product.price) && (
-                  <span className="text-xl text-gray-500 line-through">
-                    {formatPrice(product.ex_price)}
-                  </span>
-                )}
+              <span className="text-3xl font-bold text-gray-900">{formatPrice(product.price)}</span>
+              {product.ex_price && parseFloat(product.ex_price) !== parseFloat(product.price) && (
+                <span className="text-xl text-gray-500 line-through">
+                  {formatPrice(product.ex_price)}
+                </span>
+              )}
             </div>
 
             {/* Details */}
             <div>
-              <h3 className="text-md font-semibold text-gray-700 mb-2">
-                Détails:
-              </h3>
-              <p className="text-gray-700 leading-relaxed">
-                {product.description}
-              </p>
+              <h3 className="text-md font-semibold text-gray-700 mb-2">Détails:</h3>
+              <p className="text-gray-700 leading-relaxed">{product.description}</p>
             </div>
 
             {/* Categories */}
@@ -205,9 +188,7 @@ export default function ProductDetails() {
             {/* Stock */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Quantité:
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Quantité:</label>
                 <p
                   className={`text-lg font-semibold ${
                     product.stock > 0 ? "text-green-800" : "text-red-800"

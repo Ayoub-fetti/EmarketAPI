@@ -36,9 +36,7 @@ export default function Products() {
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Page Header */}
       <div className="mb-12">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Gestion des Produits
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gestion des Produits</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-1">
           Gérez l'inventaire de vos produits
         </p>
@@ -106,9 +104,7 @@ export default function Products() {
       {error && !loading && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <p className="text-red-600 font-medium">{error}</p>
-          <p className="text-sm text-gray-600 mt-2">
-            Vérifiez la console pour plus de détails
-          </p>
+          <p className="text-sm text-gray-600 mt-2">Vérifiez la console pour plus de détails</p>
         </div>
       )}
 
@@ -130,12 +126,8 @@ export default function Products() {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Aucun produit trouvé
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Commencez par ajouter votre premier produit
-          </p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun produit trouvé</h3>
+          <p className="text-gray-600 mb-6">Commencez par ajouter votre premier produit</p>
           <ActionButton
             label="Ajouter un Produit"
             icon="+"
@@ -145,42 +137,34 @@ export default function Products() {
       )}
 
       {/* No results after filtering */}
-      {!loading &&
-        !error &&
-        products.length > 0 &&
-        filteredProducts.length === 0 && (
-          <div className="bg-white rounded-lg p-12 text-center">
-            <div className="text-gray-400 mb-4">
-              <svg
-                className="w-16 h-16 mx-auto"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Aucun résultat trouvé
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Essayez de modifier vos critères de recherche ou de filtrage
-            </p>
+      {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
+        <div className="bg-white rounded-lg p-12 text-center">
+          <div className="text-gray-400 mb-4">
+            <svg
+              className="w-16 h-16 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
           </div>
-        )}
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun résultat trouvé</h3>
+          <p className="text-gray-600 mb-6">
+            Essayez de modifier vos critères de recherche ou de filtrage
+          </p>
+        </div>
+      )}
 
       {/* Products Table */}
       {!loading && !error && filteredProducts.length > 0 && (
         <>
-          <ProductsTable
-            products={filteredProducts}
-            onProductDeleted={deleteProduct}
-          />
+          <ProductsTable products={filteredProducts} onProductDeleted={deleteProduct} />
         </>
       )}
     </div>

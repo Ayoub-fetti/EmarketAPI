@@ -34,4 +34,3 @@ export const adminCategoriesService = {
     return response.data?.data ?? response.data?.category ?? response.data;
   },
 };
-

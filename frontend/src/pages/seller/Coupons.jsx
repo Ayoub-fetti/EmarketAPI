@@ -51,9 +51,7 @@ export default function Coupons() {
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Page Header */}
       <div className="mb-12">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Gestion des Coupons
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gestion des Coupons</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-1">
           Créez et gérez vos codes promotionnels
         </p>
@@ -142,18 +140,11 @@ export default function Coupons() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Aucun coupon trouvé
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Commencez par créer votre premier coupon
-              </p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun coupon trouvé</h3>
+              <p className="text-gray-600 mb-6">Commencez par créer votre premier coupon</p>
             </div>
           ) : (
-            <CouponsTable
-              coupons={filteredCoupons}
-              onDelete={openDeleteModal}
-            />
+            <CouponsTable coupons={filteredCoupons} onDelete={openDeleteModal} />
           )}
         </>
       )}

@@ -2,8 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 import { adminOrdersService } from "../../services/admin/adminOrdersService";
 
-const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("en-US") : "—";
+const formatDate = (value) => (value ? new Date(value).toLocaleDateString("en-US") : "—");
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -46,8 +45,7 @@ export const useAdminOrders = () => {
       setOrders(active);
       setDeletedOrders(deleted);
     } catch (err) {
-      const message =
-        err.response?.data?.message || err.message || "Error loading orders.";
+      const message = err.response?.data?.message || err.message || "Error loading orders.";
       setError(message);
     } finally {
       setLoading(false);
@@ -133,10 +131,7 @@ export const useAdminOrders = () => {
       }
       await fetchOrders();
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to deactivate order.";
+      const message = err.response?.data?.message || err.message || "Unable to deactivate order.";
       toast.error(message);
     } finally {
       closeModals();
@@ -149,18 +144,13 @@ export const useAdminOrders = () => {
     try {
       await adminOrdersService.restoreOrder(actionTarget._id);
       toast.success("Order restored successfully.");
-      setDeletedOrders((prev) =>
-        prev.filter((o) => o._id !== actionTarget._id)
-      );
+      setDeletedOrders((prev) => prev.filter((o) => o._id !== actionTarget._id));
       if (selectedOrderId === actionTarget._id) {
         setSelectedOrderId(null);
       }
       await fetchOrders();
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to restore order.";
+      const message = err.response?.data?.message || err.message || "Unable to restore order.";
       toast.error(message);
     } finally {
       closeModals();
@@ -179,14 +169,9 @@ export const useAdminOrders = () => {
     if (!actionTarget || !newStatus) return;
     setActionLoading(true);
     try {
-      const updatedOrder = await adminOrdersService.updateOrderStatus(
-        actionTarget._id,
-        newStatus
-      );
+      const updatedOrder = await adminOrdersService.updateOrderStatus(actionTarget._id, newStatus);
       toast.success("Order status updated successfully.");
-      setOrders((prev) =>
-        prev.map((o) => (o._id === actionTarget._id ? updatedOrder : o))
-      );
+      setOrders((prev) => prev.map((o) => (o._id === actionTarget._id ? updatedOrder : o)));
       if (selectedOrderId === actionTarget._id) {
         setSelectedOrderId(null);
         setTimeout(() => setSelectedOrderId(actionTarget._id), 100);
@@ -194,9 +179,7 @@ export const useAdminOrders = () => {
       await fetchOrders();
     } catch (err) {
       const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to update order status.";
+        err.response?.data?.message || err.message || "Unable to update order status.";
       toast.error(message);
     } finally {
       closeModals();

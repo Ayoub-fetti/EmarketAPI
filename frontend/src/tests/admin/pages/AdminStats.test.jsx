@@ -1,11 +1,10 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import AdminStats from '../../../pages/admin/AdminStats';
-import { adminStatsService } from '../../../services/admin/adminStatsService';
-import { AuthProvider } from '../../../context/AuthContext';
+import { render, screen, waitFor, act } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
+import AdminStats from "../../../pages/admin/AdminStats";
+import { adminStatsService } from "../../../services/admin/adminStatsService";
+import { AuthProvider } from "../../../context/AuthContext";
 
-jest.mock('../../../services/admin/adminStatsService');
-
+jest.mock("../../../services/admin/adminStatsService");
 
 const MockedAdminStats = () => (
   <BrowserRouter>
@@ -42,9 +41,7 @@ describe("AdminStats", () => {
       total: 1,
     });
     adminStatsService.fetchOrders.mockResolvedValue({
-      list: [
-        { _id: "1", finalAmount: 100, createdAt: new Date().toISOString() },
-      ],
+      list: [{ _id: "1", finalAmount: 100, createdAt: new Date().toISOString() }],
       total: 1,
     });
     adminStatsService.fetchProducts.mockResolvedValue({

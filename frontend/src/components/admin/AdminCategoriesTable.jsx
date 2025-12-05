@@ -41,25 +41,17 @@ const AdminCategoriesTable = memo(
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
               {categories.map((category) => (
-                <tr
-                  key={category._id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
+                <tr key={category._id} className="hover:bg-gray-50 transition-colors duration-150">
                   <td className="px-3 sm:px-6 py-3 sm:py-4 font-semibold text-gray-900">
-                    <div className="truncate max-w-[200px] sm:max-w-none">
-                      {category.name}
-                    </div>
+                    <div className="truncate max-w-[200px] sm:max-w-none">{category.name}</div>
                   </td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
                     {category.createdAt
-                      ? new Date(category.createdAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          }
-                        )
+                      ? new Date(category.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
                       : "—"}
                   </td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4">
@@ -89,9 +81,7 @@ const AdminCategoriesTable = memo(
                           >
                             <FaBan className="w-3 h-3" />
                             <span className="hidden sm:inline">
-                              {softDeletingId === category._id
-                                ? "Deactivating..."
-                                : "Deactivate"}
+                              {softDeletingId === category._id ? "Deactivating..." : "Deactivate"}
                             </span>
                           </button>
                           <button
@@ -108,9 +98,7 @@ const AdminCategoriesTable = memo(
                           >
                             <FaTrash className="w-3 h-3" />
                             <span className="hidden sm:inline">
-                              {deletingId === category._id
-                                ? "Deleting..."
-                                : "Delete"}
+                              {deletingId === category._id ? "Deleting..." : "Delete"}
                             </span>
                           </button>
                         </>
@@ -129,9 +117,7 @@ const AdminCategoriesTable = memo(
                         >
                           <FaUndo className="w-3 h-3" />
                           <span className="hidden sm:inline">
-                            {restoringId === category._id
-                              ? "Restoring..."
-                              : "Restore"}
+                            {restoringId === category._id ? "Restoring..." : "Restore"}
                           </span>
                         </button>
                       )}

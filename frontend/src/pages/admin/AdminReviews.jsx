@@ -22,19 +22,19 @@ const statusColors = {
 };
 
 const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }) : "—";
+  value
+    ? new Date(value).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "—";
 
 const renderStars = (rating) => {
   return Array.from({ length: 5 }, (_, i) => (
     <FaStar
       key={i}
-      className={`w-4 h-4 ${
-        i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
-      }`}
+      className={`w-4 h-4 ${i < rating ? "text-yellow-400 fill-current" : "text-gray-300"}`}
     />
   ));
 };
@@ -94,9 +94,7 @@ export default function AdminReviews() {
   return (
     <section className="space-y-4 sm:space-y-6">
       <header className="space-y-2 mb-4 sm:mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Reviews Moderation
-        </h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Reviews Moderation</h2>
         <p className="text-xs sm:text-sm text-gray-600">
           View and moderate user reviews on products.
         </p>
@@ -140,9 +138,7 @@ export default function AdminReviews() {
 
       <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-md">
         <div className="mb-4 sm:mb-6">
-          <h3 className="text-base sm:text-lg font-bold text-gray-900">
-            Reviews List
-          </h3>
+          <h3 className="text-base sm:text-lg font-bold text-gray-900">Reviews List</h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
             {filteredReviews.length} review
             {filteredReviews.length !== 1 ? "s" : ""} found.
@@ -155,14 +151,7 @@ export default function AdminReviews() {
             <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  {[
-                    "User",
-                    "Product",
-                    "Rating",
-                    "Comment",
-                    "Date",
-                    "Actions",
-                  ].map((header) => (
+                  {["User", "Product", "Rating", "Comment", "Date", "Actions"].map((header) => (
                     <th
                       key={header}
                       scope="col"
@@ -175,71 +164,67 @@ export default function AdminReviews() {
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
                 {paginatedReviews.map((review) => (
-                <tr 
-                  key={review._id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="min-w-0">
-                      <div className="font-semibold text-gray-900 truncate max-w-[150px] sm:max-w-none">
-                        {typeof review.user === "object" && review.user
-                          ? review.user.fullname || review.user.email || "—"
-                          : "—"}
+                  <tr key={review._id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-gray-900 truncate max-w-[150px] sm:max-w-none">
+                          {typeof review.user === "object" && review.user
+                            ? review.user.fullname || review.user.email || "—"
+                            : "—"}
+                        </div>
+                        {typeof review.user === "object" &&
+                          review.user?.email &&
+                          review.user?.fullname && (
+                            <div className="text-xs text-gray-500 mt-1 truncate max-w-[150px] sm:max-w-none">
+                              {review.user.email}
+                            </div>
+                          )}
                       </div>
-                      {typeof review.user === "object" &&
-                        review.user?.email && review.user?.fullname && (
-                          <div className="text-xs text-gray-500 mt-1 truncate max-w-[150px] sm:max-w-none">
-                            {review.user.email}
-                          </div>
-                        )}
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="font-semibold text-gray-900 truncate max-w-[150px] sm:max-w-none">
-                      {typeof review.product === "object" && review.product
-                        ? review.product.title || "Deleted Product"
-                        : "Deleted Product"}
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="flex items-center gap-1">
-                      {renderStars(review.rating)}
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="max-w-[200px] sm:max-w-xs truncate text-gray-600">
-                      {review.comment || "—"}
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
-                    {formatDate(review.createdAt)}
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <button
-                      type="button"
-                      onClick={() => openModerateModal(review)}
-                      className="flex items-center gap-1 rounded-lg border border-orange-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-orange-600 transition hover:bg-orange-50"
-                      title="Moderate"
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="font-semibold text-gray-900 truncate max-w-[150px] sm:max-w-none">
+                        {typeof review.product === "object" && review.product
+                          ? review.product.title || "Deleted Product"
+                          : "Deleted Product"}
+                      </div>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="flex items-center gap-1">{renderStars(review.rating)}</div>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="max-w-[200px] sm:max-w-xs truncate text-gray-600">
+                        {review.comment || "—"}
+                      </div>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
+                      {formatDate(review.createdAt)}
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <button
+                        type="button"
+                        onClick={() => openModerateModal(review)}
+                        className="flex items-center gap-1 rounded-lg border border-orange-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-orange-600 transition hover:bg-orange-50"
+                        title="Moderate"
+                      >
+                        <FaEdit className="w-3 h-3" />
+                        <span className="hidden sm:inline">Moderate</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {paginatedReviews.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-3 sm:px-6 py-12 text-center text-xs sm:text-sm text-gray-500"
                     >
-                      <FaEdit className="w-3 h-3" />
-                      <span className="hidden sm:inline">Moderate</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {paginatedReviews.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-3 sm:px-6 py-12 text-center text-xs sm:text-sm text-gray-500"
-                  >
-                    <FaComments className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
-                    <p>{searchQuery ? "No reviews match your search." : "No reviews found."}</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                      <FaComments className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
+                      <p>{searchQuery ? "No reviews match your search." : "No reviews found."}</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -248,8 +233,8 @@ export default function AdminReviews() {
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
             <div className="text-xs sm:text-sm text-gray-600">
               Showing {(currentPage - 1) * 10 + 1} to{" "}
-              {Math.min(currentPage * 10, filteredReviews.length)} of{" "}
-              {filteredReviews.length} reviews
+              {Math.min(currentPage * 10, filteredReviews.length)} of {filteredReviews.length}{" "}
+              reviews
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -272,14 +257,11 @@ export default function AdminReviews() {
                   })
                   .map((page, index, array) => {
                     // Add ellipsis if there's a gap
-                    const showEllipsisBefore =
-                      index > 0 && array[index - 1] !== page - 1;
+                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
                     return (
                       <div key={page} className="flex items-center gap-1">
                         {showEllipsisBefore && (
-                          <span className="px-2 text-xs sm:text-sm text-gray-500">
-                            ...
-                          </span>
+                          <span className="px-2 text-xs sm:text-sm text-gray-500">...</span>
                         )}
                         <button
                           type="button"
@@ -299,9 +281,7 @@ export default function AdminReviews() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
               >
@@ -323,52 +303,40 @@ export default function AdminReviews() {
               <div>
                 <span className="text-xs font-medium text-gray-500">User:</span>
                 <p className="text-sm font-semibold text-gray-900 mt-1">
-                  {typeof selectedReview.user === "object" &&
-                  selectedReview.user
+                  {typeof selectedReview.user === "object" && selectedReview.user
                     ? selectedReview.user.fullname || selectedReview.user.email
                     : "—"}
                 </p>
               </div>
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  Product:
-                </span>
+                <span className="text-xs font-medium text-gray-500">Product:</span>
                 <p className="text-sm font-semibold text-gray-900 mt-1">
-                  {typeof selectedReview.product === "object" &&
-                  selectedReview.product
+                  {typeof selectedReview.product === "object" && selectedReview.product
                     ? selectedReview.product.title
                     : "Deleted Product"}
                 </p>
               </div>
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  Rating:
-                </span>
+                <span className="text-xs font-medium text-gray-500">Rating:</span>
                 <div className="mt-1 flex items-center gap-1">
                   {renderStars(selectedReview.rating)}
                 </div>
               </div>
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  Comment:
-                </span>
+                <span className="text-xs font-medium text-gray-500">Comment:</span>
                 <p className="mt-1 text-sm text-gray-900">
                   {selectedReview.comment || "No comment"}
                 </p>
               </div>
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  Current Status:
-                </span>
+                <span className="text-xs font-medium text-gray-500">Current Status:</span>
                 <div className="mt-1">
                   <span
                     className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold shadow-sm ${
-                      statusColors[selectedReview.status] ||
-                      statusColors.pending
+                      statusColors[selectedReview.status] || statusColors.pending
                     }`}
                   >
-                    {statusLabels[selectedReview.status] ||
-                      selectedReview.status}
+                    {statusLabels[selectedReview.status] || selectedReview.status}
                   </span>
                 </div>
               </div>

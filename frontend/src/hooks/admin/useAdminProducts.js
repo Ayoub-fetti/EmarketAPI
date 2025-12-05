@@ -3,10 +3,7 @@ import { toast } from "react-toastify";
 import { adminProductsService } from "../../services/admin/adminProductsService";
 
 const buildErrorMessage = (err, fallback) =>
-  err.response?.data?.message ||
-  err.response?.data?.error ||
-  err.message ||
-  fallback;
+  err.response?.data?.message || err.response?.data?.error || err.message || fallback;
 
 export const useAdminProducts = () => {
   const [activeProducts, setActiveProducts] = useState([]);
@@ -148,14 +145,10 @@ export const useAdminProducts = () => {
   const handleTogglePublish = async (product) => {
     const originalState = product.published;
     setActiveProducts((prev) =>
-      prev.map((item) =>
-        item._id === product._id ? { ...item, published: !originalState } : item
-      )
+      prev.map((item) => (item._id === product._id ? { ...item, published: !originalState } : item))
     );
     if (selectedProductId === product._id) {
-      setSelectedProduct((prev) =>
-        prev ? { ...prev, published: !originalState } : prev
-      );
+      setSelectedProduct((prev) => (prev ? { ...prev, published: !originalState } : prev));
     }
     updateCache({
       ...(productDetailsCache[product._id] || product),
@@ -169,50 +162,37 @@ export const useAdminProducts = () => {
         published: !originalState,
       };
       setActiveProducts((prev) =>
-        prev.map((item) =>
-          item._id === product._id ? { ...item, ...updated } : item
-        )
+        prev.map((item) => (item._id === product._id ? { ...item, ...updated } : item))
       );
       if (selectedProductId === product._id) {
         setSelectedProduct(updated);
       }
       updateCache(updated);
       toast.success(
-        response?.message ||
-          (updated.published ? "Product published." : "Product unpublished.")
+        response?.message || (updated.published ? "Product published." : "Product unpublished.")
       );
     } catch (err) {
       setActiveProducts((prev) =>
         prev.map((item) =>
-          item._id === product._id
-            ? { ...item, published: originalState }
-            : item
+          item._id === product._id ? { ...item, published: originalState } : item
         )
       );
       if (selectedProductId === product._id) {
-        setSelectedProduct((prev) =>
-          prev ? { ...prev, published: originalState } : prev
-        );
+        setSelectedProduct((prev) => (prev ? { ...prev, published: originalState } : prev));
       }
       updateCache({
         ...(productDetailsCache[product._id] || product),
         published: originalState,
       });
-      toast.error(
-        buildErrorMessage(err, "Unable to change publication status.")
-      );
+      toast.error(buildErrorMessage(err, "Unable to change publication status."));
     }
   };
 
   const performDelete = async (product) => {
     try {
       const response = await adminProductsService.deleteProduct(product._id);
-      setActiveProducts((prev) =>
-        prev.filter((item) => item._id !== product._id)
-      );
-      setDeletedProducts((prev) =>
-        prev.filter((item) => item._id !== product._id)
-      );
+      setActiveProducts((prev) => prev.filter((item) => item._id !== product._id));
+      setDeletedProducts((prev) => prev.filter((item) => item._id !== product._id));
       removeFromCache(product._id);
       if (selectedProductId === product._id) {
         setSelectedProductId(null);
@@ -227,17 +207,13 @@ export const useAdminProducts = () => {
 
   const performSoftDelete = async (product) => {
     try {
-      const response = await adminProductsService.softDeleteProduct(
-        product._id
-      );
+      const response = await adminProductsService.softDeleteProduct(product._id);
       const updated = response?.data ?? {
         ...product,
         published: false,
         deletedAt: new Date().toISOString(),
       };
-      setActiveProducts((prev) =>
-        prev.filter((item) => item._id !== product._id)
-      );
+      setActiveProducts((prev) => prev.filter((item) => item._id !== product._id));
       setDeletedProducts((prev) => [updated, ...prev]);
       updateCache(updated);
       if (selectedProductId === product._id) {
@@ -258,9 +234,7 @@ export const useAdminProducts = () => {
         deletedAt: null,
         published: false,
       };
-      setDeletedProducts((prev) =>
-        prev.filter((item) => item._id !== product._id)
-      );
+      setDeletedProducts((prev) => prev.filter((item) => item._id !== product._id));
       setActiveProducts((prev) => [updated, ...prev]);
       updateCache(updated);
       if (selectedProductId === product._id) {

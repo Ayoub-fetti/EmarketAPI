@@ -109,9 +109,7 @@ function OrdersTable({ orders, onStatusChange }) {
                   <div className="text-sm text-gray-900">
                     {order.userId?.fullname || "Client inconnu"}
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {order.userId?.email}
-                  </div>
+                  <div className="text-xs text-gray-500">{order.userId?.email}</div>
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm text-gray-900">
@@ -133,18 +131,14 @@ function OrdersTable({ orders, onStatusChange }) {
                     </div>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {getStatusBadge(order.status)}
-                </td>
+                <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(order.status)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {formatDate(order.createdAt)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <select
                     value={order.status}
-                    onChange={(e) =>
-                      handleStatusChange(order._id, e.target.value)
-                    }
+                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
                     disabled={updatingOrderId === order._id}
                     className={`px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                       updatingOrderId === order._id

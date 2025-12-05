@@ -1,20 +1,20 @@
-import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import AdminLayout from '../../../layouts/admin/AdminLayout';
-import AdminStats from '../../../pages/admin/AdminStats';
-import AdminUsers from '../../../pages/admin/AdminUsers';
-import AdminProducts from '../../../pages/admin/AdminProducts';
-import { AuthProvider } from '../../../context/AuthContext';
-import { adminStatsService } from '../../../services/admin/adminStatsService';
-import { adminUsersService } from '../../../services/admin/adminUsersService';
-import { adminProductsService } from '../../../services/admin/adminProductsService';
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
+import AdminLayout from "../../../layouts/admin/AdminLayout";
+import AdminStats from "../../../pages/admin/AdminStats";
+import AdminUsers from "../../../pages/admin/AdminUsers";
+import AdminProducts from "../../../pages/admin/AdminProducts";
+import { AuthProvider } from "../../../context/AuthContext";
+import { adminStatsService } from "../../../services/admin/adminStatsService";
+import { adminUsersService } from "../../../services/admin/adminUsersService";
+import { adminProductsService } from "../../../services/admin/adminProductsService";
 
 // Mock all admin services
-jest.mock('../../../services/admin/adminStatsService');
-jest.mock('../../../services/admin/adminUsersService');
-jest.mock('../../../services/admin/adminProductsService');
+jest.mock("../../../services/admin/adminStatsService");
+jest.mock("../../../services/admin/adminUsersService");
+jest.mock("../../../services/admin/adminProductsService");
 
-jest.mock('react-toastify', () => ({
+jest.mock("react-toastify", () => ({
   toast: {
     success: jest.fn(),
     error: jest.fn(),
@@ -22,49 +22,49 @@ jest.mock('react-toastify', () => ({
 }));
 
 const mockAdminUser = {
-  id: '1',
-  email: 'admin@test.com',
-  role: 'admin',
-  fullname: 'Admin User',
+  id: "1",
+  email: "admin@test.com",
+  role: "admin",
+  fullname: "Admin User",
 };
 
 const mockUsers = [
   {
-    _id: '1',
-    email: 'user1@test.com',
-    fullname: 'User One',
-    role: 'user',
-    status: 'active',
+    _id: "1",
+    email: "user1@test.com",
+    fullname: "User One",
+    role: "user",
+    status: "active",
   },
   {
-    _id: '2',
-    email: 'user2@test.com',
-    fullname: 'User Two',
-    role: 'seller',
-    status: 'active',
+    _id: "2",
+    email: "user2@test.com",
+    fullname: "User Two",
+    role: "seller",
+    status: "active",
   },
 ];
 
 const mockProducts = [
   {
-    _id: '1',
-    title: 'Product 1',
+    _id: "1",
+    title: "Product 1",
     price: 100,
     stock: 10,
     published: true,
   },
   {
-    _id: '2',
-    title: 'Product 2',
+    _id: "2",
+    title: "Product 2",
     price: 200,
     stock: 5,
     published: false,
   },
 ];
 
-const renderAdminLayout = (initialRoute = '/admin/stats') => {
-  localStorage.setItem('token', 'mock-token');
-  localStorage.setItem('user', JSON.stringify(mockAdminUser));
+const renderAdminLayout = (initialRoute = "/admin/stats") => {
+  localStorage.setItem("token", "mock-token");
+  localStorage.setItem("user", JSON.stringify(mockAdminUser));
 
   return render(
     <MemoryRouter initialEntries={[initialRoute]}>
@@ -81,18 +81,18 @@ const renderAdminLayout = (initialRoute = '/admin/stats') => {
   );
 };
 
-describe('Admin Dashboard User Flow Integration', () => {
+describe("Admin Dashboard User Flow Integration", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
-    
+
     adminStatsService.fetchUsers = jest.fn().mockResolvedValue({ list: [], total: 0 });
     adminStatsService.fetchOrders = jest.fn().mockResolvedValue({ list: [], total: 0 });
     adminStatsService.fetchProducts = jest.fn().mockResolvedValue({ list: [], total: 0 });
-    
+
     adminUsersService.fetchUsers = jest.fn().mockResolvedValue(mockUsers);
     adminUsersService.fetchDeletedUsers = jest.fn().mockResolvedValue([]);
-    
+
     adminProductsService.fetchActiveProducts = jest.fn().mockResolvedValue(mockProducts);
     adminProductsService.fetchDeletedProducts = jest.fn().mockResolvedValue([]);
   });
@@ -101,10 +101,10 @@ describe('Admin Dashboard User Flow Integration', () => {
     localStorage.clear();
   });
 
-  test('complete user flow: login -> view stats -> navigate to users -> view users', async () => {
+  test("complete user flow: login -> view stats -> navigate to users -> view users", async () => {
     // Step 1: Render dashboard (simulating logged in user)
     await act(async () => {
-      renderAdminLayout('/admin/stats');
+      renderAdminLayout("/admin/stats");
     });
 
     // Step 2: Verify stats page loads
@@ -115,8 +115,8 @@ describe('Admin Dashboard User Flow Integration', () => {
     });
 
     // Step 3: Navigate to Users page
-    const usersLink = screen.getByRole('link', { name: /users/i });
-    
+    const usersLink = screen.getByRole("link", { name: /users/i });
+
     await act(async () => {
       fireEvent.click(usersLink);
     });
@@ -133,13 +133,13 @@ describe('Admin Dashboard User Flow Integration', () => {
     });
   });
 
-  test('complete user flow: navigate between multiple pages', async () => {
+  test("complete user flow: navigate between multiple pages", async () => {
     await act(async () => {
-      renderAdminLayout('/admin/stats');
+      renderAdminLayout("/admin/stats");
     });
 
     // Navigate to Users
-    const usersLink = screen.getByRole('link', { name: /users/i });
+    const usersLink = screen.getByRole("link", { name: /users/i });
     await act(async () => {
       fireEvent.click(usersLink);
     });
@@ -149,7 +149,7 @@ describe('Admin Dashboard User Flow Integration', () => {
     });
 
     // Navigate to Products
-    const productsLink = screen.getByRole('link', { name: /products/i });
+    const productsLink = screen.getByRole("link", { name: /products/i });
     await act(async () => {
       fireEvent.click(productsLink);
     });
@@ -159,7 +159,7 @@ describe('Admin Dashboard User Flow Integration', () => {
     });
 
     // Navigate back to Stats
-    const statsLink = screen.getByRole('link', { name: /statistics/i });
+    const statsLink = screen.getByRole("link", { name: /statistics/i });
     await act(async () => {
       fireEvent.click(statsLink);
     });
@@ -170,9 +170,9 @@ describe('Admin Dashboard User Flow Integration', () => {
     });
   });
 
-  test('user information persists across navigation', async () => {
+  test("user information persists across navigation", async () => {
     await act(async () => {
-      renderAdminLayout('/admin/stats');
+      renderAdminLayout("/admin/stats");
     });
 
     // Verify user info is displayed
@@ -182,7 +182,7 @@ describe('Admin Dashboard User Flow Integration', () => {
     });
 
     // Navigate to another page
-    const usersLink = screen.getByRole('link', { name: /users/i });
+    const usersLink = screen.getByRole("link", { name: /users/i });
     await act(async () => {
       fireEvent.click(usersLink);
     });
@@ -194,28 +194,27 @@ describe('Admin Dashboard User Flow Integration', () => {
     });
   });
 
-  test('active navigation link updates when navigating', async () => {
+  test("active navigation link updates when navigating", async () => {
     await act(async () => {
-      renderAdminLayout('/admin/stats');
+      renderAdminLayout("/admin/stats");
     });
 
     // Initially, stats should be active
     await waitFor(() => {
-      const statsLink = screen.getByRole('link', { name: /statistics/i });
-      expect(statsLink).toHaveClass('bg-orange-500');
+      const statsLink = screen.getByRole("link", { name: /statistics/i });
+      expect(statsLink).toHaveClass("bg-orange-500");
     });
 
     // Navigate to users
-    const usersLink = screen.getByRole('link', { name: /users/i });
+    const usersLink = screen.getByRole("link", { name: /users/i });
     await act(async () => {
       fireEvent.click(usersLink);
     });
 
     // Users should now be active
     await waitFor(() => {
-      const updatedUsersLink = screen.getByRole('link', { name: /users/i });
-      expect(updatedUsersLink).toHaveClass('bg-orange-500');
+      const updatedUsersLink = screen.getByRole("link", { name: /users/i });
+      expect(updatedUsersLink).toHaveClass("bg-orange-500");
     });
   });
 });
-

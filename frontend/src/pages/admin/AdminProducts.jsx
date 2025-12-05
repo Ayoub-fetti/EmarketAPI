@@ -15,8 +15,7 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   currency: "MAD",
 });
 
-const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("en-US") : "—";
+const formatDate = (value) => (value ? new Date(value).toLocaleDateString("en-US") : "—");
 
 export default function AdminProducts() {
   const {
@@ -80,24 +79,21 @@ export default function AdminProducts() {
     pendingAction?.type === "delete"
       ? "Permanently Delete"
       : pendingAction?.type === "deactivate"
-      ? "Deactivate Product"
-      : "Restore Product";
+        ? "Deactivate Product"
+        : "Restore Product";
   const modalMessage =
     pendingAction?.type === "delete"
       ? "This action will permanently delete the product from the database."
       : pendingAction?.type === "deactivate"
-      ? "The product will be removed from the catalog but can be restored later."
-      : "The product will be put back online for users.";
+        ? "The product will be removed from the catalog but can be restored later."
+        : "The product will be put back online for users.";
 
   return (
     <section className="space-y-4 sm:space-y-6">
       <header className="space-y-2 mb-4 sm:mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Products Management
-        </h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Products Management</h2>
         <p className="text-xs sm:text-sm text-gray-600">
-          Publish, deactivate, restore, or delete products according to store
-          rules.
+          Publish, deactivate, restore, or delete products according to store rules.
         </p>
       </header>
 
@@ -156,8 +152,7 @@ export default function AdminProducts() {
             {filteredProducts.length !== 1 ? "s" : ""} found.
             {searchQuery &&
               ` (filtered from ${
-                (showDeleted ? sortedDeletedProducts : sortedActiveProducts)
-                  .length
+                (showDeleted ? sortedDeletedProducts : sortedActiveProducts).length
               } total)`}
           </p>
         </div>
@@ -167,9 +162,7 @@ export default function AdminProducts() {
           showDeleted={showDeleted}
           onViewDetails={openDetailsModal}
           onTogglePublish={handleTogglePublish}
-          onDeactivate={(p) =>
-            setPendingAction({ type: "deactivate", product: p })
-          }
+          onDeactivate={(p) => setPendingAction({ type: "deactivate", product: p })}
           onDelete={(p) => setPendingAction({ type: "delete", product: p })}
           onRestore={(p) => setPendingAction({ type: "restore", product: p })}
         />
@@ -201,14 +194,11 @@ export default function AdminProducts() {
                     return false;
                   })
                   .map((page, index, array) => {
-                    const showEllipsisBefore =
-                      index > 0 && array[index - 1] !== page - 1;
+                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
                     return (
                       <div key={page} className="flex items-center gap-1">
                         {showEllipsisBefore && (
-                          <span className="px-2 text-xs sm:text-sm text-gray-500">
-                            ...
-                          </span>
+                          <span className="px-2 text-xs sm:text-sm text-gray-500">...</span>
                         )}
                         <button
                           type="button"
@@ -228,9 +218,7 @@ export default function AdminProducts() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
               >
@@ -248,9 +236,7 @@ export default function AdminProducts() {
           <div className="w-full sm:w-[90%] lg:w-[80%] max-w-6xl max-h-[90vh] rounded-xl border border-gray-200 bg-white shadow-2xl flex flex-col overflow-hidden my-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
-                Product Details
-              </h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Product Details</h3>
               <button
                 type="button"
                 onClick={closeDetailsModal}
@@ -271,9 +257,7 @@ export default function AdminProducts() {
                 </div>
               ) : !selectedProduct ? (
                 <div className="flex items-center justify-center py-12">
-                  <p className="text-sm text-red-500">
-                    Unable to load product information.
-                  </p>
+                  <p className="text-sm text-red-500">Unable to load product information.</p>
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -285,10 +269,7 @@ export default function AdminProducts() {
                           selectedProduct.primaryImage.startsWith("http")
                             ? selectedProduct.primaryImage
                             : `${
-                                import.meta.env.VITE_BACKEND_URL?.replace(
-                                  "/api",
-                                  ""
-                                ) || ""
+                                import.meta.env.VITE_BACKEND_URL?.replace("/api", "") || ""
                               }${selectedProduct.primaryImage}`
                         }
                         alt={selectedProduct.title}
@@ -336,9 +317,7 @@ export default function AdminProducts() {
 
                       {/* Description */}
                       <div className="mb-4">
-                        <h5 className="text-sm font-semibold text-gray-900 mb-2">
-                          Description
-                        </h5>
+                        <h5 className="text-sm font-semibold text-gray-900 mb-2">Description</h5>
                         <p className="text-sm text-gray-600">
                           {selectedProduct.description || "—"}
                         </p>
@@ -347,33 +326,23 @@ export default function AdminProducts() {
                       {/* Product Info Grid */}
                       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                         <div>
-                          <h5 className="text-xs font-medium text-gray-500 mb-1">
-                            Price
-                          </h5>
+                          <h5 className="text-xs font-medium text-gray-500 mb-1">Price</h5>
                           <p className="text-2xl font-bold text-gray-900">
-                            {currencyFormatter.format(
-                              selectedProduct.price ?? 0
-                            )}
+                            {currencyFormatter.format(selectedProduct.price ?? 0)}
                           </p>
                         </div>
                         <div>
-                          <h5 className="text-xs font-medium text-gray-500 mb-1">
-                            Stock
-                          </h5>
+                          <h5 className="text-xs font-medium text-gray-500 mb-1">Stock</h5>
                           <p
                             className={`text-lg font-semibold ${
-                              selectedProduct.stock > 0
-                                ? "text-green-600"
-                                : "text-red-600"
+                              selectedProduct.stock > 0 ? "text-green-600" : "text-red-600"
                             }`}
                           >
                             {selectedProduct.stock ?? 0} available
                           </p>
                         </div>
                         <div>
-                          <h5 className="text-xs font-medium text-gray-500 mb-1">
-                            Seller:
-                          </h5>
+                          <h5 className="text-xs font-medium text-gray-500 mb-1">Seller:</h5>
                           <p className="text-sm font-semibold text-gray-900">
                             {selectedProduct.seller_id?.fullname ||
                               selectedProduct.seller_id?.email ||
@@ -381,9 +350,7 @@ export default function AdminProducts() {
                           </p>
                         </div>
                         <div>
-                          <h5 className="text-xs font-medium text-gray-500 mb-1">
-                            Created on:
-                          </h5>
+                          <h5 className="text-xs font-medium text-gray-500 mb-1">Created on:</h5>
                           <p className="text-sm font-semibold text-gray-900">
                             {formatDate(selectedProduct.createdAt)}
                           </p>
@@ -406,9 +373,7 @@ export default function AdminProducts() {
             <p className="mt-3 text-sm text-gray-600">{modalMessage}</p>
             <p className="mt-2 text-sm text-gray-800">
               Product:{" "}
-              <span className="font-semibold">
-                "{pendingAction?.product?.title ?? "—"}"
-              </span>
+              <span className="font-semibold">"{pendingAction?.product?.title ?? "—"}"</span>
             </p>
 
             <div className="mt-6 flex justify-end gap-3">
@@ -432,8 +397,8 @@ export default function AdminProducts() {
                   pendingAction?.type === "delete"
                     ? "bg-red-600 hover:bg-red-700"
                     : pendingAction?.type === "deactivate"
-                    ? "bg-yellow-600 hover:bg-yellow-700"
-                    : "bg-green-600 hover:bg-green-700",
+                      ? "bg-yellow-600 hover:bg-yellow-700"
+                      : "bg-green-600 hover:bg-green-700",
                 ].join(" ")}
               >
                 {actionLoading ? "Processing..." : "Confirm"}

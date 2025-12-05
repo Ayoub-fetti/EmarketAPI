@@ -26,9 +26,7 @@ export default function OrdersHistory() {
     try {
       const response = await getUserOrders(user.id);
       if (response.success && response.data) {
-        const ordersData = Array.isArray(response.data)
-          ? response.data
-          : [response.data];
+        const ordersData = Array.isArray(response.data) ? response.data : [response.data];
         setOrders(ordersData);
       } else {
         setOrders([]);
@@ -69,9 +67,7 @@ export default function OrdersHistory() {
       setReviewModalOpen(false);
       loadUserReviews();
     } catch (error) {
-      toast.error(
-        error.response?.data?.error || "Erreur lors de l'ajout de l'avis"
-      );
+      toast.error(error.response?.data?.error || "Erreur lors de l'ajout de l'avis");
     }
   };
 
@@ -102,19 +98,18 @@ export default function OrdersHistory() {
 
   const getStatusClasses = (status) => {
     switch (status) {
-        case "pending":
-            return "bg-yellow-100 text-yellow-800";
-        case "shipped":
-            return "bg-blue-100 text-blue-800";
-        case "delivered":
-            return "bg-green-100 text-green-800";
-        case "cancelled":
-            return "bg-red-100 text-red-800";
-        default:
-            return "bg-gray-100 text-gray-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "shipped":
+        return "bg-blue-100 text-blue-800";
+      case "delivered":
+        return "bg-green-100 text-green-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
-
 
   if (loading) {
     return <Loader />;
@@ -124,9 +119,7 @@ export default function OrdersHistory() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] py-10">
         <Package className="text-indigo-500 mb-6" size={80} />
-        <h2 className="text-3xl font-bold text-gray-800">
-          Aucune commande trouvée
-        </h2>
+        <h2 className="text-3xl font-bold text-gray-800">Aucune commande trouvée</h2>
         <p className="text-gray-500 mt-2 text-lg">
           On dirait que vous n'avez pas encore passé de commande.
         </p>
@@ -185,27 +178,28 @@ export default function OrdersHistory() {
                       className="hover:bg-indigo-50 transition duration-150 ease-in-out"
                     >
                       {/* ORDER ID */}
-                      <td className={`px-4 py-4 whitespace-nowrap text-sm font-semibold ${isFirstItem ? 'text-indigo-600' : 'text-gray-400'}`}>
+                      <td
+                        className={`px-4 py-4 whitespace-nowrap text-sm font-semibold ${isFirstItem ? "text-indigo-600" : "text-gray-400"}`}
+                      >
                         {isFirstItem ? `#${order._id.slice(-8)}` : ""}
                       </td>
 
                       {/* ORDER DATE */}
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                         {isFirstItem
-                          ? new Date(order.createdAt).toLocaleDateString(
-                              "fr-FR",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              }
-                            )
+                          ? new Date(order.createdAt).toLocaleDateString("fr-FR", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })
                           : ""}
                       </td>
 
                       {/* PRODUCT */}
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        <span className="truncate max-w-xs block">Produit ID: {item.productId}</span>
+                        <span className="truncate max-w-xs block">
+                          Produit ID: {item.productId}
+                        </span>
                       </td>
 
                       {/* QUANTITY */}
@@ -220,7 +214,8 @@ export default function OrdersHistory() {
 
                       {/* TOTAL LIGNE */}
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                        {(item.price * item.quantity).toFixed(2)} <span className="font-semibold text-xs">MAD</span>
+                        {(item.price * item.quantity).toFixed(2)}{" "}
+                        <span className="font-semibold text-xs">MAD</span>
                       </td>
 
                       {/* REVIEW ACTION */}
@@ -232,9 +227,7 @@ export default function OrdersHistory() {
                             </span>
                           ) : (
                             <button
-                              onClick={() =>
-                                handleOpenReviewModal(item.productId)
-                              }
+                              onClick={() => handleOpenReviewModal(item.productId)}
                               className="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-yellow-600 text-white hover:bg-indigo-700 transition duration-150 ease-in-out shadow-md gap-1"
                             >
                               <Star size={14} fill="white" /> Évaluer
@@ -248,7 +241,9 @@ export default function OrdersHistory() {
                       {/* STATUS */}
                       <td className="px-4 py-4 whitespace-nowrap">
                         {isFirstItem ? (
-                          <span className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full ${getStatusClasses(order.status)} gap-1`}>
+                          <span
+                            className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full ${getStatusClasses(order.status)} gap-1`}
+                          >
                             {getStatusIcon(order.status)}
                             <span className="ml-1">{getStatusText(order.status)}</span>
                           </span>

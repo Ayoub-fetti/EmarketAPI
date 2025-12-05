@@ -1,13 +1,5 @@
 import React, { memo } from "react";
-import {
-  FaEye,
-  FaBan,
-  FaTrash,
-  FaUndo,
-  FaBox,
-  FaCheckCircle,
-  FaTimesCircle,
-} from "react-icons/fa";
+import { FaEye, FaBan, FaTrash, FaUndo, FaBox, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -50,10 +42,7 @@ const AdminProductsGrid = memo(
                     product.primaryImage.startsWith("http")
                       ? product.primaryImage
                       : `${
-                          import.meta.env.VITE_BACKEND_URL?.replace(
-                            "/api",
-                            ""
-                          ) || ""
+                          import.meta.env.VITE_BACKEND_URL?.replace("/api", "") || ""
                         }${product.primaryImage}`
                   }
                   alt={product.title}
@@ -66,9 +55,7 @@ const AdminProductsGrid = memo(
               )}
               {product.stock === 0 && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">
-                    Out of Stock
-                  </span>
+                  <span className="text-white font-semibold text-sm">Out of Stock</span>
                 </div>
               )}
               {/* Status Badge */}
@@ -100,9 +87,7 @@ const AdminProductsGrid = memo(
               <div className="mb-3">
                 <p className="text-xs text-gray-500">Seller:</p>
                 <p className="text-xs font-medium text-gray-700">
-                  {product.seller_id?.fullname ||
-                    product.seller_id?.email ||
-                    "—"}
+                  {product.seller_id?.fullname || product.seller_id?.email || "—"}
                 </p>
               </div>
 

@@ -21,10 +21,7 @@ export default function useAdminStats() {
       setOrderStats(ordersData);
       setProductStats(productsData);
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Error loading statistics.";
+      const message = err.response?.data?.message || err.message || "Error loading statistics.";
       setError(message);
     } finally {
       setLoading(false);
@@ -49,10 +46,7 @@ export default function useAdminStats() {
   const stats = useMemo(() => {
     const totalUsers = userStats.total;
     const totalOrders = orderStats.total;
-    const totalRevenue = orders.reduce(
-      (sum, order) => sum + (order.finalAmount || 0),
-      0
-    );
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.finalAmount || 0), 0);
     const totalProducts = productStats.total;
     const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 

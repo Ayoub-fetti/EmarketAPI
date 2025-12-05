@@ -31,9 +31,7 @@ export function useSellerOrders() {
       } catch (err) {
         console.error("Erreur lors du chargement des commandes:", err);
         setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Erreur lors du chargement des commandes"
+          err.response?.data?.message || err.message || "Erreur lors du chargement des commandes"
         );
       } finally {
         setLoading(false);
@@ -84,9 +82,7 @@ export function useSellerOrders() {
       });
 
       setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order._id === orderId ? { ...order, status: newStatus } : order
-        )
+        prevOrders.map((order) => (order._id === orderId ? { ...order, status: newStatus } : order))
       );
       return true;
     } catch (err) {

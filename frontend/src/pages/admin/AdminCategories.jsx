@@ -1,9 +1,4 @@
-import {
-  FaPlus,
-  FaSearch,
-  FaChevronLeft,
-  FaChevronRight,
-} from "react-icons/fa";
+import { FaPlus, FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import useAdminCategories from "../../hooks/admin/useAdminCategories";
 import AdminCategoriesTable from "../../components/admin/AdminCategoriesTable";
 
@@ -79,9 +74,7 @@ export default function AdminCategories() {
   return (
     <section className="space-y-4 sm:space-y-6">
       <header className="space-y-2 mb-4 sm:mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Categories Management
-        </h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Categories Management</h2>
         <p className="text-xs sm:text-sm text-gray-600">
           Create, modify, or delete categories available in the catalog.
         </p>
@@ -152,9 +145,7 @@ export default function AdminCategories() {
             {filteredCategories.length} categor
             {filteredCategories.length !== 1 ? "ies" : "y"} found.
             {searchQuery &&
-              ` (filtered from ${
-                (showDeleted ? deletedCategories : categories).length
-              } total)`}
+              ` (filtered from ${(showDeleted ? deletedCategories : categories).length} total)`}
           </p>
         </div>
 
@@ -176,8 +167,8 @@ export default function AdminCategories() {
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
             <div className="text-xs sm:text-sm text-gray-600">
               Showing {(currentPage - 1) * 10 + 1} to{" "}
-              {Math.min(currentPage * 10, filteredCategories.length)} of{" "}
-              {filteredCategories.length} categories
+              {Math.min(currentPage * 10, filteredCategories.length)} of {filteredCategories.length}{" "}
+              categories
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -200,14 +191,11 @@ export default function AdminCategories() {
                   })
                   .map((page, index, array) => {
                     // Add ellipsis if there's a gap
-                    const showEllipsisBefore =
-                      index > 0 && array[index - 1] !== page - 1;
+                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
                     return (
                       <div key={page} className="flex items-center gap-1">
                         {showEllipsisBefore && (
-                          <span className="px-2 text-xs sm:text-sm text-gray-500">
-                            ...
-                          </span>
+                          <span className="px-2 text-xs sm:text-sm text-gray-500">...</span>
                         )}
                         <button
                           type="button"
@@ -227,9 +215,7 @@ export default function AdminCategories() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
               >
@@ -245,12 +231,8 @@ export default function AdminCategories() {
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
-            <h3 className="text-lg font-bold text-gray-900">
-              Create New Category
-            </h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Add a new category to classify products.
-            </p>
+            <h3 className="text-lg font-bold text-gray-900">Create New Category</h3>
+            <p className="mt-2 text-sm text-gray-600">Add a new category to classify products.</p>
 
             <form className="mt-4 space-y-4" onSubmit={handleCreate}>
               <div>
@@ -302,9 +284,7 @@ export default function AdminCategories() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-900">Edit Category</h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Update the name of the selected category.
-            </p>
+            <p className="mt-2 text-sm text-gray-600">Update the name of the selected category.</p>
 
             <form className="mt-4 space-y-4" onSubmit={handleUpdate}>
               <div>
@@ -353,16 +333,13 @@ export default function AdminCategories() {
       {categoryPendingSoftDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
-            <h3 className="text-lg font-bold text-gray-900">
-              Deactivate Category
-            </h3>
+            <h3 className="text-lg font-bold text-gray-900">Deactivate Category</h3>
             <p className="mt-3 text-sm text-gray-600">
               You are about to deactivate the category{" "}
               <span className="font-semibold text-gray-900">
                 "{categoryPendingSoftDelete.name}"
               </span>
-              . The category will be removed from the active list but can be
-              restored later.
+              . The category will be removed from the active list but can be restored later.
             </p>
 
             <div className="mt-6 flex justify-end gap-3">
@@ -401,15 +378,11 @@ export default function AdminCategories() {
       {categoryPendingDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
-            <h3 className="text-lg font-bold text-gray-900">
-              Confirm Deletion
-            </h3>
+            <h3 className="text-lg font-bold text-gray-900">Confirm Deletion</h3>
             <p className="mt-3 text-sm text-gray-600">
               You are about to permanently delete the category{" "}
-              <span className="font-semibold text-gray-900">
-                "{categoryPendingDelete.name}"
-              </span>
-              . This action is irreversible.
+              <span className="font-semibold text-gray-900">"{categoryPendingDelete.name}"</span>.
+              This action is irreversible.
             </p>
 
             <div className="mt-6 flex justify-end gap-3">
@@ -435,9 +408,7 @@ export default function AdminCategories() {
                     : "bg-red-600 hover:bg-red-700",
                 ].join(" ")}
               >
-                {deletingId === categoryPendingDelete._id
-                  ? "Deleting..."
-                  : "Delete"}
+                {deletingId === categoryPendingDelete._id ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

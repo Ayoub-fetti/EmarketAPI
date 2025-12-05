@@ -74,12 +74,8 @@ export default function RecentOrders({ orders, onStatusChange }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">
-            Commandes Récentes
-          </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Dernières commandes reçues
-          </p>
+          <h2 className="text-lg font-semibold text-gray-900">Commandes Récentes</h2>
+          <p className="text-sm text-gray-500 mt-1">Dernières commandes reçues</p>
         </div>
         <button
           onClick={() => navigate("/seller/orders")}
@@ -134,9 +130,7 @@ export default function RecentOrders({ orders, onStatusChange }) {
                 <td className="py-4 px-2">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-semibold text-xs">
-                      {(order.userId?.fullname || "UK")
-                        .substring(0, 2)
-                        .toUpperCase()}
+                      {(order.userId?.fullname || "UK").substring(0, 2).toUpperCase()}
                     </div>
                     <div>
                       <span className="text-sm font-medium text-gray-900 capitalize block">
@@ -180,9 +174,7 @@ export default function RecentOrders({ orders, onStatusChange }) {
                 <td className="py-4 px-2 text-center hidden xl:table-cell">
                   <select
                     value={order.status}
-                    onChange={(e) =>
-                      handleStatusChange(order._id, e.target.value)
-                    }
+                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
                     disabled={updatingOrderId === order._id}
                     className={`px-2 py-1 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                       updatingOrderId === order._id
@@ -221,9 +213,7 @@ export default function RecentOrders({ orders, onStatusChange }) {
             </svg>
           </div>
           <p className="text-gray-600 font-medium">Aucune commande récente</p>
-          <p className="text-sm text-gray-500 mt-1">
-            Les nouvelles commandes apparaîtront ici
-          </p>
+          <p className="text-sm text-gray-500 mt-1">Les nouvelles commandes apparaîtront ici</p>
         </div>
       )}
     </div>

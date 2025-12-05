@@ -38,7 +38,7 @@ const statusLabels = {
 
 export default function AdminUsers() {
   const { user: authUser } = useAuth();
-  
+
   const {
     users,
     deletedUsers,
@@ -170,9 +170,7 @@ export default function AdminUsers() {
   return (
     <section className="space-y-4 sm:space-y-6">
       <header className="space-y-2 mb-4 sm:mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Users Management
-        </h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Users Management</h2>
         <p className="text-xs sm:text-sm text-gray-600">
           View and manage users, their statuses, and roles.
         </p>
@@ -181,8 +179,6 @@ export default function AdminUsers() {
       {/* Search, Filters and Actions - All in One Row */}
       <div className="flex flex-col gap-3 sm:gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-md">
         <div className="flex flex-col lg:flex-row flex-wrap items-start lg:items-center gap-3 lg:gap-4">
-
-
           {/* Filter by role */}
           <div className="flex items-center gap-2">
             <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -200,8 +196,6 @@ export default function AdminUsers() {
             </select>
           </div>
 
-          
-          
           {/* Show Active/Deleted */}
           <div className="flex items-center gap-2 flex-wrap">
             <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -231,7 +225,7 @@ export default function AdminUsers() {
             </button>
           </div>
 
-                    {/* Search Bar */}
+          {/* Search Bar */}
           <div className="relative flex-1 min-w-[200px]">
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -251,12 +245,8 @@ export default function AdminUsers() {
             {showDeleted ? "Deleted Users" : "Active Users"}
           </h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            {filteredUsers.length} user{filteredUsers.length !== 1 ? "s" : ""}{" "}
-            found.
-            {searchQuery &&
-              ` (filtered from ${
-                (showDeleted ? deletedUsers : users).length
-              } total)`}
+            {filteredUsers.length} user{filteredUsers.length !== 1 ? "s" : ""} found.
+            {searchQuery && ` (filtered from ${(showDeleted ? deletedUsers : users).length} total)`}
           </p>
         </div>
 
@@ -275,8 +265,8 @@ export default function AdminUsers() {
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
             <div className="text-xs sm:text-sm text-gray-600">
               Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of{" "}
-              {filteredUsers.length} users
+              {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length}{" "}
+              users
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -297,14 +287,11 @@ export default function AdminUsers() {
                     return false;
                   })
                   .map((page, index, array) => {
-                    const showEllipsisBefore =
-                      index > 0 && array[index - 1] !== page - 1;
+                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
                     return (
                       <div key={page} className="flex items-center gap-1">
                         {showEllipsisBefore && (
-                          <span className="px-2 text-xs sm:text-sm text-gray-500">
-                            ...
-                          </span>
+                          <span className="px-2 text-xs sm:text-sm text-gray-500">...</span>
                         )}
                         <button
                           type="button"
@@ -324,9 +311,7 @@ export default function AdminUsers() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
               >
@@ -349,14 +334,10 @@ export default function AdminUsers() {
 
             <div className="mt-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Role
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Role</label>
                 <select
                   value={editForm.role}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, role: e.target.value })
-                  }
+                  onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
                   className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 >
                   <option value="user">User</option>
@@ -366,14 +347,10 @@ export default function AdminUsers() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Status
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Status</label>
                 <select
                   value={editForm.status}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, status: e.target.value })
-                  }
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
                   className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 >
                   <option value="active">Active</option>
@@ -399,8 +376,7 @@ export default function AdminUsers() {
                 onClick={onSaveEdit}
                 disabled={
                   saving ||
-                  (editForm.status === editingUser.status &&
-                    editForm.role === editingUser.role)
+                  (editForm.status === editingUser.status && editForm.role === editingUser.role)
                 }
                 className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-70 shadow-sm hover:shadow-md"
               >
@@ -425,12 +401,8 @@ export default function AdminUsers() {
                 </p>
               </div>
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  Email:
-                </span>
-                <p className="text-sm font-semibold text-gray-900 mt-1">
-                  {viewingUser.email}
-                </p>
+                <span className="text-xs font-medium text-gray-500">Email:</span>
+                <p className="text-sm font-semibold text-gray-900 mt-1">{viewingUser.email}</p>
               </div>
               <div>
                 <span className="text-xs font-medium text-gray-500">Role:</span>
@@ -445,9 +417,7 @@ export default function AdminUsers() {
                 </div>
               </div>
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  Status:
-                </span>
+                <span className="text-xs font-medium text-gray-500">Status:</span>
                 <div className="mt-1">
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
@@ -460,30 +430,21 @@ export default function AdminUsers() {
               </div>
               {viewingUser.avatar && (
                 <div>
-                  <span className="text-xs font-medium text-gray-500">
-                    Avatar:
-                  </span>
-                  <p className="text-sm font-semibold text-gray-900 mt-1">
-                    {viewingUser.avatar}
-                  </p>
+                  <span className="text-xs font-medium text-gray-500">Avatar:</span>
+                  <p className="text-sm font-semibold text-gray-900 mt-1">{viewingUser.avatar}</p>
                 </div>
               )}
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  Created At:
-                </span>
+                <span className="text-xs font-medium text-gray-500">Created At:</span>
                 <p className="text-sm font-semibold text-gray-900 mt-1">
                   {viewingUser.createdAt
-                    ? new Date(viewingUser.createdAt).toLocaleDateString(
-                        "en-US",
-                        {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )
+                    ? new Date(viewingUser.createdAt).toLocaleDateString("en-US", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
                     : "—"}
                 </p>
               </div>
@@ -510,8 +471,8 @@ export default function AdminUsers() {
               {actionType === "delete"
                 ? "Permanently Delete"
                 : actionType === "softDelete"
-                ? "Deactivate User"
-                : "Restore User"}
+                  ? "Deactivate User"
+                  : "Restore User"}
             </h3>
             <p className="mt-3 text-sm text-gray-600">
               {actionType === "delete" &&
@@ -549,8 +510,8 @@ export default function AdminUsers() {
                   actionType === "delete"
                     ? "bg-red-600 hover:bg-red-700"
                     : actionType === "softDelete"
-                    ? "bg-yellow-600 hover:bg-yellow-700"
-                    : "bg-green-600 hover:bg-green-700",
+                      ? "bg-yellow-600 hover:bg-yellow-700"
+                      : "bg-green-600 hover:bg-green-700",
                 ].join(" ")}
               >
                 {actionLoading ? "Processing..." : "Confirm"}

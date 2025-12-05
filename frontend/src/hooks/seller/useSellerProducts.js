@@ -46,9 +46,7 @@ export function useSellerProducts() {
       } catch (err) {
         console.error("Erreur lors du chargement des produits:", err);
         setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Erreur lors du chargement des produits"
+          err.response?.data?.message || err.message || "Erreur lors du chargement des produits"
         );
       } finally {
         setLoading(false);
@@ -73,8 +71,7 @@ export function useSellerProducts() {
 
     if (selectedCategory) {
       filtered = filtered.filter((product) => {
-        if (!product.categories || product.categories.length === 0)
-          return false;
+        if (!product.categories || product.categories.length === 0) return false;
         return product.categories.some((cat) => {
           const categoryId = typeof cat === "string" ? cat : cat._id;
           return categoryId === selectedCategory;

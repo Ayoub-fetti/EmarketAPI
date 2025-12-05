@@ -4,18 +4,10 @@ import OrdersTable from "../../components/seller/OrdersTable";
 import { useSellerOrders } from "../../hooks/seller/useSellerOrders";
 
 export default function Orders() {
-  const {
-    orders,
-    filteredOrders,
-    loading,
-    error,
-    filters,
-    updateOrderStatus,
-    resetFilters,
-  } = useSellerOrders();
+  const { orders, filteredOrders, loading, error, filters, updateOrderStatus, resetFilters } =
+    useSellerOrders();
 
-  const { searchQuery, setSearchQuery, selectedStatus, setSelectedStatus } =
-    filters;
+  const { searchQuery, setSearchQuery, selectedStatus, setSelectedStatus } = filters;
 
   // Options de statut fixes
   const statusOptions = [
@@ -29,9 +21,7 @@ export default function Orders() {
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Page Header */}
       <div className="mb-12">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Mes Commandes
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Mes Commandes</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-1">
           Gérez toutes les commandes de vos produits
         </p>
@@ -105,9 +95,7 @@ export default function Orders() {
               />
             </svg>
             <h3 className="mt-4 text-lg font-medium text-gray-900">
-              {searchQuery || selectedStatus
-                ? "Aucune commande trouvée"
-                : "Aucune commande"}
+              {searchQuery || selectedStatus ? "Aucune commande trouvée" : "Aucune commande"}
             </h3>
             <p className="mt-2 text-sm text-gray-500">
               {searchQuery || selectedStatus
@@ -117,10 +105,7 @@ export default function Orders() {
           </div>
         </div>
       ) : (
-        <OrdersTable
-          orders={filteredOrders}
-          onStatusChange={updateOrderStatus}
-        />
+        <OrdersTable orders={filteredOrders} onStatusChange={updateOrderStatus} />
       )}
     </div>
   );

@@ -40,8 +40,7 @@ export function useAdminUsers() {
       setUsers(active);
       setDeletedUsers(deleted);
     } catch (err) {
-      const message =
-        err.response?.data?.message || err.message || "Error loading users.";
+      const message = err.response?.data?.message || err.message || "Error loading users.";
       setError(message);
     } finally {
       setLoading(false);
@@ -123,10 +122,7 @@ export function useAdminUsers() {
         await fetchUsers();
         return true;
       } catch (err) {
-        const message =
-          err.response?.data?.message ||
-          err.message ||
-          "Unable to create user.";
+        const message = err.response?.data?.message || err.message || "Unable to create user.";
         toast.error(message);
         return false;
       } finally {
@@ -140,22 +136,14 @@ export function useAdminUsers() {
     async (userId, updateData) => {
       setSaving(true);
       try {
-        const updatedUser = await adminUsersService.updateUserStatusAndRole(
-          userId,
-          updateData
-        );
-        setUsers((prev) =>
-          prev.map((u) => (u._id === userId ? updatedUser : u))
-        );
+        const updatedUser = await adminUsersService.updateUserStatusAndRole(userId, updateData);
+        setUsers((prev) => prev.map((u) => (u._id === userId ? updatedUser : u)));
         toast.success("User updated successfully.");
         setEditingUser(null);
         await fetchUsers();
         return true;
       } catch (err) {
-        const message =
-          err.response?.data?.message ||
-          err.message ||
-          "Unable to update user.";
+        const message = err.response?.data?.message || err.message || "Unable to update user.";
         toast.error(message);
         return false;
       } finally {

@@ -18,9 +18,7 @@ export function Details() {
   // determine backend base url for images (fallback to VITE_BACKEND_URL without /api)
   const BACKEND_BASE =
     import.meta.env.VITE_BACKEND_BASE_URL ||
-    (import.meta.env.VITE_BACKEND_URL
-      ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
-      : "");
+    (import.meta.env.VITE_BACKEND_URL ? import.meta.env.VITE_BACKEND_URL.replace("/api", "") : "");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,9 +73,7 @@ export function Details() {
 
   return (
     <div className="container mx-auto p-4 max-w-5xl">
-      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
         {/* LEFT SIDE IMAGES */}
         <div className="space-y-3">
           {product.primaryImage && (
@@ -112,16 +108,13 @@ export function Details() {
 
         {/* RIGHT SIDE CONTENT */}
         <div className="space-y-5 bg-white rounded-2xl p-4 shadow-md border border-orange-700">
-          
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{product.title}</h1>
 
             <div className="flex items-center gap-2 mt-1">
               <span
                 className={`px-2 py-0.5 rounded-full text-xs ${
-                  product.published
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
+                  product.published ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                 }`}
               >
                 {product.published ? "Publié" : "Non publié"}
@@ -142,8 +135,8 @@ export function Details() {
                     ))}
                   </div>
                   <span className="text-xs text-gray-600">
-{reviews.averageRating ? reviews.averageRating.toFixed(1) : '0.0'} ({reviews.total || 0})
-
+                    {reviews.averageRating ? reviews.averageRating.toFixed(1) : "0.0"} (
+                    {reviews.total || 0})
                   </span>
                 </div>
               )}
@@ -161,13 +154,9 @@ export function Details() {
             <div>
               <h3 className="text-sm font-semibold">Prix</h3>
               <div className="flex items-center gap-2">
-                <span className="text-xl font-bold text-primary">
-                  {product.price} MAD
-                </span>
+                <span className="text-xl font-bold text-primary">{product.price} MAD</span>
                 {product.ex_price && (
-                  <span className="text-sm text-gray-500 line-through">
-                    {product.ex_price} MAD
-                  </span>
+                  <span className="text-sm text-gray-500 line-through">{product.ex_price} MAD</span>
                 )}
               </div>
             </div>
@@ -179,9 +168,7 @@ export function Details() {
                   product.stock > 0 ? "text-green-600" : "text-red-600"
                 }`}
               >
-                {product.stock > 0
-                  ? `${product.stock} disponible`
-                  : "Rupture de stock"}
+                {product.stock > 0 ? `${product.stock} disponible` : "Rupture de stock"}
               </span>
             </div>
           </div>
@@ -207,9 +194,7 @@ export function Details() {
           <div className="grid grid-cols-2 gap-4 text-xs text-gray-700">
             <div>
               <p className="font-medium">Vendeur:</p>
-              <p className="capitalize">
-                {product.seller_id?.fullname || "Non disponible"}
-              </p>
+              <p className="capitalize">{product.seller_id?.fullname || "Non disponible"}</p>
             </div>
             <div>
               <p className="font-medium">Créé le:</p>
@@ -219,8 +204,8 @@ export function Details() {
 
           {product.stock > 0 && (
             <Button
-            variants="primary"
-            className="w-full py-2 rounded-lg text-sm font-semibold cursor-pointer"
+              variants="primary"
+              className="w-full py-2 rounded-lg text-sm font-semibold cursor-pointer"
               style={{ backgroundColor: "#D43601", color: "white" }}
               onClick={handleAddToCart}
             >
@@ -234,34 +219,32 @@ export function Details() {
               <h2 className="text-lg font-bold mb-3">Derniers avis</h2>
 
               <div className="space-y-3">
-                {reviews.data.slice(-5).reverse().map((review) => (
-                  <div
-                    key={review._id}
-                    className="border rounded-lg p-3 shadow-sm bg-gray-50"
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-sm">
-                        {review.user.fullname}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {new Date(review.createdAt).toLocaleDateString("fr-FR")}
-                      </span>
-                    </div>
+                {reviews.data
+                  .slice(-5)
+                  .reverse()
+                  .map((review) => (
+                    <div key={review._id} className="border rounded-lg p-3 shadow-sm bg-gray-50">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-semibold text-sm">{review.user.fullname}</span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(review.createdAt).toLocaleDateString("fr-FR")}
+                        </span>
+                      </div>
 
-                    <div className="flex text-yellow-400 text-sm mb-1">
-                      {[...Array(5)].map((_, i) => (
-                        <i
-                          key={i}
-                          className={`fa-solid fa-star ${
-                            i < review.rating ? "text-yellow-400" : "text-gray-300"
-                          }`}
-                        ></i>
-                      ))}
-                    </div>
+                      <div className="flex text-yellow-400 text-sm mb-1">
+                        {[...Array(5)].map((_, i) => (
+                          <i
+                            key={i}
+                            className={`fa-solid fa-star ${
+                              i < review.rating ? "text-yellow-400" : "text-gray-300"
+                            }`}
+                          ></i>
+                        ))}
+                      </div>
 
-                    <p className="text-sm text-gray-700">{review.comment}</p>
-                  </div>
-                ))}
+                      <p className="text-sm text-gray-700">{review.comment}</p>
+                    </div>
+                  ))}
               </div>
             </div>
           )}

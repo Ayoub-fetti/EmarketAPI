@@ -226,9 +226,7 @@ export default function AddProduct() {
           <MdArrowBack className="text-xl" />
           <span className="font-medium">Retour aux produits</span>
         </button>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Nouveau Produit
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Nouveau Produit</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-1">
           Ajoutez un nouveau produit à votre inventaire
         </p>
@@ -245,24 +243,17 @@ export default function AddProduct() {
 
           {/* Error Message */}
           {errors.submit && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm">
-              {errors.submit}
-            </div>
+            <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm">{errors.submit}</div>
           )}
 
           {/* Product Information */}
           <div className="bg-white rounded-md shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Informations du Produit
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations du Produit</h3>
 
             <div className="space-y-4">
               {/* Title */}
               <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                   Nom du Produit <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -277,9 +268,7 @@ export default function AddProduct() {
                   }`}
                   disabled={loading}
                 />
-                {errors.title && (
-                  <p className="text-red-500 text-xs mt-1">{errors.title}</p>
-                )}
+                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
               </div>
 
               {/* Description */}
@@ -303,9 +292,7 @@ export default function AddProduct() {
                   disabled={loading}
                 />
                 {errors.description && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.description}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.description}</p>
                 )}
               </div>
 
@@ -323,9 +310,7 @@ export default function AddProduct() {
                 </label>
                 {loadingCategories ? (
                   <div className="w-full px-4 py-2 border border-gray-300 rounded-sm bg-gray-50">
-                    <p className="text-gray-500 text-sm">
-                      Chargement des catégories...
-                    </p>
+                    <p className="text-gray-500 text-sm">Chargement des catégories...</p>
                   </div>
                 ) : (
                   <div
@@ -341,11 +326,7 @@ export default function AddProduct() {
                           formData.categories.includes(category._id)
                             ? "border-orange-500 bg-orange-50"
                             : "border-gray-200 hover:border-gray-300 bg-white"
-                        } ${
-                          loading || loadingCategories
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
+                        } ${loading || loadingCategories ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
                         <input
                           type="checkbox"
@@ -355,17 +336,13 @@ export default function AddProduct() {
                           disabled={loading || loadingCategories}
                           className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                         />
-                        <span className="text-sm font-medium text-gray-700">
-                          {category.name}
-                        </span>
+                        <span className="text-sm font-medium text-gray-700">{category.name}</span>
                       </label>
                     ))}
                   </div>
                 )}
                 {errors.categories && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.categories}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.categories}</p>
                 )}
               </div>
             </div>
@@ -373,19 +350,14 @@ export default function AddProduct() {
 
           {/* Prix et Stock */}
           <div className="bg-white rounded-md shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Prix et Stock
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Prix et Stock</h3>
 
             <div className="space-y-4">
               {/* Prix - 2 colonnes */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Price */}
                 <div>
-                  <label
-                    htmlFor="price"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
                     Prix de Vente (DH) <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -401,9 +373,7 @@ export default function AddProduct() {
                     }`}
                     disabled={loading}
                   />
-                  {errors.price && (
-                    <p className="text-red-500 text-xs mt-1">{errors.price}</p>
-                  )}
+                  {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
                 </div>
 
                 {/* Original Price */}
@@ -428,19 +398,14 @@ export default function AddProduct() {
                     disabled={loading}
                   />
                   {errors.ex_price && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.ex_price}
-                    </p>
+                    <p className="text-red-500 text-xs mt-1">{errors.ex_price}</p>
                   )}
                 </div>
               </div>
 
               {/* Stock - Pleine largeur en dessous */}
               <div>
-                <label
-                  htmlFor="stock"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
+                <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-2">
                   Quantité en Stock <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -455,18 +420,14 @@ export default function AddProduct() {
                   }`}
                   disabled={loading}
                 />
-                {errors.stock && (
-                  <p className="text-red-500 text-xs mt-1">{errors.stock}</p>
-                )}
+                {errors.stock && <p className="text-red-500 text-xs mt-1">{errors.stock}</p>}
               </div>
             </div>
           </div>
 
           {/* Images */}
           <div className="bg-white rounded-sm shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Images du Produit
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Images du Produit</h3>
 
             <div className="space-y-4">
               {/* Primary Image */}
@@ -488,13 +449,9 @@ export default function AddProduct() {
                     <div className="flex flex-col items-center">
                       <MdCloudUpload className="text-5xl text-gray-400 mb-3" />
                       <p className="text-sm font-medium text-gray-700 mb-1">
-                        {formData.primaryImage
-                          ? formData.primaryImage.name
-                          : "Importer une image"}
+                        {formData.primaryImage ? formData.primaryImage.name : "Importer une image"}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG, SVG jusqu'à 10MB
-                      </p>
+                      <p className="text-xs text-gray-500">PNG, JPG, SVG jusqu'à 10MB</p>
                     </div>
                   </label>
                 </div>
@@ -503,8 +460,7 @@ export default function AddProduct() {
               {/* Secondary Images */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Images Secondaires ({formData.secondaryImages.length}{" "}
-                  fichier(s))
+                  Images Secondaires ({formData.secondaryImages.length} fichier(s))
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-sm p-6 hover:border-orange-500 transition-colors">
                   <input
@@ -517,14 +473,9 @@ export default function AddProduct() {
                     id="secondaryImages"
                     disabled={loading}
                   />
-                  <label
-                    htmlFor="secondaryImages"
-                    className="cursor-pointer block text-center"
-                  >
+                  <label htmlFor="secondaryImages" className="cursor-pointer block text-center">
                     <MdCloudUpload className="text-4xl text-gray-400 mb-2 mx-auto" />
-                    <p className="text-sm text-gray-600">
-                      Ajouter d'autres images
-                    </p>
+                    <p className="text-sm text-gray-600">Ajouter d'autres images</p>
                     <p className="text-xs text-gray-500 mt-1">
                       Vous pouvez sélectionner plusieurs images
                     </p>

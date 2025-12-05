@@ -22,8 +22,7 @@ export default function useAdminReviews() {
       const data = await adminReviewsService.fetchAllReviews();
       setReviews(data);
     } catch (err) {
-      const message =
-        err.response?.data?.message || err.message || "Error loading reviews.";
+      const message = err.response?.data?.message || err.message || "Error loading reviews.";
       setError(message);
     } finally {
       setLoading(false);
@@ -34,8 +33,7 @@ export default function useAdminReviews() {
     fetchReviews();
   }, [fetchReviews]);
 
-  const formatDate = (value) =>
-    value ? new Date(value).toLocaleDateString("en-US") : "—";
+  const formatDate = (value) => (value ? new Date(value).toLocaleDateString("en-US") : "—");
 
   const filteredReviews = useMemo(() => {
     let source = reviews;
@@ -97,20 +95,12 @@ export default function useAdminReviews() {
     if (!selectedReview || !newStatus) return;
     setModerating(true);
     try {
-      const updated = await adminReviewsService.moderateReview(
-        selectedReview._id,
-        newStatus
-      );
-      setReviews((prev) =>
-        prev.map((r) => (r._id === selectedReview._id ? updated : r))
-      );
+      const updated = await adminReviewsService.moderateReview(selectedReview._id, newStatus);
+      setReviews((prev) => prev.map((r) => (r._id === selectedReview._id ? updated : r)));
       toast.success("Review moderated successfully.");
       closeModerateModal();
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to moderate review.";
+      const message = err.response?.data?.message || err.message || "Unable to moderate review.";
       toast.error(message);
     } finally {
       setModerating(false);

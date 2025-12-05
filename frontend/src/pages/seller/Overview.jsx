@@ -1,12 +1,7 @@
 import StatCard from "../../components/seller/StatCard";
 import RecentOrders from "../../components/seller/RecentOrders";
 import { useSellerStats } from "../../hooks/seller/useSellerStats";
-import {
-  MdAttachMoney,
-  MdShoppingCart,
-  MdInventory,
-  MdLocalShipping,
-} from "react-icons/md";
+import { MdAttachMoney, MdShoppingCart, MdInventory, MdLocalShipping } from "react-icons/md";
 
 export default function Overview() {
   const { stats, recentOrders, loading, updateOrderStatus } = useSellerStats();
@@ -15,9 +10,7 @@ export default function Overview() {
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Page Header */}
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Tableau de Bord
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Tableau de Bord</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
           Statistiques et performances de votre boutique
         </p>
@@ -68,10 +61,7 @@ export default function Overview() {
             </div>
           </div>
         ) : (
-          <RecentOrders
-            orders={recentOrders}
-            onStatusChange={updateOrderStatus}
-          />
+          <RecentOrders orders={recentOrders} onStatusChange={updateOrderStatus} />
         )}
       </div>
     </div>

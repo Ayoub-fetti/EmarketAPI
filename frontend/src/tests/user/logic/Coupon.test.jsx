@@ -1,57 +1,62 @@
-describe('Coupon Logic - Discount Application', () => {
-  describe('calculateDiscount', () => {
-    it('should calculate percentage discount correctly', () => {
-      const coupon = { type: 'percentage', value: 10 };
+describe("Coupon Logic - Discount Application", () => {
+  describe("calculateDiscount", () => {
+    it("should calculate percentage discount correctly", () => {
+      const coupon = { type: "percentage", value: 10 };
       const totalAmount = 100;
-      const discount = coupon.type === 'percentage' 
-        ? totalAmount * (coupon.value / 100)
-        : Math.min(coupon.value, totalAmount);
+      const discount =
+        coupon.type === "percentage"
+          ? totalAmount * (coupon.value / 100)
+          : Math.min(coupon.value, totalAmount);
       expect(discount).toBe(10);
     });
 
-    it('should calculate fixed discount correctly', () => {
-      const coupon = { type: 'fixed', value: 20 };
+    it("should calculate fixed discount correctly", () => {
+      const coupon = { type: "fixed", value: 20 };
       const totalAmount = 100;
-      const discount = coupon.type === 'percentage' 
-        ? totalAmount * (coupon.value / 100)
-        : Math.min(coupon.value, totalAmount);
+      const discount =
+        coupon.type === "percentage"
+          ? totalAmount * (coupon.value / 100)
+          : Math.min(coupon.value, totalAmount);
       expect(discount).toBe(20);
     });
 
-    it('should not exceed total amount for fixed discount', () => {
-      const coupon = { type: 'fixed', value: 150 };
+    it("should not exceed total amount for fixed discount", () => {
+      const coupon = { type: "fixed", value: 150 };
       const totalAmount = 100;
-      const discount = coupon.type === 'percentage' 
-        ? totalAmount * (coupon.value / 100)
-        : Math.min(coupon.value, totalAmount);
+      const discount =
+        coupon.type === "percentage"
+          ? totalAmount * (coupon.value / 100)
+          : Math.min(coupon.value, totalAmount);
       expect(discount).toBe(100);
     });
 
-    it('should handle 50% discount', () => {
-      const coupon = { type: 'percentage', value: 50 };
+    it("should handle 50% discount", () => {
+      const coupon = { type: "percentage", value: 50 };
       const totalAmount = 200;
-      const discount = coupon.type === 'percentage' 
-        ? totalAmount * (coupon.value / 100)
-        : Math.min(coupon.value, totalAmount);
+      const discount =
+        coupon.type === "percentage"
+          ? totalAmount * (coupon.value / 100)
+          : Math.min(coupon.value, totalAmount);
       expect(discount).toBe(100);
     });
 
-    it('should handle 100% discount', () => {
-      const coupon = { type: 'percentage', value: 100 };
+    it("should handle 100% discount", () => {
+      const coupon = { type: "percentage", value: 100 };
       const totalAmount = 150;
-      const discount = coupon.type === 'percentage' 
-        ? totalAmount * (coupon.value / 100)
-        : Math.min(coupon.value, totalAmount);
+      const discount =
+        coupon.type === "percentage"
+          ? totalAmount * (coupon.value / 100)
+          : Math.min(coupon.value, totalAmount);
       expect(discount).toBe(150);
     });
   });
 
-  describe('validateCoupon', () => {
+  describe("validateCoupon", () => {
     const now = new Date();
 
-    it('should validate active coupon', () => {
+    it("should validate active coupon", () => {
       const coupon = {
-        status: 'active',
+        status: "active",
         startDate: new Date(now.getTime() - 86400000),
         expirationDate: new Date(now.getTime() + 86400000),
         minimumPurchase: 50,
@@ -60,8 +65,8 @@ describe('Coupon Logic - Discount Application', () => {
       };
       const totalAmount = 100;
 
-      const isValid = 
-        coupon.status === 'active' &&
+      const isValid =
+        coupon.status === "active" &&
         now >= coupon.startDate &&
         now <= coupon.expirationDate &&
         totalAmount >= coupon.minimumPurchase &&
@@ -70,21 +75,21 @@ describe('Coupon Logic - Discount Application', () => {
       expect(isValid).toBe(true);
     });
 
-    it('should reject inactive coupon', () => {
+    it("should reject inactive coupon", () => {
       const coupon = {
-        status: 'inactive',
+        status: "inactive",
         startDate: new Date(now.getTime() - 86400000),
         expirationDate: new Date(now.getTime() + 86400000),
         minimumPurchase: 50,
       };
 
-      const isValid = coupon.status === 'active';
+      const isValid = coupon.status === "active";
       expect(isValid).toBe(false);
     });
 
-    it('should reject expired coupon', () => {
+    it("should reject expired coupon", () => {
       const coupon = {
-        status: 'active',
+        status: "active",
         startDate: new Date(now.getTime() - 172800000),
         expirationDate: new Date(now.getTime() - 86400000),
         minimumPurchase: 50,
@@ -94,7 +99,7 @@ describe('Coupon Logic - Discount Application', () => {
       expect(isValid).toBe(false);
     });
 
-    it('should reject if minimum purchase not met', () => {
+    it("should reject if minimum purchase not met", () => {
       const coupon = { minimumPurchase: 50 };
       const totalAmount = 30;
 
@@ -102,10 +107,10 @@ describe('Coupon Logic - Discount Application', () => {
       expect(isValid).toBe(false);
     });
 
-    it('should reject if max usage reached', () => {
+    it("should reject if max usage reached", () => {
       const coupon = {
         maxUsage: 10,
-        usedBy: Array(10).fill({ userId: 'user1' }),
+        usedBy: Array(10).fill({ userId: "user1" }),
       };
 
       const isValid = !coupon.maxUsage || coupon.usedBy.length < coupon.maxUsage;
@@ -113,15 +118,15 @@ describe('Coupon Logic - Discount Application', () => {
     });
   });
 
-  describe('applyDiscount', () => {
-    it('should apply discount to total', () => {
+  describe("applyDiscount", () => {
+    it("should apply discount to total", () => {
       const subtotal = 100;
       const discount = 10;
       const total = subtotal - discount;
       expect(total).toBe(90);
     });
 
-    it('should not result in negative total', () => {
+    it("should not result in negative total", () => {
       const subtotal = 50;
       const discount = 60;
       const total = Math.max(0, subtotal - discount);

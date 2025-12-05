@@ -20,11 +20,7 @@ export function useProduct(id) {
         setError(null);
       } catch (err) {
         console.error("Erreur lors du chargement du produit:", err);
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Impossible de charger le produit"
-        );
+        setError(err.response?.data?.message || err.message || "Impossible de charger le produit");
       } finally {
         setLoading(false);
       }

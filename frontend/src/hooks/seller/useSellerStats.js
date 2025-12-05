@@ -49,9 +49,7 @@ export function useSellerStats() {
       (order) => order.status === "pending" || order.status === "shipped"
     ).length;
 
-    const deliveredOrders = orders.filter(
-      (order) => order.status === "delivered"
-    ).length;
+    const deliveredOrders = orders.filter((order) => order.status === "delivered").length;
 
     return {
       totalRevenue,

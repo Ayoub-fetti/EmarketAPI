@@ -59,12 +59,8 @@ const AdminOrders = () => {
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Orders Management
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Track and manage customer orders
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Orders Management</h1>
+          <p className="mt-1 text-sm text-gray-500">Track and manage customer orders</p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -145,9 +141,7 @@ const AdminOrders = () => {
               <div>
                 <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                   Order{" "}
-                  <span className="font-mono text-orange-600">
-                    #{selectedOrder._id.slice(-8)}
-                  </span>
+                  <span className="font-mono text-orange-600">#{selectedOrder._id.slice(-8)}</span>
                 </h2>
                 <p className="text-sm text-gray-500 mt-0.5">
                   Placed on {formatDate(selectedOrder.createdAt)}
@@ -170,8 +164,8 @@ const AdminOrders = () => {
                       selectedOrder.status === "delivered"
                         ? "bg-green-100 text-green-600"
                         : selectedOrder.status === "cancelled"
-                        ? "bg-red-100 text-red-600"
-                        : "bg-blue-100 text-blue-600"
+                          ? "bg-red-100 text-red-600"
+                          : "bg-blue-100 text-blue-600"
                     }`}
                   >
                     {selectedOrder.status === "delivered" ? (
@@ -185,25 +179,17 @@ const AdminOrders = () => {
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-500">
-                      Current Status
-                    </p>
-                    <p className="font-bold text-gray-900">
-                      {statusLabels[selectedOrder.status]}
-                    </p>
+                    <p className="text-sm font-medium text-gray-500">Current Status</p>
+                    <p className="font-bold text-gray-900">{statusLabels[selectedOrder.status]}</p>
                   </div>
                 </div>
 
                 {!showDeleted && (
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-gray-700">
-                      Update Status:
-                    </label>
+                    <label className="text-sm font-medium text-gray-700">Update Status:</label>
                     <select
                       value={selectedOrder.status}
-                      onChange={(e) =>
-                        handleStatusUpdate(selectedOrder._id, e.target.value)
-                      }
+                      onChange={(e) => handleStatusUpdate(selectedOrder._id, e.target.value)}
                       className="rounded-lg border-gray-300 py-1.5 pl-3 pr-8 text-sm font-medium focus:border-orange-500 focus:ring-orange-500 bg-white shadow-sm"
                     >
                       {Object.entries(statusLabels).map(([value, label]) => (
@@ -268,8 +254,7 @@ const AdminOrders = () => {
                 {/* Shipping Details */}
                 <div className="space-y-4">
                   <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">
-                    <FaMapMarkerAlt className="text-orange-500" /> Shipping
-                    Address
+                    <FaMapMarkerAlt className="text-orange-500" /> Shipping Address
                   </h3>
                   <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 space-y-3">
                     <div className="flex items-start gap-3">
@@ -352,9 +337,7 @@ const AdminOrders = () => {
                             {item.quantity}
                           </td>
                           <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                            {currencyFormatter.format(
-                              item.price * item.quantity
-                            )}
+                            {currencyFormatter.format(item.price * item.quantity)}
                           </td>
                         </tr>
                       ))}
@@ -380,10 +363,7 @@ const AdminOrders = () => {
                             Discount
                           </td>
                           <td className="px-4 py-3 text-right text-sm font-bold text-green-600">
-                            -
-                            {currencyFormatter.format(
-                              selectedOrder.discountAmount
-                            )}
+                            -{currencyFormatter.format(selectedOrder.discountAmount)}
                           </td>
                         </tr>
                       )}

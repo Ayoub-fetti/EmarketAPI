@@ -28,11 +28,7 @@ const mockProducts = [
     stock: 50,
     sales: 10,
     published: true,
-    categories: [
-      { name: "Électronique" },
-      { name: "Smartphones" },
-      { name: "Accessoires" },
-    ],
+    categories: [{ name: "Électronique" }, { name: "Smartphones" }, { name: "Accessoires" }],
   },
   {
     _id: "2",
@@ -73,18 +69,14 @@ describe("ProductsTable Component", () => {
     await userEvent.click(deleteButtons[0]);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Êtes-vous sûr de vouloir supprimer/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Êtes-vous sûr de vouloir supprimer/i)).toBeInTheDocument();
     });
 
     const cancelButton = screen.getByRole("button", { name: /Annuler/i });
     await userEvent.click(cancelButton);
 
     await waitFor(() => {
-      expect(
-        screen.queryByText(/Êtes-vous sûr de vouloir supprimer/i)
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/Êtes-vous sûr de vouloir supprimer/i)).not.toBeInTheDocument();
     });
   });
 
@@ -92,19 +84,14 @@ describe("ProductsTable Component", () => {
     const mockOnProductDeleted = jest.fn();
 
     renderWithRouter(
-      <ProductsTable
-        products={mockProducts}
-        onProductDeleted={mockOnProductDeleted}
-      />
+      <ProductsTable products={mockProducts} onProductDeleted={mockOnProductDeleted} />
     );
 
     const deleteButtons = screen.getAllByTitle("Supprimer");
     await userEvent.click(deleteButtons[0]);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Êtes-vous sûr de vouloir supprimer/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Êtes-vous sûr de vouloir supprimer/i)).toBeInTheDocument();
     });
 
     const confirmButtons = screen.getAllByRole("button", {

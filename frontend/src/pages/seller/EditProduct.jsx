@@ -10,11 +10,7 @@ export default function EditProduct() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuth();
-  const {
-    product,
-    loading: loadingProduct,
-    error: errorProduct,
-  } = useProduct(id);
+  const { product, loading: loadingProduct, error: errorProduct } = useProduct(id);
 
   // États du formulaire
   const [formData, setFormData] = useState({
@@ -278,9 +274,7 @@ export default function EditProduct() {
           <MdArrowBack className="text-xl" />
           <span className="font-medium">Retour aux produits</span>
         </button>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Modifier le Produit
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Modifier le Produit</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-1">
           Modifiez les informations de votre produit
         </p>
@@ -297,16 +291,12 @@ export default function EditProduct() {
 
           {/* Error Message */}
           {errors.submit && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm">
-              {errors.submit}
-            </div>
+            <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm">{errors.submit}</div>
           )}
 
           {/* Product Information */}
           <div className="bg-white rounded-md shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Informations du Produit
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations du Produit</h3>
 
             <div className="space-y-4">
               {/* Title */}
@@ -325,9 +315,7 @@ export default function EditProduct() {
                   }`}
                   disabled={loading}
                 />
-                {errors.title && (
-                  <p className="text-red-500 text-xs mt-1">{errors.title}</p>
-                )}
+                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
               </div>
 
               {/* Description */}
@@ -347,9 +335,7 @@ export default function EditProduct() {
                   disabled={loading}
                 />
                 {errors.description && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.description}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.description}</p>
                 )}
               </div>
 
@@ -364,9 +350,7 @@ export default function EditProduct() {
                 </label>
                 {loadingCategories ? (
                   <div className="w-full px-4 py-2 border border-gray-300 rounded-sm bg-gray-50">
-                    <p className="text-gray-500 text-sm">
-                      Chargement des catégories...
-                    </p>
+                    <p className="text-gray-500 text-sm">Chargement des catégories...</p>
                   </div>
                 ) : (
                   <div
@@ -381,11 +365,7 @@ export default function EditProduct() {
                           formData.categories.includes(category._id)
                             ? "border-orange-500 bg-orange-50"
                             : "border-gray-200 hover:border-gray-300 bg-white"
-                        } ${
-                          loading || loadingCategories
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
+                        } ${loading || loadingCategories ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
                         <input
                           type="checkbox"
@@ -394,17 +374,13 @@ export default function EditProduct() {
                           disabled={loading || loadingCategories}
                           className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                         />
-                        <span className="text-sm font-medium text-gray-700">
-                          {category.name}
-                        </span>
+                        <span className="text-sm font-medium text-gray-700">{category.name}</span>
                       </label>
                     ))}
                   </div>
                 )}
                 {errors.categories && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.categories}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.categories}</p>
                 )}
               </div>
             </div>
@@ -412,9 +388,7 @@ export default function EditProduct() {
 
           {/* Prix et Stock */}
           <div className="bg-white rounded-md shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Prix et Stock
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Prix et Stock</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Price */}
@@ -434,9 +408,7 @@ export default function EditProduct() {
                   }`}
                   disabled={loading}
                 />
-                {errors.price && (
-                  <p className="text-red-500 text-xs mt-1">{errors.price}</p>
-                )}
+                {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
               </div>
 
               {/* Original Price */}
@@ -456,9 +428,7 @@ export default function EditProduct() {
                   }`}
                   disabled={loading}
                 />
-                {errors.ex_price && (
-                  <p className="text-red-500 text-xs mt-1">{errors.ex_price}</p>
-                )}
+                {errors.ex_price && <p className="text-red-500 text-xs mt-1">{errors.ex_price}</p>}
               </div>
             </div>
 
@@ -479,18 +449,14 @@ export default function EditProduct() {
                   }`}
                   disabled={loading}
                 />
-                {errors.stock && (
-                  <p className="text-red-500 text-xs mt-1">{errors.stock}</p>
-                )}
+                {errors.stock && <p className="text-red-500 text-xs mt-1">{errors.stock}</p>}
               </div>
             </div>
           </div>
 
           {/* Images */}
           <div className="bg-white rounded-sm shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Images du Produit
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Images du Produit</h3>
 
             <div className="space-y-4">
               {/* Primary Image */}
@@ -502,9 +468,7 @@ export default function EditProduct() {
                 {/* Existing Primary Image */}
                 {existingImages.primaryImage && !formData.primaryImage && (
                   <div className="mb-3">
-                    <p className="text-xs text-gray-500 mb-2">
-                      Image actuelle:
-                    </p>
+                    <p className="text-xs text-gray-500 mb-2">Image actuelle:</p>
                     <img
                       src={`http://localhost:3000${existingImages.primaryImage}`}
                       alt="Image principale actuelle"
@@ -530,9 +494,7 @@ export default function EditProduct() {
                           ? formData.primaryImage.name
                           : "Changer l'image principale"}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG, SVG jusqu'à 10MB
-                      </p>
+                      <p className="text-xs text-gray-500">PNG, JPG, SVG jusqu'à 10MB</p>
                     </div>
                   </label>
                 </div>
@@ -547,9 +509,7 @@ export default function EditProduct() {
                 {/* Existing Secondary Images */}
                 {existingImages.secondaryImages.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-xs text-gray-500 mb-2">
-                      Images actuelles:
-                    </p>
+                    <p className="text-xs text-gray-500 mb-2">Images actuelles:</p>
                     <div className="grid grid-cols-4 gap-2">
                       {existingImages.secondaryImages.map((img, index) => (
                         <div key={index} className="relative group">
@@ -574,16 +534,12 @@ export default function EditProduct() {
                 {/* New Secondary Images */}
                 {formData.secondaryImages.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-xs text-gray-500 mb-2">
-                      Nouvelles images à ajouter:
-                    </p>
+                    <p className="text-xs text-gray-500 mb-2">Nouvelles images à ajouter:</p>
                     <div className="grid grid-cols-4 gap-2">
                       {formData.secondaryImages.map((file, index) => (
                         <div key={index} className="relative group">
                           <div className="w-full h-24 bg-gray-100 rounded-md border border-gray-300 flex items-center justify-center">
-                            <p className="text-xs text-gray-600 text-center px-2">
-                              {file.name}
-                            </p>
+                            <p className="text-xs text-gray-600 text-center px-2">{file.name}</p>
                           </div>
                           <button
                             type="button"
@@ -608,14 +564,9 @@ export default function EditProduct() {
                     id="secondaryImages"
                     disabled={loading}
                   />
-                  <label
-                    htmlFor="secondaryImages"
-                    className="cursor-pointer block text-center"
-                  >
+                  <label htmlFor="secondaryImages" className="cursor-pointer block text-center">
                     <MdCloudUpload className="text-4xl text-gray-400 mb-2 mx-auto" />
-                    <p className="text-sm text-gray-600">
-                      Ajouter d'autres images
-                    </p>
+                    <p className="text-sm text-gray-600">Ajouter d'autres images</p>
                     <p className="text-xs text-gray-500 mt-1">
                       Vous pouvez sélectionner plusieurs images
                     </p>

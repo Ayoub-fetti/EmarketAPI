@@ -21,9 +21,7 @@ export function useSellerCoupons() {
       setCoupons(response.data || []);
     } catch (error) {
       console.error("Erreur lors du chargement des coupons:", error);
-      setError(
-        error.response?.data?.message || "Erreur lors du chargement des coupons"
-      );
+      setError(error.response?.data?.message || "Erreur lors du chargement des coupons");
     } finally {
       setLoading(false);
     }
@@ -36,12 +34,8 @@ export function useSellerCoupons() {
   // Filter coupons
   const filteredCoupons = useMemo(() => {
     return coupons.filter((coupon) => {
-      const matchesSearch = coupon.code
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesStatus = selectedStatus
-        ? coupon.status === selectedStatus
-        : true;
+      const matchesSearch = coupon.code.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = selectedStatus ? coupon.status === selectedStatus : true;
       const matchesType = selectedType ? coupon.type === selectedType : true;
       return matchesSearch && matchesStatus && matchesType;
     });

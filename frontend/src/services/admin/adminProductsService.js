@@ -36,4 +36,3 @@ export const adminProductsService = {
     return response.data;
   },
 };
-

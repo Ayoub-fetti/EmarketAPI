@@ -1,9 +1,9 @@
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { CartProvider } from './context/CartContext';
-import { ToastContainer } from 'react-toastify';
-import AppRoutes from './routes/AppRoutes';
-import 'react-toastify/dist/ReactToastify.css';
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
+import { ToastContainer } from "react-toastify";
+import AppRoutes from "./routes/AppRoutes";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
         <CartProvider>
           <AppRoutes />
           <ToastContainer
-            position='top-left'
+            position="top-left"
             autoClose={3000}
             hideProgressBar={false}
             newestOnTop={false}

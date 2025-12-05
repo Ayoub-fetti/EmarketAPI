@@ -95,9 +95,7 @@ function ProductsTable({ products, onProductDeleted }) {
                 <td className="px-4 sm:px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {product.title}
-                      </p>
+                      <p className="text-sm font-medium text-gray-900">{product.title}</p>
                       <p className="text-xs text-gray-500 mt-0.5">
                         {product.published ? (
                           <span className="text-green-600">● Publié</span>
@@ -155,18 +153,14 @@ function ProductsTable({ products, onProductDeleted }) {
                     <button
                       className="p-2 hover:bg-blue-50 rounded-md transition-colors bg-gray-100"
                       title="Voir"
-                      onClick={() =>
-                        navigate(`/seller/products/${product._id}`)
-                      }
+                      onClick={() => navigate(`/seller/products/${product._id}`)}
                     >
                       <MdVisibility className="text-lg text-gray-600" />
                     </button>
                     <button
                       className="p-2 rounded-md transition-colors bg-orange-700 hover:bg-orange-800"
                       title="Modifier"
-                      onClick={() =>
-                        navigate(`/seller/products/edit/${product._id}`)
-                      }
+                      onClick={() => navigate(`/seller/products/edit/${product._id}`)}
                     >
                       <MdEdit className="text-lg text-white" />
                     </button>

@@ -9,15 +9,8 @@ import { createOrder } from "../../services/orderService";
 import { toast } from "react-toastify";
 
 const Cart = ({ isOpen, onClose }) => {
-  const {
-    items,
-    loading,
-    updateQuantity,
-    removeFromCart,
-    clearCart,
-    getSubtotal,
-    getItemCount,
-  } = useCart();
+  const { items, loading, updateQuantity, removeFromCart, clearCart, getSubtotal, getItemCount } =
+    useCart();
 
   const navigate = useNavigate();
   const [couponCode, setCouponCode] = useState("");
@@ -26,13 +19,11 @@ const Cart = ({ isOpen, onClose }) => {
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [creatingOrder, setCreatingOrder] = useState(false);
   const [orderError, setOrderError] = useState("");
-  
+
   // determine backend base url for images
   const BACKEND_BASE =
     import.meta.env.VITE_BACKEND_BASE_URL ||
-    (import.meta.env.VITE_BACKEND_URL
-      ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
-      : "");
+    (import.meta.env.VITE_BACKEND_URL ? import.meta.env.VITE_BACKEND_URL.replace("/api", "") : "");
 
   const handleValidateCoupon = async () => {
     if (!couponCode.trim()) {
@@ -65,7 +56,7 @@ const Cart = ({ isOpen, onClose }) => {
     try {
       const coupons = appliedCoupon ? [appliedCoupon.code] : [];
       const result = await createOrder(coupons);
-      
+
       if (result.success) {
         await clearCart();
         toast.success("Commande créée avec succès!");
@@ -73,7 +64,10 @@ const Cart = ({ isOpen, onClose }) => {
         navigate("/orders/user");
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || "Erreur lors de la création de la commande";
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Erreur lors de la création de la commande";
       setOrderError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -92,23 +86,18 @@ const Cart = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Backdrop */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 backdrop-blur-xs z-40"
-          onClick={onClose}
-        />
-      )}
-      
+      {isOpen && <div className="fixed inset-0 backdrop-blur-xs z-40" onClick={onClose} />}
+
       {/* Drawer */}
-      <div className={`fixed top-0 right-0 h-full w-96 bg-white shadow-xl transform transition-transform duration-300 z-50 ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}>
+      <div
+        className={`fixed top-0 right-0 h-full w-96 bg-white shadow-xl transform transition-transform duration-300 z-50 ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-lg font-semibold">
-              Panier ({getItemCount()} articles)
-            </h2>
+            <h2 className="text-lg font-semibold">Panier ({getItemCount()} articles)</h2>
             <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
               <X size={20} />
             </button>
@@ -128,11 +117,17 @@ const Cart = ({ isOpen, onClose }) => {
                 {items.map((item) => (
                   <div key={item.productId._id} className="flex gap-3 p-3 border rounded-lg">
                     <LazyImage
-                      src={item.productId.primaryImage ? `${BACKEND_BASE}${item.productId.primaryImage}` : "/placeholder.jpg"}
+                      src={
+                        item.productId.primaryImage
+                          ? `${BACKEND_BASE}${item.productId.primaryImage}`
+                          : "/placeholder.jpg"
+                      }
                       alt={item.productId.title}
                       className="w-16 h-16 object-cover rounded"
                       placeholderClassName="rounded"
-                      onError={(e) => { e.target.src = "/placeholder.jpg"; }}
+                      onError={(e) => {
+                        e.target.src = "/placeholder.jpg";
+                      }}
                     />
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">{item.productId.title}</h4>
@@ -180,10 +175,21 @@ const Cart = ({ isOpen, onClose }) => {
                     disabled={appliedCoupon}
                   />
                   <Button
-                    onClick={appliedCoupon ? () => {setAppliedCoupon(null); setCouponCode("");} : handleValidateCoupon}
+                    onClick={
+                      appliedCoupon
+                        ? () => {
+                            setAppliedCoupon(null);
+                            setCouponCode("");
+                          }
+                        : handleValidateCoupon
+                    }
                     disabled={validatingCoupon}
                     size="sm"
-                    className={appliedCoupon ? "bg-red-600 hover:bg-red-700" : "bg-gray-600 hover:bg-gray-700"}
+                    className={
+                      appliedCoupon
+                        ? "bg-red-600 hover:bg-red-700"
+                        : "bg-gray-600 hover:bg-gray-700"
+                    }
                   >
                     {appliedCoupon ? "Retirer" : "Appliquer"}
                   </Button>
@@ -216,7 +222,7 @@ const Cart = ({ isOpen, onClose }) => {
               </div>
 
               {orderError && <p className="text-red-600 text-xs">{orderError}</p>}
-              
+
               <Button
                 onClick={handleCreateOrder}
                 disabled={creatingOrder}

@@ -20,11 +20,7 @@ export function useCoupon(id) {
         setError(null);
       } catch (err) {
         console.error("Erreur lors du chargement du coupon:", err);
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Impossible de charger le coupon"
-        );
+        setError(err.response?.data?.message || err.message || "Impossible de charger le coupon");
       } finally {
         setLoading(false);
       }

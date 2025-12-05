@@ -39,10 +39,7 @@ export default function useAdminCoupons() {
       const data = await adminCouponsService.fetchAllCoupons();
       setCoupons(data);
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Error loading coupons.";
+      const message = err.response?.data?.message || err.message || "Error loading coupons.";
       setError(message);
     } finally {
       setLoading(false);
@@ -53,12 +50,11 @@ export default function useAdminCoupons() {
     fetchCoupons();
   }, [fetchCoupons]);
 
-  const formatDate = (value) =>
-    value ? new Date(value).toLocaleDateString("en-US") : "—";
+  const formatDate = (value) => (value ? new Date(value).toLocaleDateString("en-US") : "—");
 
   const filteredCoupons = useMemo(() => {
     let source = coupons;
-    
+
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
@@ -72,7 +68,7 @@ export default function useAdminCoupons() {
           formatDate(coupon.expirationDate).toLowerCase().includes(query)
       );
     }
-    
+
     return source;
   }, [coupons, searchQuery]);
 
@@ -121,9 +117,7 @@ export default function useAdminCoupons() {
       type: coupon.type || "percentage",
       value: coupon.value?.toString() || "",
       minimumPurchase: coupon.minimumPurchase?.toString() || "",
-      startDate: coupon.startDate
-        ? new Date(coupon.startDate).toISOString().slice(0, 16)
-        : "",
+      startDate: coupon.startDate ? new Date(coupon.startDate).toISOString().slice(0, 16) : "",
       expirationDate: coupon.expirationDate
         ? new Date(coupon.expirationDate).toISOString().slice(0, 16)
         : "",
@@ -194,10 +188,7 @@ export default function useAdminCoupons() {
       closeCreateModal();
       await fetchCoupons();
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to create coupon.";
+      const message = err.response?.data?.message || err.message || "Unable to create coupon.";
       toast.error(message);
     } finally {
       setCreating(false);
@@ -227,10 +218,7 @@ export default function useAdminCoupons() {
       closeEditModal();
       await fetchCoupons();
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to update coupon.";
+      const message = err.response?.data?.message || err.message || "Unable to update coupon.";
       toast.error(message);
     } finally {
       setUpdating(false);
@@ -246,10 +234,7 @@ export default function useAdminCoupons() {
       setCoupons((prev) => prev.filter((c) => c._id !== selectedCoupon._id));
       closeDeleteModal();
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to delete coupon.";
+      const message = err.response?.data?.message || err.message || "Unable to delete coupon.";
       toast.error(message);
     } finally {
       setDeleting(false);

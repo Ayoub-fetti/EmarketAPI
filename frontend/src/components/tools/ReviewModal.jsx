@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { X, Star } from 'lucide-react';
+import { useState } from "react";
+import { X, Star } from "lucide-react";
 
 export default function ReviewModal({ isOpen, onClose, onSubmit, productId }) {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -15,12 +15,12 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, productId }) {
     if (comment.length < 5) {
       return;
     }
-    
+
     setLoading(true);
     await onSubmit({ productId, rating, comment });
     setLoading(false);
     setRating(0);
-    setComment('');
+    setComment("");
   };
 
   if (!isOpen) return null;
@@ -37,7 +37,9 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, productId }) {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Note <span className='text-red-500'>*</span></label>
+            <label className="block text-sm font-medium mb-2">
+              Note <span className="text-red-500">*</span>
+            </label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -52,8 +54,8 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, productId }) {
                     size={32}
                     className={`${
                       star <= (hoveredRating || rating)
-                        ? 'fill-yellow-400 text-yellow-400'
-                        : 'text-gray-300'
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
                     }`}
                   />
                 </button>
@@ -63,7 +65,8 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, productId }) {
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">
-              Commentaire <span className='text-red-500'>*</span> <span className='text-xs'>(min. 5 caractères)</span>
+              Commentaire <span className="text-red-500">*</span>{" "}
+              <span className="text-xs">(min. 5 caractères)</span>
             </label>
             <textarea
               value={comment}
@@ -90,7 +93,7 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, productId }) {
               className="flex-1 px-4 py-2 bg-orange-700 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
               disabled={loading || rating === 0 || comment.length < 5}
             >
-              {loading ? 'Envoi...' : 'Envoyer'}
+              {loading ? "Envoi..." : "Envoyer"}
             </button>
           </div>
         </form>

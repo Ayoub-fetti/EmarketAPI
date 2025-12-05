@@ -37,11 +37,11 @@ const navLinks = [
 ];
 
 //const systemLinks = [
-  //{
-    //to: "/seller/profile",
-    //label: "Profile",
-    //icon: MdPerson,
-  //},
+//{
+//to: "/seller/profile",
+//label: "Profile",
+//icon: MdPerson,
+//},
 //];
 
 export default function Sidebar() {
@@ -68,19 +68,12 @@ export default function Sidebar() {
         className="lg:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white transition-all hover:scale-110"
         style={{ backgroundColor: "rgb(212, 54, 1)" }}
       >
-        {isSidebarOpen ? (
-          <MdClose className="text-2xl" />
-        ) : (
-          <MdMenu className="text-2xl" />
-        )}
+        {isSidebarOpen ? <MdClose className="text-2xl" /> : <MdMenu className="text-2xl" />}
       </button>
 
       {/* Overlay - pour fermer le sidebar en cliquant à l'extérieur */}
       {isSidebarOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-opacity-10 z-40"
-          onClick={closeSidebar}
-        ></div>
+        <div className="lg:hidden fixed inset-0 bg-opacity-10 z-40" onClick={closeSidebar}></div>
       )}
 
       {/* Sidebar */}
@@ -89,11 +82,7 @@ export default function Sidebar() {
           fixed lg:static inset-y-0 left-0 z-40
           w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col
           transform transition-transform duration-300 ease-in-out
-          ${
-            isSidebarOpen
-              ? "translate-x-0"
-              : "-translate-x-full lg:translate-x-0"
-          }
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
         {/* Logo section */}
@@ -106,12 +95,8 @@ export default function Sidebar() {
               <FaBox className="text-white text-lg" />
             </div>
             <div>
-              <span className="text-xl font-bold text-gray-900 mt-10">
-                E-Market
-              </span>
-              <p className="text-xs text-gray-500">
-                Gestion des Products & Commandes
-              </p>
+              <span className="text-xl font-bold text-gray-900 mt-10">E-Market</span>
+              <p className="text-xs text-gray-500">Gestion des Products & Commandes</p>
             </div>
           </div>
         </div>
@@ -133,9 +118,7 @@ export default function Sidebar() {
                     className={({ isActive }) =>
                       [
                         "rounded-md px-4 py-3 text-sm font-medium transition-all flex items-center gap-3",
-                        isActive
-                          ? "text-white shadow-sm"
-                          : "text-gray-700 hover:bg-gray-100",
+                        isActive ? "text-white shadow-sm" : "text-gray-700 hover:bg-gray-100",
                       ].join(" ")
                     }
                     style={({ isActive }) =>
@@ -166,9 +149,7 @@ export default function Sidebar() {
                     className={({ isActive }) =>
                       [
                         "rounded-md px-4 py-3 text-sm font-medium transition-all flex items-center gap-3",
-                        isActive
-                          ? "text-white shadow-sm"
-                          : "text-gray-700 hover:bg-gray-100",
+                        isActive ? "text-white shadow-sm" : "text-gray-700 hover:bg-gray-100",
                       ].join(" ")
                     }
                     style={({ isActive }) =>

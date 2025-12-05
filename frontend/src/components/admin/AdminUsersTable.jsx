@@ -24,54 +24,36 @@ const roleColors = {
 };
 
 const AdminUsersTable = memo(
-  ({
-    users,
-    showDeleted,
-    onView,
-    onEdit,
-    onSoftDelete,
-    onDelete,
-    onRestore,
-  }) => {
+  ({ users, showDeleted, onView, onEdit, onSoftDelete, onDelete, onRestore }) => {
     return (
       <div className="overflow-x-auto -mx-4 sm:mx-0">
         <div className="inline-block min-w-full align-middle">
           <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
-                {[
-                  "Name",
-                  "Email",
-                  "Role",
-                  "Status",
-                  "Registration Date",
-                  "Actions",
-                ].map((header) => (
-                  <th
-                    key={header}
-                    scope="col"
-                    className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
-                  >
-                    {header}
-                  </th>
-                ))}
+                {["Name", "Email", "Role", "Status", "Registration Date", "Actions"].map(
+                  (header) => (
+                    <th
+                      key={header}
+                      scope="col"
+                      className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
+                    >
+                      {header}
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
               {users.map((user) => (
-                <tr
-                  key={user._id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
+                <tr key={user._id} className="hover:bg-gray-50 transition-colors duration-150">
                   <td className="px-3 sm:px-6 py-3 sm:py-4 font-semibold text-gray-900">
                     <div className="truncate max-w-[120px] sm:max-w-none">
                       {user.fullname || "—"}
                     </div>
                   </td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-700">
-                    <div className="truncate max-w-[150px] sm:max-w-none">
-                      {user.email}
-                    </div>
+                    <div className="truncate max-w-[150px] sm:max-w-none">{user.email}</div>
                   </td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4">
                     <span
