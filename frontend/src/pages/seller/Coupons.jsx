@@ -9,7 +9,6 @@ import { useSellerCoupons } from "../../hooks/seller/useSellerCoupons";
 export default function Coupons() {
   const navigate = useNavigate();
   const {
-    coupons,
     filteredCoupons,
     loading,
     error,

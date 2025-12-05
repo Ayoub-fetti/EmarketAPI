@@ -1,10 +1,9 @@
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { AuthProvider } from "../../../context/AuthContext";
-import { CartProvider, useCart } from "../../../context/CartContext";
+import { CartProvider } from "../../../context/CartContext";
 import * as cartService from "../../../services/cartService";
 import * as orderService from "../../../services/orderService";
-import { toast } from "react-toastify";
 
 jest.mock("../../../services/cartService");
 jest.mock("../../../services/orderService");

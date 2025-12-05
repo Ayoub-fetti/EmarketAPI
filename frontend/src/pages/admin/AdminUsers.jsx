@@ -11,7 +11,6 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 import { useAdminUsers } from "../../hooks/admin/useAdminUsers";
-import { useAuth } from "../../context/AuthContext";
 import AdminUsersTable from "../../components/admin/AdminUsersTable";
 
 const roleLabels = {
@@ -37,8 +36,6 @@ const statusLabels = {
 };
 
 export default function AdminUsers() {
-  const { user: authUser } = useAuth();
-
   const {
     users,
     deletedUsers,
@@ -49,10 +46,10 @@ export default function AdminUsers() {
     currentPage,
     setCurrentPage,
     totalPages,
+    itemsPerPage,
     showDeleted,
     setShowDeleted,
     roleFilter,
-    setRoleFilter,
     searchQuery,
     setSearchQuery,
     handleFilterByRole,

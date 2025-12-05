@@ -183,9 +183,7 @@ export default function AddProduct() {
       });
 
       // Envoyer au backend
-      const response = await productService.createProduct(data);
-
-      console.log("Produit créé avec succès:", response);
+      await productService.createProduct(data);
       const message = publishStatus
         ? "Produit publié avec succès !"
         : "Produit enregistré comme brouillon !";

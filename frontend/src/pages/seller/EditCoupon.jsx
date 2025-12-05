@@ -127,12 +127,8 @@ export default function EditCoupon() {
         status: formData.status,
       };
 
-      console.log("Mise à jour du coupon:", couponData);
-
       // Appel API pour mettre à jour le coupon
-      const response = await couponService.updateCoupon(id, couponData);
-
-      console.log("Réponse API:", response);
+      await couponService.updateCoupon(id, couponData);
 
       setAlertMessage({
         type: "success",

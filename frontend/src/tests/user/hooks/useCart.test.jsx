@@ -87,7 +87,7 @@ describe("useCart", () => {
   });
 
   it("should calculate subtotal", () => {
-    const { result } = renderHook(() => useCart(), { wrapper });
+    renderHook(() => useCart(), { wrapper });
 
     const items = [
       { productId: { _id: "1", price: 100 }, quantity: 2 },

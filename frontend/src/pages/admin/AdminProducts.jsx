@@ -19,8 +19,6 @@ const formatDate = (value) => (value ? new Date(value).toLocaleDateString("en-US
 
 export default function AdminProducts() {
   const {
-    activeProducts,
-    deletedProducts,
     loading,
     error,
     selectedProduct,

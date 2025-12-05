@@ -100,12 +100,8 @@ export default function AddCoupon() {
         status: formData.status,
       };
 
-      console.log("Envoi des données:", couponData);
-
       // Appel API pour créer le coupon
-      const response = await couponService.createCoupon(couponData);
-
-      console.log("Réponse API:", response);
+      await couponService.createCoupon(couponData);
 
       setAlertMessage({
         type: "success",

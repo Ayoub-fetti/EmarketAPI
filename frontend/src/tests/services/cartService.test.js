@@ -34,7 +34,7 @@ describe("cartService", () => {
     test("fetches guest cart with session-id header", async () => {
       api.get.mockResolvedValue({ data: { success: true, data: { items: [] } } });
 
-      const result = await cartService.getCart();
+      await cartService.getCart();
 
       expect(api.get).toHaveBeenCalled();
       const callArgs = api.get.mock.calls[0];

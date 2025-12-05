@@ -14,8 +14,6 @@ import { adminUsersService } from "../../../services/admin/adminUsersService";
 import { adminProductsService } from "../../../services/admin/adminProductsService";
 import { adminCategoriesService } from "../../../services/admin/adminCategoriesService";
 import { adminOrdersService } from "../../../services/admin/adminOrdersService";
-import { adminCouponsService } from "../../../services/admin/adminCouponsService";
-import { adminReviewsService } from "../../../services/admin/adminReviewsService";
 
 // Mock all admin services
 jest.mock("../../../services/admin/adminStatsService");

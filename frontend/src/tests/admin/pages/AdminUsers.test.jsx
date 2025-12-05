@@ -3,7 +3,6 @@ import { BrowserRouter } from "react-router-dom";
 import AdminUsers from "../../../pages/admin/AdminUsers";
 import { adminUsersService } from "../../../services/admin/adminUsersService";
 import { AuthProvider } from "../../../context/AuthContext";
-import { toast } from "react-toastify";
 
 jest.mock("../../../services/admin/adminUsersService");
 

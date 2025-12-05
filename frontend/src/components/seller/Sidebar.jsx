@@ -36,13 +36,6 @@ const navLinks = [
   },
 ];
 
-//const systemLinks = [
-//{
-//to: "/seller/profile",
-//label: "Profile",
-//icon: MdPerson,
-//},
-//];
 
 export default function Sidebar() {
   const { logout } = useAuth();
@@ -140,29 +133,6 @@ export default function Sidebar() {
               Compte
             </p>
             <div className="space-y-1">
-              {systemLinks.map((link) => {
-                const IconComponent = link.icon;
-                return (
-                  <NavLink
-                    key={link.to}
-                    to={link.to}
-                    className={({ isActive }) =>
-                      [
-                        "rounded-md px-4 py-3 text-sm font-medium transition-all flex items-center gap-3",
-                        isActive ? "text-white shadow-sm" : "text-gray-700 hover:bg-gray-100",
-                      ].join(" ")
-                    }
-                    style={({ isActive }) =>
-                      isActive ? { backgroundColor: "rgb(212, 54, 1)" } : {}
-                    }
-                    onClick={closeSidebar}
-                  >
-                    <IconComponent className="text-xl" />
-                    {link.label}
-                  </NavLink>
-                );
-              })}
-
               {/* Logout button */}
               <button
                 onClick={handleLogout}

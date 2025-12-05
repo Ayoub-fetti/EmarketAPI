@@ -4,7 +4,7 @@ import OrdersTable from "../../components/seller/OrdersTable";
 import { useSellerOrders } from "../../hooks/seller/useSellerOrders";
 
 export default function Orders() {
-  const { orders, filteredOrders, loading, error, filters, updateOrderStatus, resetFilters } =
+  const { filteredOrders, loading, error, filters, updateOrderStatus, resetFilters } =
     useSellerOrders();
 
   const { searchQuery, setSearchQuery, selectedStatus, setSelectedStatus } = filters;

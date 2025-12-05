@@ -74,7 +74,7 @@ export function useSellerCoupons() {
       setIsDeleting(true);
       await deleteCoupon(couponToDelete._id);
       closeDeleteModal();
-    } catch (error) {
+    } catch {
       // Error is already logged in deleteCoupon, but we might want to set it in UI
       // For now, we rely on the error state if we want to show it, but deleteCoupon throws.
     } finally {

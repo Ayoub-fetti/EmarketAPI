@@ -18,7 +18,6 @@ import AdminOrdersTable from "../../components/admin/AdminOrdersTable";
 
 const AdminOrders = () => {
   const {
-    orders,
     loading,
     error,
     searchQuery,

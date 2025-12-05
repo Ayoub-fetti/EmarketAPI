@@ -220,9 +220,7 @@ export default function EditProduct() {
         data.append("secondaryImages", file);
       });
 
-      const response = await productService.updateProduct(id, data);
-
-      console.log("Produit modifié avec succès:", response);
+      await productService.updateProduct(id, data);
       const message =
         publishStatus === true
           ? "Produit publié avec succès !"

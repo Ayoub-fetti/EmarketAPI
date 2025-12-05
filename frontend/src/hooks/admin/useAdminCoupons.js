@@ -140,7 +140,7 @@ export default function useAdminCoupons() {
       const details = await adminCouponsService.fetchCouponById(coupon._id);
       setSelectedCoupon(details);
       setIsViewModalOpen(true);
-    } catch (err) {
+    } catch {
       toast.error("Unable to load coupon details.");
     }
   };
@@ -183,7 +183,7 @@ export default function useAdminCoupons() {
         createdBy: user?.id,
       };
 
-      const created = await adminCouponsService.createCoupon(payload);
+      await adminCouponsService.createCoupon(payload);
       toast.success("Coupon created successfully.");
       closeCreateModal();
       await fetchCoupons();
@@ -213,7 +213,7 @@ export default function useAdminCoupons() {
         status: formData.status,
       };
 
-      const updated = await adminCouponsService.updateCoupon(selectedCoupon._id, payload);
+      await adminCouponsService.updateCoupon(selectedCoupon._id, payload);
       toast.success("Coupon updated successfully.");
       closeEditModal();
       await fetchCoupons();

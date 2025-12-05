@@ -103,7 +103,7 @@ export function useAdminUsers() {
         } else {
           setUsers(filtered);
         }
-      } catch (err) {
+      } catch {
         toast.error("Error filtering users.");
       } finally {
         setLoading(false);
@@ -162,7 +162,7 @@ export function useAdminUsers() {
       setDeletedUsers((prev) => prev.filter((u) => u._id !== userId));
       setActionTarget(null);
       setActionType(null);
-    } catch (err) {
+    } catch {
       toast.error("Error deleting user.");
     } finally {
       setActionLoading(false);
@@ -179,7 +179,7 @@ export function useAdminUsers() {
         await fetchUsers(); // Refresh to move to deleted list
         setActionTarget(null);
         setActionType(null);
-      } catch (err) {
+      } catch {
         toast.error("Error deactivating user.");
       } finally {
         setActionLoading(false);
@@ -198,7 +198,7 @@ export function useAdminUsers() {
         await fetchUsers(); // Refresh to move to active list
         setActionTarget(null);
         setActionType(null);
-      } catch (err) {
+      } catch {
         toast.error("Error restoring user.");
       } finally {
         setActionLoading(false);
@@ -211,7 +211,7 @@ export function useAdminUsers() {
     try {
       const details = await adminUsersService.fetchUserById(userId);
       setViewingUser(details);
-    } catch (err) {
+    } catch {
       toast.error("Unable to load user details.");
     }
   }, []);
