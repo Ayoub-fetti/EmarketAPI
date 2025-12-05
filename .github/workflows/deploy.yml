@@ -2,7 +2,7 @@ name: Deploy to Vercel
 
 on:
   push:
-    branches: [main, master, front, ibrahim]
+    branches: [main, master, front, front-deploy, ibrahim]
   workflow_dispatch:
 
 jobs:
