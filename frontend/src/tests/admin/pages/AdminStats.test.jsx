@@ -15,12 +15,12 @@ const MockedAdminStats = () => (
   </BrowserRouter>
 );
 
-describe('AdminStats', () => {
+describe("AdminStats", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('renders loading state initially', async () => {
+  test("renders loading state initially", async () => {
     adminStatsService.fetchUsers.mockResolvedValue({ list: [], total: 0 });
     adminStatsService.fetchOrders.mockResolvedValue({ list: [], total: 0 });
     adminStatsService.fetchProducts.mockResolvedValue({ list: [], total: 0 });
@@ -28,7 +28,7 @@ describe('AdminStats', () => {
     await act(async () => {
       render(<MockedAdminStats />);
     });
-    
+
     // Loading state might be very brief, so we check for either loading or content
     const loadingText = screen.queryByText(/loading statistics/i);
     if (loadingText) {
@@ -36,17 +36,19 @@ describe('AdminStats', () => {
     }
   });
 
-  test('renders statistics after loading', async () => {
+  test("renders statistics after loading", async () => {
     adminStatsService.fetchUsers.mockResolvedValue({
-      list: [{ _id: '1', email: 'user@test.com' }],
+      list: [{ _id: "1", email: "user@test.com" }],
       total: 1,
     });
     adminStatsService.fetchOrders.mockResolvedValue({
-      list: [{ _id: '1', finalAmount: 100, createdAt: new Date().toISOString() }],
+      list: [
+        { _id: "1", finalAmount: 100, createdAt: new Date().toISOString() },
+      ],
       total: 1,
     });
     adminStatsService.fetchProducts.mockResolvedValue({
-      list: [{ _id: '1', title: 'Product 1' }],
+      list: [{ _id: "1", title: "Product 1" }],
       total: 1,
     });
 
@@ -66,8 +68,8 @@ describe('AdminStats', () => {
     });
   });
 
-  test('displays error message on fetch failure', async () => {
-    adminStatsService.fetchUsers.mockRejectedValue(new Error('Network error'));
+  test("displays error message on fetch failure", async () => {
+    adminStatsService.fetchUsers.mockRejectedValue(new Error("Network error"));
     adminStatsService.fetchOrders.mockResolvedValue({ list: [], total: 0 });
     adminStatsService.fetchProducts.mockResolvedValue({ list: [], total: 0 });
 
@@ -76,18 +78,19 @@ describe('AdminStats', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/error/i)).toBeInTheDocument();
+      const errorElements = screen.getAllByText(/error/i);
+      expect(errorElements.length).toBeGreaterThan(0);
       expect(screen.getByText(/network error/i)).toBeInTheDocument();
     });
   });
 
-  test('renders charts when data is available', async () => {
+  test("renders charts when data is available", async () => {
     const mockOrders = [
       {
-        _id: '1',
+        _id: "1",
         finalAmount: 100,
         createdAt: new Date().toISOString(),
-        items: [{ productId: '1', quantity: 2 }],
+        items: [{ productId: "1", quantity: 2 }],
       },
     ];
 
@@ -100,7 +103,7 @@ describe('AdminStats', () => {
       total: 1,
     });
     adminStatsService.fetchProducts.mockResolvedValue({
-      list: [{ _id: '1', title: 'Product 1' }],
+      list: [{ _id: "1", title: "Product 1" }],
       total: 1,
     });
 
@@ -114,4 +117,3 @@ describe('AdminStats', () => {
     });
   });
 });
-

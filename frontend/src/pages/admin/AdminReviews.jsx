@@ -1,16 +1,12 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
-import { toast } from "react-toastify";
-import { adminReviewsService } from "../../services/admin/adminReviewsService";
+import React from "react";
 import {
   FaStar,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaEdit,
-  FaComments,
   FaSearch,
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import useAdminReviews from "../../hooks/admin/useAdminReviews";
+import AdminReviewsTable from "../../components/admin/AdminReviewsTable";
 
 const statusLabels = {
   pending: "Pending",
@@ -24,107 +20,41 @@ const statusColors = {
   rejected: "bg-red-100 text-red-800 border border-red-200",
 };
 
-const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("en-US") : "—";
+const renderStars = (rating) => {
+  return Array.from({ length: 5 }, (_, i) => (
+    <FaStar
+      key={i}
+      className={`w-4 h-4 ${
+        i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
+      }`}
+    />
+  ));
+};
 
 export default function AdminReviews() {
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedReview, setSelectedReview] = useState(null);
-  const [isModerateModalOpen, setIsModerateModalOpen] = useState(false);
-  
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-
-  const fetchReviews = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await adminReviewsService.fetchAllReviews();
-      setReviews(data);
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Error loading reviews.";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchReviews();
-  }, [fetchReviews]);
-
-  const filteredReviews = useMemo(() => {
-    let source = reviews;
-    
-    // Filter by status
-    if (statusFilter !== "all") {
-      source = source.filter((review) => review.status === statusFilter);
-    }
-    
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      source = source.filter(
-        (review) =>
-          (typeof review.user === "object" && review.user
-            ? (review.user.fullname || "").toLowerCase().includes(query) ||
-              (review.user.email || "").toLowerCase().includes(query)
-            : false) ||
-          (typeof review.product === "object" && review.product
-            ? (review.product.title || "").toLowerCase().includes(query)
-            : false) ||
-          (review.comment || "").toLowerCase().includes(query) ||
-          review.status?.toLowerCase().includes(query) ||
-          String(review.rating || "").includes(query) ||
-          formatDate(review.createdAt).toLowerCase().includes(query)
-      );
-    }
-    
-    return source;
-  }, [reviews, statusFilter, searchQuery]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
-  const paginatedReviews = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredReviews.slice(startIndex, endIndex);
-  }, [filteredReviews, currentPage, itemsPerPage]);
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
-
-  const openModerateModal = (review) => {
-    setSelectedReview(review);
-    setIsModerateModalOpen(true);
-  };
-
-  const closeModerateModal = () => {
-    setIsModerateModalOpen(false);
-    setSelectedReview(null);
-  };
-
-  
-
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <FaStar
-        key={i}
-        className={`w-4 h-4 ${
-          i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
-        }`}
-      />
-    ));
-  };
+  const {
+    reviews,
+    loading,
+    error,
+    statusFilter,
+    setStatusFilter,
+    selectedReview,
+    isModerateModalOpen,
+    newStatus,
+    setNewStatus,
+    moderating,
+    searchQuery,
+    setSearchQuery,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedReviews,
+    filteredReviews,
+    openModerateModal,
+    closeModerateModal,
+    handleModerate,
+    fetchReviews,
+  } = useAdminReviews();
 
   if (loading) {
     return (
@@ -195,7 +125,8 @@ export default function AdminReviews() {
           </select>
         </div>
         <div className="text-xs sm:text-sm text-gray-600 font-medium whitespace-nowrap">
-          {filteredReviews.length} review{filteredReviews.length !== 1 ? "s" : ""} found
+          {filteredReviews.length} review
+          {filteredReviews.length !== 1 ? "s" : ""} found
         </div>
       </div>
 
@@ -205,7 +136,8 @@ export default function AdminReviews() {
             Reviews List
           </h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            {filteredReviews.length} review{filteredReviews.length !== 1 ? "s" : ""} found.
+            {filteredReviews.length} review
+            {filteredReviews.length !== 1 ? "s" : ""} found.
             {searchQuery && ` (filtered from ${reviews.length} total)`}
           </p>
         </div>
@@ -307,8 +239,8 @@ export default function AdminReviews() {
         {totalPages > 1 && (
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
             <div className="text-xs sm:text-sm text-gray-600">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, filteredReviews.length)} of{" "}
+              Showing {(currentPage - 1) * 10 + 1} to{" "}
+              {Math.min(currentPage * 10, filteredReviews.length)} of{" "}
               {filteredReviews.length} reviews
             </div>
             <div className="flex items-center gap-2">
@@ -321,7 +253,7 @@ export default function AdminReviews() {
                 <FaChevronLeft className="w-3 h-3" />
                 <span className="hidden sm:inline">Previous</span>
               </button>
-              
+
               <div className="flex items-center gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter((page) => {
@@ -332,11 +264,14 @@ export default function AdminReviews() {
                   })
                   .map((page, index, array) => {
                     // Add ellipsis if there's a gap
-                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
+                    const showEllipsisBefore =
+                      index > 0 && array[index - 1] !== page - 1;
                     return (
                       <div key={page} className="flex items-center gap-1">
                         {showEllipsisBefore && (
-                          <span className="px-2 text-xs sm:text-sm text-gray-500">...</span>
+                          <span className="px-2 text-xs sm:text-sm text-gray-500">
+                            ...
+                          </span>
                         )}
                         <button
                           type="button"
@@ -356,7 +291,9 @@ export default function AdminReviews() {
 
               <button
                 type="button"
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
               >
@@ -372,17 +309,14 @@ export default function AdminReviews() {
       {isModerateModalOpen && selectedReview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
-            <h3 className="text-lg font-bold text-gray-900">
-              Moderate Review
-            </h3>
+            <h3 className="text-lg font-bold text-gray-900">Moderate Review</h3>
 
             <div className="mt-4 space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  User:
-                </span>
+                <span className="text-xs font-medium text-gray-500">User:</span>
                 <p className="text-sm font-semibold text-gray-900 mt-1">
-                  {typeof selectedReview.user === "object" && selectedReview.user
+                  {typeof selectedReview.user === "object" &&
+                  selectedReview.user
                     ? selectedReview.user.fullname || selectedReview.user.email
                     : "—"}
                 </p>
@@ -399,7 +333,9 @@ export default function AdminReviews() {
                 </p>
               </div>
               <div>
-                <span className="text-xs font-medium text-gray-500">Rating:</span>
+                <span className="text-xs font-medium text-gray-500">
+                  Rating:
+                </span>
                 <div className="mt-1 flex items-center gap-1">
                   {renderStars(selectedReview.rating)}
                 </div>
@@ -423,7 +359,8 @@ export default function AdminReviews() {
                       statusColors.pending
                     }`}
                   >
-                    {statusLabels[selectedReview.status] || selectedReview.status}
+                    {statusLabels[selectedReview.status] ||
+                      selectedReview.status}
                   </span>
                 </div>
               </div>
@@ -444,5 +381,3 @@ export default function AdminReviews() {
     </section>
   );
 }
-
-

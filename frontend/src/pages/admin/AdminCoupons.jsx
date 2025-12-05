@@ -1,18 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "react-toastify";
-import { adminCouponsService } from "../../services/admin/adminCouponsService";
-import { useAuth } from "../../context/AuthContext";
+import React from "react";
 import {
   FaPlus,
-  FaEye,
-  FaEdit,
-  FaTrash,
-  FaTicketAlt,
   FaTimesCircle,
   FaSearch,
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import useAdminCoupons from "../../hooks/admin/useAdminCoupons";
+import AdminCouponsTable from "../../components/admin/AdminCouponsTable";
 
 const statusLabels = {
   active: "Active",
@@ -29,9 +24,6 @@ const typeLabels = {
   fixed: "Fixed",
 };
 
-const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("en-US") : "—";
-
 const formatDateTime = (value) =>
   value
     ? new Date(value).toLocaleString("en-US", {
@@ -44,254 +36,40 @@ const formatDateTime = (value) =>
     : "—";
 
 export default function AdminCoupons() {
-  const { user } = useAuth();
-  const [coupons, setCoupons] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedCoupon, setSelectedCoupon] = useState(null);
-  const [creating, setCreating] = useState(false);
-  const [updating, setUpdating] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-
-  const [formData, setFormData] = useState({
-    code: "",
-    type: "percentage",
-    value: "",
-    minimumPurchase: "",
-    startDate: "",
-    expirationDate: "",
-    maxUsage: "",
-    maxUsagePerUser: "1",
-    status: "active",
-  });
-
-  const fetchCoupons = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await adminCouponsService.fetchAllCoupons();
-      setCoupons(data);
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Error loading coupons.";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCoupons();
-  }, [fetchCoupons]);
-
-  const filteredCoupons = useMemo(() => {
-    let source = coupons;
-    
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      source = source.filter(
-        (coupon) =>
-          coupon.code?.toLowerCase().includes(query) ||
-          coupon.type?.toLowerCase().includes(query) ||
-          coupon.status?.toLowerCase().includes(query) ||
-          String(coupon.value || "").includes(query) ||
-          formatDate(coupon.startDate).toLowerCase().includes(query) ||
-          formatDate(coupon.expirationDate).toLowerCase().includes(query)
-      );
-    }
-    
-    return source;
-  }, [coupons, searchQuery]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredCoupons.length / itemsPerPage);
-  const paginatedCoupons = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredCoupons.slice(startIndex, endIndex);
-  }, [filteredCoupons, currentPage, itemsPerPage]);
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
-
-  const resetForm = () => {
-    setFormData({
-      code: "",
-      type: "percentage",
-      value: "",
-      minimumPurchase: "",
-      startDate: "",
-      expirationDate: "",
-      maxUsage: "",
-      maxUsagePerUser: "1",
-      status: "active",
-    });
-  };
-
-  const openCreateModal = () => {
-    resetForm();
-    setIsCreateModalOpen(true);
-  };
-
-  const closeCreateModal = () => {
-    setIsCreateModalOpen(false);
-    resetForm();
-    setCreating(false);
-  };
-
-  const openEditModal = (coupon) => {
-    setSelectedCoupon(coupon);
-    setFormData({
-      code: coupon.code || "",
-      type: coupon.type || "percentage",
-      value: coupon.value?.toString() || "",
-      minimumPurchase: coupon.minimumPurchase?.toString() || "",
-      startDate: coupon.startDate
-        ? new Date(coupon.startDate).toISOString().slice(0, 16)
-        : "",
-      expirationDate: coupon.expirationDate
-        ? new Date(coupon.expirationDate).toISOString().slice(0, 16)
-        : "",
-      maxUsage: coupon.maxUsage?.toString() || "",
-      maxUsagePerUser: coupon.maxUsagePerUser?.toString() || "1",
-      status: coupon.status || "active",
-    });
-    setIsEditModalOpen(true);
-  };
-
-  const closeEditModal = () => {
-    setIsEditModalOpen(false);
-    setSelectedCoupon(null);
-    resetForm();
-    setUpdating(false);
-  };
-
-  const openViewModal = async (coupon) => {
-    try {
-      const details = await adminCouponsService.fetchCouponById(coupon._id);
-      setSelectedCoupon(details);
-      setIsViewModalOpen(true);
-    } catch (err) {
-      toast.error("Unable to load coupon details.");
-    }
-  };
-
-  const closeViewModal = () => {
-    setIsViewModalOpen(false);
-    setSelectedCoupon(null);
-  };
-
-  const openDeleteModal = (coupon) => {
-    setSelectedCoupon(coupon);
-    setIsDeleteModalOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setSelectedCoupon(null);
-    setDeleting(false);
-  };
-
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    if (!formData.code || !formData.value || !formData.startDate || !formData.expirationDate) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
-
-    setCreating(true);
-    try {
-      const payload = {
-        code: formData.code.toUpperCase().trim(),
-        type: formData.type,
-        value: parseFloat(formData.value),
-        minimumPurchase: formData.minimumPurchase ? parseFloat(formData.minimumPurchase) : 0,
-        startDate: new Date(formData.startDate).toISOString(),
-        expirationDate: new Date(formData.expirationDate).toISOString(),
-        maxUsage: formData.maxUsage ? parseInt(formData.maxUsage) : null,
-        maxUsagePerUser: parseInt(formData.maxUsagePerUser) || 1,
-        status: formData.status,
-        createdBy: user?.id,
-      };
-
-      const created = await adminCouponsService.createCoupon(payload);
-      toast.success("Coupon created successfully.");
-      closeCreateModal();
-      await fetchCoupons();
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to create coupon.";
-      toast.error(message);
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    if (!selectedCoupon) return;
-
-    setUpdating(true);
-    try {
-      const payload = {
-        code: formData.code.toUpperCase().trim(),
-        type: formData.type,
-        value: parseFloat(formData.value),
-        minimumPurchase: formData.minimumPurchase ? parseFloat(formData.minimumPurchase) : 0,
-        startDate: new Date(formData.startDate).toISOString(),
-        expirationDate: new Date(formData.expirationDate).toISOString(),
-        maxUsage: formData.maxUsage ? parseInt(formData.maxUsage) : null,
-        maxUsagePerUser: parseInt(formData.maxUsagePerUser) || 1,
-        status: formData.status,
-      };
-
-      const updated = await adminCouponsService.updateCoupon(selectedCoupon._id, payload);
-      toast.success("Coupon updated successfully.");
-      closeEditModal();
-      await fetchCoupons();
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to update coupon.";
-      toast.error(message);
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!selectedCoupon) return;
-    setDeleting(true);
-    try {
-      await adminCouponsService.deleteCoupon(selectedCoupon._id);
-      toast.success("Coupon deleted successfully.");
-      setCoupons((prev) => prev.filter((c) => c._id !== selectedCoupon._id));
-      closeDeleteModal();
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to delete coupon.";
-      toast.error(message);
-    } finally {
-      setDeleting(false);
-    }
-  };
+  const {
+    coupons,
+    loading,
+    error,
+    isCreateModalOpen,
+    isEditModalOpen,
+    isViewModalOpen,
+    isDeleteModalOpen,
+    selectedCoupon,
+    creating,
+    updating,
+    deleting,
+    searchQuery,
+    setSearchQuery,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedCoupons,
+    filteredCoupons,
+    formData,
+    setFormData,
+    openCreateModal,
+    closeCreateModal,
+    openEditModal,
+    closeEditModal,
+    openViewModal,
+    closeViewModal,
+    openDeleteModal,
+    closeDeleteModal,
+    handleCreate,
+    handleUpdate,
+    handleDelete,
+    fetchCoupons,
+  } = useAdminCoupons();
 
   if (loading) {
     return (
@@ -362,124 +140,26 @@ export default function AdminCoupons() {
             Coupons List
           </h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            {filteredCoupons.length} coupon{filteredCoupons.length !== 1 ? "s" : ""} found.
+            {filteredCoupons.length} coupon
+            {filteredCoupons.length !== 1 ? "s" : ""} found.
             {searchQuery && ` (filtered from ${coupons.length} total)`}
           </p>
         </div>
 
-        <div className="overflow-x-auto -mx-4 sm:mx-0">
-          <div className="inline-block min-w-full align-middle">
-            <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                <tr>
-                  {[
-                    "Code",
-                    "Type",
-                    "Value",
-                    "Start Date",
-                    "End Date",
-                    "Status",
-                    "Actions",
-                  ].map((header) => (
-                    <th
-                      key={header}
-                      scope="col"
-                      className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {paginatedCoupons.map((coupon) => (
-                <tr 
-                  key={coupon._id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 font-semibold text-gray-900 font-mono">
-                    <div className="truncate max-w-[120px] sm:max-w-none">
-                      {coupon.code}
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
-                    {typeLabels[coupon.type] || coupon.type}
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
-                    {coupon.type === "percentage"
-                      ? `${coupon.value}%`
-                      : `${coupon.value} MAD`}
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
-                    {formatDate(coupon.startDate)}
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
-                    {formatDate(coupon.expirationDate)}
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2 sm:px-2.5 py-0.5 text-xs font-semibold shadow-sm whitespace-nowrap ${
-                        statusColors[coupon.status] || statusColors.active
-                      }`}
-                    >
-                      {statusLabels[coupon.status] || coupon.status}
-                    </span>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="flex flex-wrap gap-1 sm:gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openViewModal(coupon)}
-                        className="flex items-center gap-1 rounded-lg border border-blue-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50"
-                        title="View Details"
-                      >
-                        <FaEye className="w-3 h-3" />
-                        <span className="hidden sm:inline">Details</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(coupon)}
-                        className="flex items-center gap-1 rounded-lg border border-orange-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-orange-600 transition hover:bg-orange-50"
-                        title="Edit"
-                      >
-                        <FaEdit className="w-3 h-3" />
-                        <span className="hidden sm:inline">Edit</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openDeleteModal(coupon)}
-                        className="flex items-center gap-1 rounded-lg border border-red-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                        title="Delete"
-                      >
-                        <FaTrash className="w-3 h-3" />
-                        <span className="hidden sm:inline">Delete</span>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {paginatedCoupons.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="px-3 sm:px-6 py-12 text-center text-xs sm:text-sm text-gray-500"
-                  >
-                    <FaTicketAlt className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
-                    <p>{searchQuery ? "No coupons match your search." : "No coupons found. Start by creating a new one."}</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          </div>
-        </div>
+        <AdminCouponsTable
+          coupons={paginatedCoupons}
+          onView={openViewModal}
+          onEdit={openEditModal}
+          onDelete={openDeleteModal}
+          searchQuery={searchQuery}
+        />
 
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
             <div className="text-xs sm:text-sm text-gray-600">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, filteredCoupons.length)} of{" "}
+              Showing {(currentPage - 1) * 10 + 1} to{" "}
+              {Math.min(currentPage * 10, filteredCoupons.length)} of{" "}
               {filteredCoupons.length} coupons
             </div>
             <div className="flex items-center gap-2">
@@ -492,7 +172,7 @@ export default function AdminCoupons() {
                 <FaChevronLeft className="w-3 h-3" />
                 <span className="hidden sm:inline">Previous</span>
               </button>
-              
+
               <div className="flex items-center gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter((page) => {
@@ -503,11 +183,14 @@ export default function AdminCoupons() {
                   })
                   .map((page, index, array) => {
                     // Add ellipsis if there's a gap
-                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
+                    const showEllipsisBefore =
+                      index > 0 && array[index - 1] !== page - 1;
                     return (
                       <div key={page} className="flex items-center gap-1">
                         {showEllipsisBefore && (
-                          <span className="px-2 text-xs sm:text-sm text-gray-500">...</span>
+                          <span className="px-2 text-xs sm:text-sm text-gray-500">
+                            ...
+                          </span>
                         )}
                         <button
                           type="button"
@@ -527,7 +210,9 @@ export default function AdminCoupons() {
 
               <button
                 type="button"
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
               >
@@ -585,7 +270,7 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     Value *
                   </label>
                   <input
@@ -602,21 +287,22 @@ export default function AdminCoupons() {
                     step="0.01"
                   />
                   {formData.type === "percentage" && (
-                    <p className="mt-1 text-xs text-gray-500">
-                      Maximum 100%
-                    </p>
+                    <p className="mt-1 text-xs text-gray-500">Maximum 100%</p>
                   )}
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     Minimum Purchase
                   </label>
                   <input
                     type="number"
                     value={formData.minimumPurchase}
                     onChange={(e) =>
-                      setFormData({ ...formData, minimumPurchase: e.target.value })
+                      setFormData({
+                        ...formData,
+                        minimumPurchase: e.target.value,
+                      })
                     }
                     className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                     placeholder="0"
@@ -626,7 +312,7 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     Start Date *
                   </label>
                   <input
@@ -641,14 +327,17 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     End Date *
                   </label>
                   <input
                     type="datetime-local"
                     value={formData.expirationDate}
                     onChange={(e) =>
-                      setFormData({ ...formData, expirationDate: e.target.value })
+                      setFormData({
+                        ...formData,
+                        expirationDate: e.target.value,
+                      })
                     }
                     className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                     required
@@ -656,7 +345,7 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     Max Usage
                   </label>
                   <input
@@ -672,14 +361,17 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     Max Usage Per User
                   </label>
                   <input
                     type="number"
                     value={formData.maxUsagePerUser}
                     onChange={(e) =>
-                      setFormData({ ...formData, maxUsagePerUser: e.target.value })
+                      setFormData({
+                        ...formData,
+                        maxUsagePerUser: e.target.value,
+                      })
                     }
                     className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                     min={1}
@@ -730,9 +422,7 @@ export default function AdminCoupons() {
       {isEditModalOpen && selectedCoupon && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 sm:py-6 overflow-y-auto">
           <div className="w-full max-w-2xl rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl max-h-[90vh] overflow-y-auto my-auto">
-            <h3 className="text-lg font-bold text-gray-900">
-              Edit Coupon
-            </h3>
+            <h3 className="text-lg font-bold text-gray-900">Edit Coupon</h3>
             <p className="mt-2 text-sm text-gray-600">
               Code: {selectedCoupon.code}
             </p>
@@ -774,7 +464,7 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     Value *
                   </label>
                   <input
@@ -792,14 +482,17 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     Minimum Purchase
                   </label>
                   <input
                     type="number"
                     value={formData.minimumPurchase}
                     onChange={(e) =>
-                      setFormData({ ...formData, minimumPurchase: e.target.value })
+                      setFormData({
+                        ...formData,
+                        minimumPurchase: e.target.value,
+                      })
                     }
                     className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                     min={0}
@@ -808,7 +501,7 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     Start Date *
                   </label>
                   <input
@@ -823,14 +516,17 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     End Date *
                   </label>
                   <input
                     type="datetime-local"
                     value={formData.expirationDate}
                     onChange={(e) =>
-                      setFormData({ ...formData, expirationDate: e.target.value })
+                      setFormData({
+                        ...formData,
+                        expirationDate: e.target.value,
+                      })
                     }
                     className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                     required
@@ -838,7 +534,7 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     Max Usage
                   </label>
                   <input
@@ -853,14 +549,17 @@ export default function AdminCoupons() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700">
                     Max Usage Per User
                   </label>
                   <input
                     type="number"
                     value={formData.maxUsagePerUser}
                     onChange={(e) =>
-                      setFormData({ ...formData, maxUsagePerUser: e.target.value })
+                      setFormData({
+                        ...formData,
+                        maxUsagePerUser: e.target.value,
+                      })
                     }
                     className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                     min={1}
@@ -938,7 +637,9 @@ export default function AdminCoupons() {
                 </p>
               </div>
               <div>
-                <span className="text-sm font-medium text-gray-700">Value:</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Value:
+                </span>
                 <p className="text-sm text-gray-900 font-semibold mt-1">
                   {selectedCoupon.type === "percentage"
                     ? `${selectedCoupon.value}%`
@@ -986,7 +687,9 @@ export default function AdminCoupons() {
                 </p>
               </div>
               <div>
-                <span className="text-sm font-medium text-gray-700">Status:</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Status:
+                </span>
                 <span
                   className={`ml-2 inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold shadow-sm mt-1 ${
                     statusColors[selectedCoupon.status] || statusColors.active
@@ -998,7 +701,8 @@ export default function AdminCoupons() {
               {selectedCoupon.usedBy && selectedCoupon.usedBy.length > 0 && (
                 <div>
                   <span className="text-sm font-medium text-gray-700">
-                    Used {selectedCoupon.usedBy.length} time{selectedCoupon.usedBy.length !== 1 ? "s" : ""}
+                    Used {selectedCoupon.usedBy.length} time
+                    {selectedCoupon.usedBy.length !== 1 ? "s" : ""}
                   </span>
                 </div>
               )}
@@ -1021,9 +725,7 @@ export default function AdminCoupons() {
       {isDeleteModalOpen && selectedCoupon && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
-            <h3 className="text-lg font-bold text-gray-900">
-              Delete Coupon
-            </h3>
+            <h3 className="text-lg font-bold text-gray-900">Delete Coupon</h3>
             <p className="mt-3 text-sm text-gray-600">
               You are about to permanently delete the coupon{" "}
               <span className="font-semibold text-gray-900">
@@ -1056,4 +758,3 @@ export default function AdminCoupons() {
     </section>
   );
 }
-

@@ -5,6 +5,7 @@ import { useCart } from "../../context/CartContext";
 import { Search, Menu, X } from "lucide-react";
 import Button from "./Button";
 import Cart from "./Cart";
+import Image from '../../../public/logo.png'
 
 export default function Header() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -49,14 +50,10 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="relative bg-white text-black px-4 py-3 shadow-md">
+    <header className="relative bg-white text-black px-4 shadow-md">
       <nav className="flex justify-between items-center relative">
         <Link to="/" className="flex items-center gap-1 text-xl font-bold">
-          FastShop
-          <span
-            className="w-3 h-3 rounded-full inline-block"
-            style={{ backgroundColor: "#D43601" }}
-          ></span>
+          <img src={Image} alt="Logo" className="w-20 h-20" />
         </Link>
 
         {showSearch && (
