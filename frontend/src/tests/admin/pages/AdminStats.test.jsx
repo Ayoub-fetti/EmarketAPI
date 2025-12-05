@@ -1,23 +1,11 @@
-import { render, screen, waitFor, act } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import AdminStats from "../../../pages/admin/AdminStats";
-import { adminStatsService } from "../../../services/admin/adminStatsService";
-import { AuthProvider } from "../../../context/AuthContext";
+import { render, screen, waitFor, act } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import AdminStats from '../../../pages/admin/AdminStats';
+import { adminStatsService } from '../../../services/admin/adminStatsService';
+import { AuthProvider } from '../../../context/AuthContext';
 
-jest.mock("../../../services/admin/adminStatsService");
-jest.mock("react-toastify", () => ({
-  toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-  },
-}));
+jest.mock('../../../services/admin/adminStatsService');
 
-const mockUser = {
-  id: "1",
-  email: "admin@test.com",
-  role: "admin",
-  fullname: "Admin User",
-};
 
 const MockedAdminStats = () => (
   <BrowserRouter>

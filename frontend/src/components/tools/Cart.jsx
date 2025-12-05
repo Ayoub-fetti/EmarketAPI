@@ -128,7 +128,7 @@ const Cart = ({ isOpen, onClose }) => {
                 {items.map((item) => (
                   <div key={item.productId._id} className="flex gap-3 p-3 border rounded-lg">
                     <LazyImage
-                      src={item.productId.primaryImage ? `${import.meta.env.VITE_BACKEND_BASE_URL}${item.productId.primaryImage}` : "/placeholder.jpg"}
+                      src={item.productId.primaryImage ? `${BACKEND_BASE}${item.productId.primaryImage}` : "/placeholder.jpg"}
                       alt={item.productId.title}
                       className="w-16 h-16 object-cover rounded"
                       placeholderClassName="rounded"

@@ -36,13 +36,13 @@ const navLinks = [
   },
 ];
 
-const systemLinks = [
-  {
-    to: "/seller/profile",
-    label: "Profile",
-    icon: MdPerson,
-  },
-];
+//const systemLinks = [
+  //{
+    //to: "/seller/profile",
+    //label: "Profile",
+    //icon: MdPerson,
+  //},
+//];
 
 export default function Sidebar() {
   const { logout } = useAuth();

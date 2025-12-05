@@ -11,17 +11,18 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <AppRoutes />
-        <ToastContainer
-        position='top-left'
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        />        </CartProvider>
+          <ToastContainer
+            position='top-left'
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
   );

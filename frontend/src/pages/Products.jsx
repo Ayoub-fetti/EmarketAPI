@@ -4,7 +4,7 @@ import { productService } from "../services/productService";
 import { categoryService } from "../services/categoryService";
 import Loader from "../components/tools/Loader";
 import LazyImage from "../components/tools/LazyImage";
-import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
 import discountImage from "../../public/discount.png";
 import "../App.css";
 
@@ -21,6 +21,7 @@ export default function Products() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   // determine backend base url for images
   const BACKEND_BASE =
@@ -59,24 +60,39 @@ export default function Products() {
     fetchData();
   }, [searchParams, currentPage]);
 
-  const handleFilter = async () => {
-    try {
-      setLoading(true);
-      const filters = {
-        categories: selectedCategories,
-        minPrice: minPrice || undefined,
-        maxPrice: maxPrice || undefined,
-        title: searchQuery || undefined,
-      };
+  // Real-time filtering effect
+  useEffect(() => {
+    const applyFilters = async () => {
+      // Skip if initial load
+      if (loading) return;
+      
+      try {
+        setLoading(true);
+        const filters = {
+          categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+          minPrice: minPrice || undefined,
+          maxPrice: maxPrice || undefined,
+          title: searchQuery || undefined,
+        };
 
-      const data = await productService.searchProducts(filters);
-      setProducts(data.data);
-    } catch {
-      setError("Erreur lors du filtrage");
-    } finally {
-      setLoading(false);
-    }
-  };
+        const data = await productService.searchProducts(filters);
+        setProducts(data.data);
+      } catch {
+        setError("Erreur lors du filtrage");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Debounce search query (wait 500ms after user stops typing)
+    const timeoutId = setTimeout(() => {
+      if (selectedCategories.length > 0 || minPrice || maxPrice || searchQuery) {
+        applyFilters();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [selectedCategories, minPrice, maxPrice, searchQuery]);
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategories((prev) =>
@@ -217,8 +233,9 @@ export default function Products() {
                 <label className="text-sm font-medium text-foreground mb-3 block">
                   Catégories
                 </label>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {categories.map((category) => (
+                <div className="space-y-2">
+                  {/* Show first 3 categories */}
+                  {categories.slice(0, 3).map((category) => (
                     <label
                       key={category._id}
                       className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
@@ -234,20 +251,52 @@ export default function Products() {
                       </span>
                     </label>
                   ))}
+                  
+                  {/* Collapsible section for remaining categories */}
+                  {showAllCategories && categories.slice(3).map((category) => (
+                    <label
+                      key={category._id}
+                      className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(category._id)}
+                        onChange={() => handleCategoryChange(category._id)}
+                        className="w-4 h-4 rounded border-input bg-background text-primary cursor-pointer"
+                      />
+                      <span className="text-sm text-foreground">
+                        {category.name}
+                      </span>
+                    </label>
+                  ))}
+                  
+                  {/* Show More/Less button */}
+                  {categories.length > 3 && (
+                    <button
+                      onClick={() => setShowAllCategories(!showAllCategories)}
+                      className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors mt-2 font-medium"
+                    >
+                      {showAllCategories ? (
+                        <>
+                          <ChevronUp className="w-4 h-4" />
+                          Voir moins
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4" />
+                          Voir plus ({categories.length - 3} autres)
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Filter Buttons */}
+              {/* Filter Buttons - Remove since it's real-time now */}
               <div className="flex gap-2 pt-4 border-t border-border">
                 <button
-                  onClick={handleFilter}
-                  className="flex-1 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                >
-                  Filtrer
-                </button>
-                <button
                   onClick={clearFilters}
-                  className="flex-1 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg font-medium hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all"
+                  className="w-full bg-secondary text-secondary-foreground px-4 py-2 rounded-lg font-medium hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all"
                 >
                   Réinitialiser
                 </button>

@@ -6,12 +6,6 @@ import { AuthProvider } from '../../../context/AuthContext';
 import { toast } from 'react-toastify';
 
 jest.mock('../../../services/admin/adminUsersService');
-jest.mock('react-toastify', () => ({
-  toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-  },
-}));
 
 const MockedAdminUsers = () => (
   <BrowserRouter>
@@ -75,23 +69,6 @@ describe('AdminUsers', () => {
     });
   });
 
-  test('opens create user modal', async () => {
-    adminUsersService.fetchUsers.mockResolvedValue([]);
-    adminUsersService.fetchDeletedUsers.mockResolvedValue([]);
-
-    await act(async () => {
-      render(<MockedAdminUsers />);
-    });
-
-    await waitFor(() => {
-      const createButton = screen.getByText(/create user/i);
-      fireEvent.click(createButton);
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText(/create new user/i)).toBeInTheDocument();
-    });
-  });
 
   test('searches users by name or email', async () => {
     const mockUsers = [

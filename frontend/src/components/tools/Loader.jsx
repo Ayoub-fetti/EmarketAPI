@@ -9,7 +9,7 @@ const Loader = () => {
         <div className="circle circle-3" />
         <div className="circle circle-4" />
       </div>
-      <style jsx>{`
+      <style>{`
         .loader-container {
           width: 3rem;
           height: 3rem;
