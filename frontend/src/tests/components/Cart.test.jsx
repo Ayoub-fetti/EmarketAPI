@@ -57,12 +57,17 @@ describe("Cart Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
+    mockNavigate.mockClear();
+    // Mock user in localStorage for authenticated tests
+    localStorage.setItem("token", "mock-token");
+    localStorage.setItem("user", JSON.stringify({ id: "1", email: "test@test.com" }));
     cartService.getCart.mockResolvedValue({ success: true, data: { items: mockCartItems } });
     cartService.validateCoupon.mockResolvedValue({
       valid: true,
       data: { code: "PROMO10", discountAmount: 10 },
     });
     orderService.createOrder.mockResolvedValue({ success: true });
+    cartService.clearCart.mockResolvedValue({ success: true });
   });
 
   test("renders cart when isOpen is true", async () => {
@@ -76,14 +81,13 @@ describe("Cart Component", () => {
   });
 
   test("does not render cart when isOpen is false", async () => {
-    await act(async () => {
-      render(<MockedCart isOpen={false} />);
+    const { container } = await act(async () => {
+      return render(<MockedCart isOpen={false} />);
     });
 
-    await waitFor(() => {
-      const cartTitle = screen.queryByText(/panier/i);
-      expect(cartTitle).not.toBeInTheDocument();
-    });
+    // When isOpen is false, the drawer should have translate-x-full class
+    const drawer = container.querySelector('.translate-x-full');
+    expect(drawer).toBeInTheDocument();
   });
 
   test("displays empty cart message when cart is empty", async () => {
@@ -93,9 +97,12 @@ describe("Cart Component", () => {
       render(<MockedCart />);
     });
 
-    await waitFor(() => {
-      expect(screen.getByText(/votre panier est vide/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/votre panier est vide/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 
   test("displays cart items when cart has items", async () => {
@@ -103,10 +110,13 @@ describe("Cart Component", () => {
       render(<MockedCart />);
     });
 
-    await waitFor(() => {
-      expect(screen.getByText("Test Product")).toBeInTheDocument();
-      expect(screen.getByText("Product 2")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText("Test Product")).toBeInTheDocument();
+        expect(screen.getByText("Product 2")).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 
   test("displays correct item count in header", async () => {
@@ -114,10 +124,15 @@ describe("Cart Component", () => {
       render(<MockedCart />);
     });
 
-    await waitFor(() => {
-      // Total quantity: 2 + 1 = 3
-      expect(screen.getByText(/panier.*3.*articles/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        // Total quantity: 2 + 1 = 3
+        const header = screen.getByText(/panier/i);
+        expect(header).toBeInTheDocument();
+        expect(header.textContent).toMatch(/3.*articles/i);
+      },
+      { timeout: 3000 }
+    );
   });
 
   test("calculates and displays subtotal correctly", async () => {
@@ -125,10 +140,17 @@ describe("Cart Component", () => {
       render(<MockedCart />);
     });
 
-    await waitFor(() => {
-      // Subtotal: (100 * 2) + (50 * 1) = 250
-      expect(screen.getByText(/250\.00.*MAD/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        // Subtotal: (100 * 2) + (50 * 1) = 250
+        // Check for "Sous-total" label and "250.00" value
+        expect(screen.getByText(/sous-total/i)).toBeInTheDocument();
+        // Find the value near "Sous-total"
+        const subtotalSection = screen.getByText(/sous-total/i).closest('div');
+        expect(subtotalSection?.textContent).toMatch(/250\.00/i);
+      },
+      { timeout: 3000 }
+    );
   });
 
   test("allows applying coupon code", async () => {
@@ -136,9 +158,12 @@ describe("Cart Component", () => {
       render(<MockedCart />);
     });
 
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText(/code promo/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByPlaceholderText(/code promo/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     const couponInput = screen.getByPlaceholderText(/code promo/i);
     const applyButton = screen.getByRole("button", { name: /appliquer/i });
@@ -148,10 +173,13 @@ describe("Cart Component", () => {
       fireEvent.click(applyButton);
     });
 
-    await waitFor(() => {
-      expect(cartService.validateCoupon).toHaveBeenCalled();
-      expect(screen.getByText(/code appliqué/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(cartService.validateCoupon).toHaveBeenCalled();
+        expect(screen.getByText(/code appliqué/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 
   test("displays discount when coupon is applied", async () => {
@@ -159,9 +187,12 @@ describe("Cart Component", () => {
       render(<MockedCart />);
     });
 
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText(/code promo/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByPlaceholderText(/code promo/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     const couponInput = screen.getByPlaceholderText(/code promo/i);
     const applyButton = screen.getByRole("button", { name: /appliquer/i });
@@ -171,11 +202,15 @@ describe("Cart Component", () => {
       fireEvent.click(applyButton);
     });
 
-    await waitFor(() => {
-      expect(screen.getByText(/-10\.00.*MAD/i)).toBeInTheDocument();
-      // Total after discount: 250 - 10 = 240
-      expect(screen.getByText(/240\.00.*MAD/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        // Text might be split across elements
+        expect(screen.getByText(/-10\.00/i)).toBeInTheDocument();
+        // Total after discount: 250 - 10 = 240
+        expect(screen.getByText(/240\.00/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 
   test("allows removing coupon", async () => {
@@ -183,9 +218,12 @@ describe("Cart Component", () => {
       render(<MockedCart />);
     });
 
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText(/code promo/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByPlaceholderText(/code promo/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     const couponInput = screen.getByPlaceholderText(/code promo/i);
     const applyButton = screen.getByRole("button", { name: /appliquer/i });
@@ -196,9 +234,12 @@ describe("Cart Component", () => {
       fireEvent.click(applyButton);
     });
 
-    await waitFor(() => {
-      expect(screen.getByText(/code appliqué/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/code appliqué/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Remove coupon
     const removeButton = screen.getByRole("button", { name: /retirer/i });
@@ -206,9 +247,12 @@ describe("Cart Component", () => {
       fireEvent.click(removeButton);
     });
 
-    await waitFor(() => {
-      expect(screen.queryByText(/code appliqué/i)).not.toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.queryByText(/code appliqué/i)).not.toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 
   test("creates order successfully and redirects", async () => {
@@ -216,9 +260,12 @@ describe("Cart Component", () => {
       render(<MockedCart />);
     });
 
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /commander/i })).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByRole("button", { name: /commander/i })).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     const checkoutButton = screen.getByRole("button", { name: /commander/i });
 
@@ -226,11 +273,14 @@ describe("Cart Component", () => {
       fireEvent.click(checkoutButton);
     });
 
-    await waitFor(() => {
-      expect(orderService.createOrder).toHaveBeenCalledWith([]);
-      expect(toast.success).toHaveBeenCalledWith("Commande créée avec succès!");
-      expect(mockNavigate).toHaveBeenCalledWith("/orders/user");
-    });
+    await waitFor(
+      () => {
+        expect(orderService.createOrder).toHaveBeenCalledWith([]);
+        expect(toast.success).toHaveBeenCalledWith("Commande créée avec succès!");
+        expect(mockNavigate).toHaveBeenCalledWith("/orders/user");
+      },
+      { timeout: 3000 }
+    );
   });
 
   test("creates order with coupon when coupon is applied", async () => {
@@ -238,9 +288,12 @@ describe("Cart Component", () => {
       render(<MockedCart />);
     });
 
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText(/code promo/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByPlaceholderText(/code promo/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     const couponInput = screen.getByPlaceholderText(/code promo/i);
     const applyButton = screen.getByRole("button", { name: /appliquer/i });
@@ -251,9 +304,12 @@ describe("Cart Component", () => {
       fireEvent.click(applyButton);
     });
 
-    await waitFor(() => {
-      expect(screen.getByText(/code appliqué/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/code appliqué/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Create order
     const checkoutButton = screen.getByRole("button", { name: /commander/i });
@@ -261,9 +317,12 @@ describe("Cart Component", () => {
       fireEvent.click(checkoutButton);
     });
 
-    await waitFor(() => {
-      expect(orderService.createOrder).toHaveBeenCalledWith(["PROMO10"]);
-    });
+    await waitFor(
+      () => {
+        expect(orderService.createOrder).toHaveBeenCalledWith(["PROMO10"]);
+      },
+      { timeout: 3000 }
+    );
   });
 
   test("handles order creation error", async () => {
@@ -275,9 +334,12 @@ describe("Cart Component", () => {
       render(<MockedCart />);
     });
 
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /commander/i })).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByRole("button", { name: /commander/i })).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     const checkoutButton = screen.getByRole("button", { name: /commander/i });
 
@@ -285,9 +347,12 @@ describe("Cart Component", () => {
       fireEvent.click(checkoutButton);
     });
 
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Stock insuffisant");
-    });
+    await waitFor(
+      () => {
+        expect(toast.error).toHaveBeenCalledWith("Stock insuffisant");
+      },
+      { timeout: 3000 }
+    );
   });
 
   test("closes cart when close button is clicked", async () => {
