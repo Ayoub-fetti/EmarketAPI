@@ -1,12 +1,13 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import AdminCategories from '../../../pages/admin/AdminCategories';
-import { adminCategoriesService } from '../../../services/admin/adminCategoriesService';
-import { AuthProvider } from '../../../context/AuthContext';
-import { toast } from 'react-toastify';
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
+import AdminCategories from "../../../pages/admin/AdminCategories";
+import { adminCategoriesService } from "../../../services/admin/adminCategoriesService";
+import { AuthProvider } from "../../../context/AuthContext";
+import { toast } from "react-toastify";
 
-jest.mock('../../../services/admin/adminCategoriesService');
-jest.mock('react-toastify', () => ({
+jest.mock("../../../services/admin/adminCategoriesService");
+
+jest.mock("react-toastify", () => ({
   toast: {
     success: jest.fn(),
     error: jest.fn(),
@@ -21,19 +22,19 @@ const MockedAdminCategories = () => (
   </BrowserRouter>
 );
 
-describe('AdminCategories', () => {
+describe("AdminCategories", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('renders loading state initially', async () => {
+  test("renders loading state initially", async () => {
     adminCategoriesService.fetchCategories.mockResolvedValue([]);
     adminCategoriesService.fetchDeletedCategories.mockResolvedValue([]);
 
     await act(async () => {
       render(<MockedAdminCategories />);
     });
-    
+
     // Loading state might be very brief, so we check for either loading or content
     const loadingText = screen.queryByText(/loading categories/i);
     if (loadingText) {
@@ -41,10 +42,10 @@ describe('AdminCategories', () => {
     }
   });
 
-  test('renders categories list after loading', async () => {
+  test("renders categories list after loading", async () => {
     const mockCategories = [
-      { _id: '1', name: 'Electronics', createdAt: new Date().toISOString() },
-      { _id: '2', name: 'Clothing', createdAt: new Date().toISOString() },
+      { _id: "1", name: "Electronics", createdAt: new Date().toISOString() },
+      { _id: "2", name: "Clothing", createdAt: new Date().toISOString() },
     ];
 
     adminCategoriesService.fetchCategories.mockResolvedValue(mockCategories);
@@ -56,12 +57,12 @@ describe('AdminCategories', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/categories management/i)).toBeInTheDocument();
-      expect(screen.getByText('Electronics')).toBeInTheDocument();
-      expect(screen.getByText('Clothing')).toBeInTheDocument();
+      expect(screen.getByText("Electronics")).toBeInTheDocument();
+      expect(screen.getByText("Clothing")).toBeInTheDocument();
     });
   });
 
-  test('opens create modal when create button is clicked', async () => {
+  test("opens create modal when create button is clicked", async () => {
     adminCategoriesService.fetchCategories.mockResolvedValue([]);
     adminCategoriesService.fetchDeletedCategories.mockResolvedValue([]);
 
@@ -74,7 +75,7 @@ describe('AdminCategories', () => {
     });
 
     const createButton = screen.getByText(/create category/i);
-    
+
     await act(async () => {
       fireEvent.click(createButton);
     });
@@ -84,8 +85,8 @@ describe('AdminCategories', () => {
     });
   });
 
-  test('creates a new category', async () => {
-    const newCategory = { _id: '3', name: 'Books', createdAt: new Date().toISOString() };
+  test("creates a new category", async () => {
+    const newCategory = { _id: "3", name: "Books", createdAt: new Date().toISOString() };
 
     adminCategoriesService.fetchCategories.mockResolvedValue([]);
     adminCategoriesService.fetchDeletedCategories.mockResolvedValue([]);
@@ -100,7 +101,7 @@ describe('AdminCategories', () => {
     });
 
     const createButton = screen.getByText(/create category/i);
-    
+
     await act(async () => {
       fireEvent.click(createButton);
     });
@@ -110,29 +111,30 @@ describe('AdminCategories', () => {
     });
 
     const nameInput = screen.getByLabelText(/category name/i);
-    
+
     await act(async () => {
-      fireEvent.change(nameInput, { target: { value: 'Books' } });
+      fireEvent.change(nameInput, { target: { value: "Books" } });
     });
 
     // Find the submit button in the form (type="submit") instead of the "Create Category" button
-    const submitButtons = screen.getAllByRole('button', { name: /create/i });
-    const submitButton = submitButtons.find(btn => btn.type === 'submit') || submitButtons[submitButtons.length - 1];
-    
+    const submitButtons = screen.getAllByRole("button", { name: /create/i });
+    const submitButton =
+      submitButtons.find((btn) => btn.type === "submit") || submitButtons[submitButtons.length - 1];
+
     await act(async () => {
       fireEvent.click(submitButton);
     });
 
     await waitFor(() => {
-      expect(adminCategoriesService.createCategory).toHaveBeenCalledWith({ name: 'Books' });
+      expect(adminCategoriesService.createCategory).toHaveBeenCalledWith({ name: "Books" });
       expect(toast.success).toHaveBeenCalled();
     });
   });
 
-  test('filters categories by search query', async () => {
+  test("filters categories by search query", async () => {
     const mockCategories = [
-      { _id: '1', name: 'Electronics', createdAt: new Date().toISOString() },
-      { _id: '2', name: 'Clothing', createdAt: new Date().toISOString() },
+      { _id: "1", name: "Electronics", createdAt: new Date().toISOString() },
+      { _id: "2", name: "Clothing", createdAt: new Date().toISOString() },
     ];
 
     adminCategoriesService.fetchCategories.mockResolvedValue(mockCategories);
@@ -147,23 +149,23 @@ describe('AdminCategories', () => {
     });
 
     const searchInput = screen.getByPlaceholderText(/search by category name/i);
-    
+
     await act(async () => {
-      fireEvent.change(searchInput, { target: { value: 'Electronics' } });
+      fireEvent.change(searchInput, { target: { value: "Electronics" } });
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Electronics')).toBeInTheDocument();
-      expect(screen.queryByText('Clothing')).not.toBeInTheDocument();
+      expect(screen.getByText("Electronics")).toBeInTheDocument();
+      expect(screen.queryByText("Clothing")).not.toBeInTheDocument();
     });
   });
 
-  test('toggles between active and deleted categories', async () => {
+  test("toggles between active and deleted categories", async () => {
     const activeCategories = [
-      { _id: '1', name: 'Active Category', createdAt: new Date().toISOString() },
+      { _id: "1", name: "Active Category", createdAt: new Date().toISOString() },
     ];
     const deletedCategories = [
-      { _id: '2', name: 'Deleted Category', createdAt: new Date().toISOString() },
+      { _id: "2", name: "Deleted Category", createdAt: new Date().toISOString() },
     ];
 
     adminCategoriesService.fetchCategories.mockResolvedValue(activeCategories);
@@ -174,18 +176,17 @@ describe('AdminCategories', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Active Category')).toBeInTheDocument();
+      expect(screen.getByText("Active Category")).toBeInTheDocument();
     });
 
     const deletedButton = screen.getByText(/deleted/i);
-    
+
     await act(async () => {
       fireEvent.click(deletedButton);
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Deleted Category')).toBeInTheDocument();
+      expect(screen.getByText("Deleted Category")).toBeInTheDocument();
     });
   });
 });
-

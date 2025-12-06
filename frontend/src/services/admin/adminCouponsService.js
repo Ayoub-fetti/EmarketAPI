@@ -25,4 +25,3 @@ export const adminCouponsService = {
     await api.delete(`/coupons/${id}`);
   },
 };
-

@@ -27,4 +27,3 @@ export const adminOrdersService = {
     return response.data?.data ?? response.data;
   },
 };
-

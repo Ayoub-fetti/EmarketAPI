@@ -1,14 +1,14 @@
-import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import AdminLayout from '../../../layouts/admin/AdminLayout';
-import AdminStats from '../../../pages/admin/AdminStats';
-import { AuthProvider } from '../../../context/AuthContext';
-import { adminStatsService } from '../../../services/admin/adminStatsService';
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
+import AdminLayout from "../../../layouts/admin/AdminLayout";
+import AdminStats from "../../../pages/admin/AdminStats";
+import { AuthProvider } from "../../../context/AuthContext";
+import { adminStatsService } from "../../../services/admin/adminStatsService";
 
 // Mock all admin services
-jest.mock('../../../services/admin/adminStatsService');
+jest.mock("../../../services/admin/adminStatsService");
 
-jest.mock('react-toastify', () => ({
+jest.mock("react-toastify", () => ({
   toast: {
     success: jest.fn(),
     error: jest.fn(),
@@ -17,21 +17,21 @@ jest.mock('react-toastify', () => ({
 
 // Mock useNavigate
 const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
   useNavigate: () => mockNavigate,
 }));
 
 const mockAdminUser = {
-  id: '1',
-  email: 'admin@test.com',
-  role: 'admin',
-  fullname: 'Admin User',
+  id: "1",
+  email: "admin@test.com",
+  role: "admin",
+  fullname: "Admin User",
 };
 
-const renderAdminLayout = (initialRoute = '/admin/stats') => {
-  localStorage.setItem('token', 'mock-token');
-  localStorage.setItem('user', JSON.stringify(mockAdminUser));
+const renderAdminLayout = (initialRoute = "/admin/stats") => {
+  localStorage.setItem("token", "mock-token");
+  localStorage.setItem("user", JSON.stringify(mockAdminUser));
 
   return render(
     <MemoryRouter initialEntries={[initialRoute]}>
@@ -46,12 +46,12 @@ const renderAdminLayout = (initialRoute = '/admin/stats') => {
   );
 };
 
-describe('Admin Dashboard Logout Integration', () => {
+describe("Admin Dashboard Logout Integration", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
     mockNavigate.mockClear();
-    
+
     adminStatsService.fetchUsers = jest.fn().mockResolvedValue({ list: [], total: 0 });
     adminStatsService.fetchOrders = jest.fn().mockResolvedValue({ list: [], total: 0 });
     adminStatsService.fetchProducts = jest.fn().mockResolvedValue({ list: [], total: 0 });
@@ -61,18 +61,18 @@ describe('Admin Dashboard Logout Integration', () => {
     localStorage.clear();
   });
 
-  test('logout button is visible in header', async () => {
+  test("logout button is visible in header", async () => {
     await act(async () => {
       renderAdminLayout();
     });
 
     await waitFor(() => {
-      const logoutButton = screen.getByRole('button', { name: /logout/i });
+      const logoutButton = screen.getByRole("button", { name: /logout/i });
       expect(logoutButton).toBeInTheDocument();
     });
   });
 
-  test('logout clears user data and redirects to login', async () => {
+  test("logout clears user data and redirects to login", async () => {
     await act(async () => {
       renderAdminLayout();
     });
@@ -81,21 +81,21 @@ describe('Admin Dashboard Logout Integration', () => {
       expect(screen.getByText(mockAdminUser.fullname)).toBeInTheDocument();
     });
 
-    const logoutButton = screen.getByRole('button', { name: /logout/i });
-    
+    const logoutButton = screen.getByRole("button", { name: /logout/i });
+
     await act(async () => {
       fireEvent.click(logoutButton);
     });
 
     // Verify localStorage is cleared
-    expect(localStorage.getItem('token')).toBeNull();
-    expect(localStorage.getItem('user')).toBeNull();
+    expect(localStorage.getItem("token")).toBeNull();
+    expect(localStorage.getItem("user")).toBeNull();
 
     // Verify navigation to login
-    expect(mockNavigate).toHaveBeenCalledWith('/login', { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith("/login", { replace: true });
   });
 
-  test('user info disappears after logout', async () => {
+  test("user info disappears after logout", async () => {
     await act(async () => {
       renderAdminLayout();
     });
@@ -104,8 +104,8 @@ describe('Admin Dashboard Logout Integration', () => {
       expect(screen.getByText(mockAdminUser.fullname)).toBeInTheDocument();
     });
 
-    const logoutButton = screen.getByRole('button', { name: /logout/i });
-    
+    const logoutButton = screen.getByRole("button", { name: /logout/i });
+
     await act(async () => {
       fireEvent.click(logoutButton);
     });
@@ -113,7 +113,6 @@ describe('Admin Dashboard Logout Integration', () => {
     // After logout, user info should not be visible
     // Note: This might not be immediately visible if the component unmounts
     // But we can verify the localStorage is cleared
-    expect(localStorage.getItem('user')).toBeNull();
+    expect(localStorage.getItem("user")).toBeNull();
   });
 });
-

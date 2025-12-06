@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { CreditCard, X, CheckCircle } from 'lucide-react';
+import { useState } from "react";
+import { CreditCard, X, CheckCircle } from "lucide-react";
 
 const PaymentModal = ({ isOpen, onClose, order, onPaymentSuccess }) => {
-  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [paymentMethod, setPaymentMethod] = useState("stripe");
   const [processing, setProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
 
   if (!isOpen) return null;
 
@@ -18,7 +18,7 @@ const PaymentModal = ({ isOpen, onClose, order, onPaymentSuccess }) => {
     setTimeout(() => {
       setProcessing(false);
       setPaymentSuccess(true);
-      
+
       setTimeout(() => {
         onPaymentSuccess(order._id);
         onClose();
@@ -54,15 +54,17 @@ const PaymentModal = ({ isOpen, onClose, order, onPaymentSuccess }) => {
               <label className="block text-sm font-medium mb-2">Méthode de paiement</label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  {method:'stripe', icon: 'fa-brands fa-stripe-s'}, 
-                  {method:'paypal', icon: 'fa-brands fa-paypal'}, 
-                  {method: 'card' , icon: 'fa-solid fa-credit-card'}
-                ].map(({method, icon}) => (
+                  { method: "stripe", icon: "fa-brands fa-stripe-s" },
+                  { method: "paypal", icon: "fa-brands fa-paypal" },
+                  { method: "card", icon: "fa-solid fa-credit-card" },
+                ].map(({ method, icon }) => (
                   <button
                     key={method}
                     onClick={() => setPaymentMethod(method)}
                     className={`p-3 border rounded-lg capitalize flex flex-col items-center gap-2 ${
-                      paymentMethod === method ? 'border-orange-500 bg-orange-50' : 'border-gray-300'
+                      paymentMethod === method
+                        ? "border-orange-500 bg-orange-50"
+                        : "border-gray-300"
                     }`}
                   >
                     <i className={`${icon} text-xl`}></i>
@@ -79,7 +81,7 @@ const PaymentModal = ({ isOpen, onClose, order, onPaymentSuccess }) => {
                   <input
                     type="text"
                     value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 16))}
+                    onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, "").slice(0, 16))}
                     placeholder="1234 5678 9012 3456"
                     className="w-full px-3 py-2 border rounded-lg"
                     required
@@ -103,7 +105,7 @@ const PaymentModal = ({ isOpen, onClose, order, onPaymentSuccess }) => {
                     <input
                       type="text"
                       value={cvv}
-                      onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                      onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
                       placeholder="123"
                       className="w-full px-3 py-2 border rounded-lg"
                       required
@@ -118,7 +120,7 @@ const PaymentModal = ({ isOpen, onClose, order, onPaymentSuccess }) => {
                 className="w-full mt-6 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 disabled:bg-gray-400 flex items-center justify-center gap-2"
               >
                 {processing ? (
-                  'Traitement...'
+                  "Traitement..."
                 ) : (
                   <>
                     <CreditCard size={20} />

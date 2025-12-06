@@ -1,8 +1,8 @@
 import { MdEdit, MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import React from "react";
 
-export default function CouponsTable({ coupons, onDelete }) {
+function CouponsTable({ coupons, onDelete }) {
   const navigate = useNavigate();
 
   const formatDate = (date) => {
@@ -111,29 +111,17 @@ export default function CouponsTable({ coupons, onDelete }) {
                   {/* Réduction */}
                   <td className="px-4 py-4">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-sm font-semibold text-gray-900">
-                        {coupon.value}
-                      </span>
-                      {coupon.type === "percentage" ? (
-                        <span>%</span>
-                      ) : (
-                        <span>DH</span>
-                      )}
+                      <span className="text-sm font-semibold text-gray-900">{coupon.value}</span>
+                      {coupon.type === "percentage" ? <span>%</span> : <span>DH</span>}
                     </div>
                   </td>
 
                   {/* Validité */}
                   <td className="px-4 py-4 hidden md:table-cell">
                     <div className="text-xs">
-                      <div className="text-gray-900">
-                        {formatDate(coupon.startDate)}
-                      </div>
-                      <div className="text-gray-500">
-                        au {formatDate(coupon.expirationDate)}
-                      </div>
-                      {expired && (
-                        <span className="text-red-700 font-medium">Expiré</span>
-                      )}
+                      <div className="text-gray-900">{formatDate(coupon.startDate)}</div>
+                      <div className="text-gray-500">au {formatDate(coupon.expirationDate)}</div>
+                      {expired && <span className="text-red-700 font-medium">Expiré</span>}
                     </div>
                   </td>
 
@@ -152,8 +140,8 @@ export default function CouponsTable({ coupons, onDelete }) {
                                 usageInfo.percentage >= 80
                                   ? "bg-red-600"
                                   : usageInfo.percentage >= 50
-                                  ? "bg-yellow-600"
-                                  : "bg-green-600"
+                                    ? "bg-yellow-600"
+                                    : "bg-green-600"
                               }`}
                               style={{ width: `${usageInfo.percentage}%` }}
                             ></div>
@@ -165,9 +153,7 @@ export default function CouponsTable({ coupons, onDelete }) {
 
                   {/* Achat minimum */}
                   <td className="px-4 py-4 text-sm text-gray-900 hidden xl:table-cell">
-                    {coupon.minimumPurchase > 0
-                      ? `${coupon.minimumPurchase} DH`
-                      : "Aucun"}
+                    {coupon.minimumPurchase > 0 ? `${coupon.minimumPurchase} DH` : "Aucun"}
                   </td>
 
                   {/* Statut */}
@@ -179,9 +165,7 @@ export default function CouponsTable({ coupons, onDelete }) {
                       <button
                         className="p-2 rounded-md transition-colors bg-orange-700 hover:bg-orange-800"
                         title="Modifier"
-                        onClick={() =>
-                          navigate(`/seller/coupons/edit/${coupon._id}`)
-                        }
+                        onClick={() => navigate(`/seller/coupons/edit/${coupon._id}`)}
                       >
                         <MdEdit className="text-lg text-white" />
                       </button>
@@ -203,3 +187,5 @@ export default function CouponsTable({ coupons, onDelete }) {
     </div>
   );
 }
+
+export default React.memo(CouponsTable);

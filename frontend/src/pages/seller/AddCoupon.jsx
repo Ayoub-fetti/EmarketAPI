@@ -64,11 +64,8 @@ export default function AddCoupon() {
 
     if (!formData.expirationDate) {
       newErrors.expirationDate = "La date d'expiration est requise";
-    } else if (
-      new Date(formData.expirationDate) <= new Date(formData.startDate)
-    ) {
-      newErrors.expirationDate =
-        "La date d'expiration doit être après la date de début";
+    } else if (new Date(formData.expirationDate) <= new Date(formData.startDate)) {
+      newErrors.expirationDate = "La date d'expiration doit être après la date de début";
     }
 
     setErrors(newErrors);
@@ -95,9 +92,7 @@ export default function AddCoupon() {
         code: formData.code.toUpperCase(),
         type: formData.type,
         value: Number(formData.value),
-        minimumPurchase: formData.minimumPurchase
-          ? Number(formData.minimumPurchase)
-          : 0,
+        minimumPurchase: formData.minimumPurchase ? Number(formData.minimumPurchase) : 0,
         startDate: new Date(formData.startDate).toISOString(),
         expirationDate: new Date(formData.expirationDate).toISOString(),
         maxUsage: formData.maxUsage ? Number(formData.maxUsage) : null,
@@ -105,12 +100,8 @@ export default function AddCoupon() {
         status: formData.status,
       };
 
-      console.log("Envoi des données:", couponData);
-
       // Appel API pour créer le coupon
-      const response = await couponService.createCoupon(couponData);
-
-      console.log("Réponse API:", response);
+      await couponService.createCoupon(couponData);
 
       setAlertMessage({
         type: "success",
@@ -165,9 +156,7 @@ export default function AddCoupon() {
           <MdArrowBack className="text-xl" />
           <span>Retour aux coupons</span>
         </button>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Créer un nouveau coupon
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Créer un nouveau coupon</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-1">
           Remplissez les informations du code promotionnel
         </p>
@@ -210,10 +199,7 @@ export default function AddCoupon() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Code du coupon */}
           <div>
-            <label
-              htmlFor="code"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-2">
               Code du coupon *
             </label>
             <input
@@ -228,9 +214,7 @@ export default function AddCoupon() {
               }`}
               style={{ textTransform: "uppercase" }}
             />
-            {errors.code && (
-              <p className="mt-1 text-sm text-red-600">{errors.code}</p>
-            )}
+            {errors.code && <p className="mt-1 text-sm text-red-600">{errors.code}</p>}
             <p className="mt-1 text-xs text-gray-500">
               Code unique de 6 à 20 caractères (lettres et chiffres uniquement)
             </p>
@@ -257,10 +241,7 @@ export default function AddCoupon() {
 
             {/* Valeur */}
             <div>
-              <label
-                htmlFor="value"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="value" className="block text-sm font-medium text-gray-700 mb-2">
                 Valeur *
               </label>
               <input
@@ -269,9 +250,7 @@ export default function AddCoupon() {
                 name="value"
                 value={formData.value}
                 onChange={handleChange}
-                placeholder={
-                  formData.type === "percentage" ? "Ex: 20" : "Ex: 50"
-                }
+                placeholder={formData.type === "percentage" ? "Ex: 20" : "Ex: 50"}
                 step="0.01"
                 min="0"
                 max={formData.type === "percentage" ? "100" : undefined}
@@ -279,9 +258,7 @@ export default function AddCoupon() {
                   errors.value ? "border-red-500" : "border-gray-300"
                 }`}
               />
-              {errors.value && (
-                <p className="mt-1 text-sm text-red-600">{errors.value}</p>
-              )}
+              {errors.value && <p className="mt-1 text-sm text-red-600">{errors.value}</p>}
               <p className="mt-1 text-xs text-gray-500">
                 {formData.type === "percentage"
                   ? "Pourcentage de réduction (0-100)"
@@ -310,8 +287,7 @@ export default function AddCoupon() {
               className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-gray-400 transition-colors"
             />
             <p className="mt-1 text-xs text-gray-500">
-              Montant minimum du panier pour utiliser ce coupon (laissez vide
-              pour aucun minimum)
+              Montant minimum du panier pour utiliser ce coupon (laissez vide pour aucun minimum)
             </p>
           </div>
 
@@ -319,10 +295,7 @@ export default function AddCoupon() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Date de début */}
             <div>
-              <label
-                htmlFor="startDate"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
                 Date de début *
               </label>
               <input
@@ -335,9 +308,7 @@ export default function AddCoupon() {
                   errors.startDate ? "border-red-500" : "border-gray-300"
                 }`}
               />
-              {errors.startDate && (
-                <p className="mt-1 text-sm text-red-600">{errors.startDate}</p>
-              )}
+              {errors.startDate && <p className="mt-1 text-sm text-red-600">{errors.startDate}</p>}
             </div>
 
             {/* Date d'expiration */}
@@ -359,9 +330,7 @@ export default function AddCoupon() {
                 }`}
               />
               {errors.expirationDate && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.expirationDate}
-                </p>
+                <p className="mt-1 text-sm text-red-600">{errors.expirationDate}</p>
               )}
             </div>
           </div>
@@ -370,10 +339,7 @@ export default function AddCoupon() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Utilisation maximale totale */}
             <div>
-              <label
-                htmlFor="maxUsage"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="maxUsage" className="block text-sm font-medium text-gray-700 mb-2">
                 Utilisation maximale totale
               </label>
               <input
@@ -387,8 +353,7 @@ export default function AddCoupon() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-gray-400 transition-colors"
               />
               <p className="mt-1 text-xs text-gray-500">
-                Nombre maximum d'utilisations de ce coupon (laissez vide pour
-                illimité)
+                Nombre maximum d'utilisations de ce coupon (laissez vide pour illimité)
               </p>
             </div>
 
@@ -417,10 +382,7 @@ export default function AddCoupon() {
 
           {/* Statut */}
           <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
               Statut
             </label>
             <select

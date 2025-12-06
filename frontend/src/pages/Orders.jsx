@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { getUserOrders } from '../services/orderService';
-import { Package, Clock, Truck, CheckCircle, XCircle, CreditCard } from 'lucide-react';
-import { toast } from 'react-toastify';
-import PaymentModal from '../components/tools/PaymentModal';
-import { useAuth } from '../context/AuthContext';
-import Loader from '../components/tools/Loader';
+import { useState, useEffect } from "react";
+import { getUserOrders } from "../services/orderService";
+import { Package, Clock, Truck, CheckCircle, XCircle, CreditCard } from "lucide-react";
+import { toast } from "react-toastify";
+import PaymentModal from "../components/tools/PaymentModal";
+import { useAuth } from "../context/AuthContext";
+import Loader from "../components/tools/Loader";
 
 export default function Orders() {
   const { user } = useAuth();
@@ -22,39 +22,43 @@ export default function Orders() {
   const loadOrders = async () => {
     try {
       const response = await getUserOrders(user.id);
-      
+
       if (response.success && response.data && response.data.length > 0) {
-        const lastOrder = response.data[response.data.length -1];
+        const lastOrder = response.data[response.data.length - 1];
         setOrders([lastOrder]);
       } else {
         setOrders([]);
       }
     } catch (error) {
-      toast.error('Erreur lors du chargement des commandes');
-      console.error('Erreur lors du chargement des commandes', error);
+      toast.error("Erreur lors du chargement des commandes");
+      console.error("Erreur lors du chargement des commandes", error);
       setOrders([]);
     } finally {
       setLoading(false);
     }
   };
 
-
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'pending': return <Clock className="text-yellow-500" size={20} />;
-      case 'shipped': return <Truck className="text-blue-500" size={20} />;
-      case 'delivered': return <CheckCircle className="text-green-500" size={20} />;
-      case 'cancelled': return <XCircle className="text-red-500" size={20} />;
-      default: return <Package className="text-gray-500" size={20} />;
+      case "pending":
+        return <Clock className="text-yellow-500" size={20} />;
+      case "shipped":
+        return <Truck className="text-blue-500" size={20} />;
+      case "delivered":
+        return <CheckCircle className="text-green-500" size={20} />;
+      case "cancelled":
+        return <XCircle className="text-red-500" size={20} />;
+      default:
+        return <Package className="text-gray-500" size={20} />;
     }
   };
 
   const getStatusText = (status) => {
     const statusMap = {
-      pending: 'En attente',
-      shipped: 'Expédiée',
-      delivered: 'Livrée',
-      cancelled: 'Annulée'
+      pending: "En attente",
+      shipped: "Expédiée",
+      delivered: "Livrée",
+      cancelled: "Annulée",
     };
     return statusMap[status] || status;
   };
@@ -65,14 +69,14 @@ export default function Orders() {
   };
 
   const handlePaymentSuccess = (orderId) => {
-    toast.success('Paiement effectué avec succès!');
-    setOrders(orders.map(order => 
-      order._id === orderId ? { ...order, status: 'shipped' } : order
-    ));
+    toast.success("Paiement effectué avec succès!");
+    setOrders(
+      orders.map((order) => (order._id === orderId ? { ...order, status: "shipped" } : order))
+    );
   };
 
   if (loading) {
-    return <Loader/>;
+    return <Loader />;
   }
 
   if (orders.length === 0) {
@@ -97,10 +101,10 @@ export default function Orders() {
                 <div>
                   <p className="text-sm text-gray-600">Commande #{order._id.slice(-8)}</p>
                   <p className="text-sm text-gray-500">
-                    {new Date(order.createdAt).toLocaleDateString('fr-FR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
+                    {new Date(order.createdAt).toLocaleDateString("fr-FR", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
                     })}
                   </p>
                 </div>
@@ -114,14 +118,19 @@ export default function Orders() {
             <div className="p-6">
               <div className="space-y-4">
                 {order.items.map((item, index) => (
-                  <div key={index} className="flex items-center gap-4 pb-4 border-b last:border-b-0">
+                  <div
+                    key={index}
+                    className="flex items-center gap-4 pb-4 border-b last:border-b-0"
+                  >
                     <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center">
                       <Package className="text-gray-400" size={32} />
                     </div>
                     <div className="flex-1">
                       <p className="font-medium">Produit ID: {item.productId}</p>
                       <p className="text-sm text-gray-600">Quantité: {item.quantity}</p>
-                      <p className="text-sm text-gray-600">Prix unitaire: {item.price.toFixed(2)} MAD</p>
+                      <p className="text-sm text-gray-600">
+                        Prix unitaire: {item.price.toFixed(2)} MAD
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">{(item.price * item.quantity).toFixed(2)} MAD</p>
@@ -147,7 +156,7 @@ export default function Orders() {
                 </div>
               </div>
 
-              {order.status === 'pending' && (
+              {order.status === "pending" && (
                 <button
                   onClick={() => handlePayment(order)}
                   className="w-full mt-4 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 flex items-center justify-center gap-2"

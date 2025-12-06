@@ -17,11 +17,6 @@ export const adminUsersService = {
     return response.data?.data?.user ?? response.data?.user ?? response.data;
   },
 
-  async createUser(userData) {
-    const response = await api.post("/users", userData);
-    return response.data?.data?.user ?? response.data?.user ?? response.data;
-  },
-
   async deleteUser(id) {
     await api.delete(`/users/${id}`);
   },
@@ -48,4 +43,3 @@ export const adminUsersService = {
     return response.data?.data ?? response.data;
   },
 };
-

@@ -13,6 +13,8 @@ Une plateforme e-commerce complète avec API REST (Node.js/Express) et interface
 - [API Documentation](#api-documentation)
 - [Tests](#tests)
 - [Déploiement](#déploiement)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Gestion des Environnements](#gestion-des-environnements)
 - [Structure du projet](#structure-du-projet)
 - [Contribution](#contribution)
 
@@ -311,6 +313,78 @@ npm test -- --testPathPatterns="integration"
 - Tests d'intégration (Admin Dashboard)
 - Tests de composants
 - Tests de hooks et logique métier
+
+## 🚀 Déploiement
+
+### Frontend (Vercel)
+
+Le frontend peut être déployé sur Vercel automatiquement via GitHub Actions ou manuellement.
+
+**Déploiement manuel :**
+1. Créez un projet sur [Vercel](https://vercel.com)
+2. Importez votre repository GitHub
+3. Configurez les variables d'environnement :
+   - `VITE_BACKEND_URL` : URL de l'API backend
+   - `VITE_BACKEND_BASE_URL` : URL de base du backend
+   - `VITE_ENV` : `production`
+4. Déployez
+
+**Déploiement automatique :**
+Le workflow `.github/workflows/deploy.yml` déploie automatiquement lors d'un push vers `main`, `master`, ou `front`.
+
+Pour plus de détails, consultez [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)
+
+### Backend (Azure)
+
+Le backend est déployé sur Azure. Consultez la documentation Azure pour les détails de configuration.
+
+## 🔄 CI/CD Pipeline
+
+Le projet utilise GitHub Actions pour l'intégration et le déploiement continus.
+
+### Workflows disponibles
+
+1. **CI Pipeline** (`.github/workflows/ci.yml`)
+   - Exécute les tests (Frontend & Backend)
+   - Vérifie le code avec ESLint
+   - Build le projet
+   - Génère les rapports de couverture
+
+2. **Deploy Pipeline** (`.github/workflows/deploy.yml`)
+   - Déploie automatiquement sur Vercel
+   - S'exécute sur push vers `main`, `master`, ou `front`
+
+Pour plus de détails, consultez [.github/workflows/README.md](./.github/workflows/README.md)
+
+## ⚙️ Gestion des Environnements
+
+Le projet utilise des fichiers `.env` séparés pour chaque environnement.
+
+### Frontend
+
+- `.env.development` : Variables pour le développement local
+- `.env.production` : Variables pour la production
+- `.env.test` : Variables pour les tests
+
+**Variables disponibles :**
+- `VITE_BACKEND_URL` : URL de l'API backend
+- `VITE_BACKEND_BASE_URL` : URL de base pour les images
+- `VITE_ENV` : Environnement actuel
+
+### Backend
+
+- `.env.development` : Variables pour le développement
+- `.env.production` : Variables pour la production
+- `.env.test` : Variables pour les tests
+
+**Variables disponibles :**
+- `PORT` : Port du serveur
+- `DB_URI` : URI de connexion MongoDB
+- `JWT_SECRET` : Secret pour JWT
+- `NODE_ENV` : Environnement Node.js
+- `LOG_LEVEL` : Niveau de logging
+- `REDIS_URL` : URL Redis (optionnel)
+- `MAIL_*` : Configuration email
 
 ## 👥 Auteurs
 

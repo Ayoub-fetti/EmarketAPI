@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const Loader = () => {
   return (
@@ -9,7 +9,7 @@ const Loader = () => {
         <div className="circle circle-3" />
         <div className="circle circle-4" />
       </div>
-      <style jsx>{`
+      <style>{`
         .loader-container {
           width: 3rem;
           height: 3rem;
@@ -65,6 +65,6 @@ const Loader = () => {
       `}</style>
     </div>
   );
-}
+};
 
 export default Loader;

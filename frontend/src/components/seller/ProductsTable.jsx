@@ -1,10 +1,10 @@
 import { MdEdit, MdDelete, MdVisibility } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import React, { useState } from "react";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import { productService } from "../../services/productService";
 
-export default function ProductsTable({ products, onProductDeleted }) {
+function ProductsTable({ products, onProductDeleted }) {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
@@ -54,7 +54,6 @@ export default function ProductsTable({ products, onProductDeleted }) {
     }
   };
 
-
   const formatPrice = (price) => {
     return `${parseFloat(price).toFixed(2)} DH`;
   };
@@ -96,9 +95,7 @@ export default function ProductsTable({ products, onProductDeleted }) {
                 <td className="px-4 sm:px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {product.title}
-                      </p>
+                      <p className="text-sm font-medium text-gray-900">{product.title}</p>
                       <p className="text-xs text-gray-500 mt-0.5">
                         {product.published ? (
                           <span className="text-green-600">● Publié</span>
@@ -140,9 +137,7 @@ export default function ProductsTable({ products, onProductDeleted }) {
 
                 {/* Stock */}
                 <td className="px-4 py-4">
-                  <span
-                    className="px-3 py-1 rounded-full text-sm font-medium text-orange-700"
-                  >
+                  <span className="px-3 py-1 rounded-full text-sm font-medium text-orange-700">
                     {product.stock}
                   </span>
                 </td>
@@ -158,18 +153,14 @@ export default function ProductsTable({ products, onProductDeleted }) {
                     <button
                       className="p-2 hover:bg-blue-50 rounded-md transition-colors bg-gray-100"
                       title="Voir"
-                      onClick={() =>
-                        navigate(`/seller/products/${product._id}`)
-                      }
+                      onClick={() => navigate(`/seller/products/${product._id}`)}
                     >
                       <MdVisibility className="text-lg text-gray-600" />
                     </button>
                     <button
                       className="p-2 rounded-md transition-colors bg-orange-700 hover:bg-orange-800"
                       title="Modifier"
-                      onClick={() =>
-                        navigate(`/seller/products/edit/${product._id}`)
-                      }
+                      onClick={() => navigate(`/seller/products/edit/${product._id}`)}
                     >
                       <MdEdit className="text-lg text-white" />
                     </button>
@@ -199,3 +190,5 @@ export default function ProductsTable({ products, onProductDeleted }) {
     </div>
   );
 }
+
+export default React.memo(ProductsTable);

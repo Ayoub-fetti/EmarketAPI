@@ -1,16 +1,13 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
-import { toast } from "react-toastify";
-import { adminReviewsService } from "../../services/admin/adminReviewsService";
+import React from "react";
 import {
   FaStar,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaEdit,
-  FaComments,
   FaSearch,
   FaChevronLeft,
   FaChevronRight,
+  FaComments,
+  FaEdit,
 } from "react-icons/fa";
+import useAdminReviews from "../../hooks/admin/useAdminReviews";
 
 const statusLabels = {
   pending: "Pending",
@@ -25,132 +22,47 @@ const statusColors = {
 };
 
 const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("en-US") : "—";
+  value
+    ? new Date(value).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "—";
+
+const renderStars = (rating) => {
+  return Array.from({ length: 5 }, (_, i) => (
+    <FaStar
+      key={i}
+      className={`w-4 h-4 ${i < rating ? "text-yellow-400 fill-current" : "text-gray-300"}`}
+    />
+  ));
+};
 
 export default function AdminReviews() {
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedReview, setSelectedReview] = useState(null);
-  const [isModerateModalOpen, setIsModerateModalOpen] = useState(false);
-  const [newStatus, setNewStatus] = useState("");
-  const [moderating, setModerating] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-
-  const fetchReviews = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await adminReviewsService.fetchAllReviews();
-      setReviews(data);
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Error loading reviews.";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchReviews();
-  }, [fetchReviews]);
-
-  const filteredReviews = useMemo(() => {
-    let source = reviews;
-    
-    // Filter by status
-    if (statusFilter !== "all") {
-      source = source.filter((review) => review.status === statusFilter);
-    }
-    
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      source = source.filter(
-        (review) =>
-          (typeof review.user === "object" && review.user
-            ? (review.user.fullname || "").toLowerCase().includes(query) ||
-              (review.user.email || "").toLowerCase().includes(query)
-            : false) ||
-          (typeof review.product === "object" && review.product
-            ? (review.product.title || "").toLowerCase().includes(query)
-            : false) ||
-          (review.comment || "").toLowerCase().includes(query) ||
-          review.status?.toLowerCase().includes(query) ||
-          String(review.rating || "").includes(query) ||
-          formatDate(review.createdAt).toLowerCase().includes(query)
-      );
-    }
-    
-    return source;
-  }, [reviews, statusFilter, searchQuery]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
-  const paginatedReviews = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredReviews.slice(startIndex, endIndex);
-  }, [filteredReviews, currentPage, itemsPerPage]);
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
-
-  const openModerateModal = (review) => {
-    setSelectedReview(review);
-    setNewStatus(review.status);
-    setIsModerateModalOpen(true);
-  };
-
-  const closeModerateModal = () => {
-    setIsModerateModalOpen(false);
-    setSelectedReview(null);
-    setNewStatus("");
-    setModerating(false);
-  };
-
-  const handleModerate = async () => {
-    if (!selectedReview || !newStatus) return;
-    setModerating(true);
-    try {
-      const updated = await adminReviewsService.moderateReview(
-        selectedReview._id,
-        newStatus,
-      );
-      setReviews((prev) =>
-        prev.map((r) => (r._id === selectedReview._id ? updated : r)),
-      );
-      toast.success("Review moderated successfully.");
-      closeModerateModal();
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to moderate review.";
-      toast.error(message);
-    } finally {
-      setModerating(false);
-    }
-  };
-
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <FaStar
-        key={i}
-        className={`w-4 h-4 ${
-          i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
-        }`}
-      />
-    ));
-  };
+  const {
+    reviews,
+    loading,
+    error,
+    statusFilter,
+    setStatusFilter,
+    selectedReview,
+    isModerateModalOpen,
+    newStatus,
+    setNewStatus,
+    moderating,
+    searchQuery,
+    setSearchQuery,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedReviews,
+    filteredReviews,
+    openModerateModal,
+    closeModerateModal,
+    handleModerate,
+    fetchReviews,
+  } = useAdminReviews();
 
   if (loading) {
     return (
@@ -182,9 +94,7 @@ export default function AdminReviews() {
   return (
     <section className="space-y-4 sm:space-y-6">
       <header className="space-y-2 mb-4 sm:mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Reviews Moderation
-        </h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Reviews Moderation</h2>
         <p className="text-xs sm:text-sm text-gray-600">
           View and moderate user reviews on products.
         </p>
@@ -221,17 +131,17 @@ export default function AdminReviews() {
           </select>
         </div>
         <div className="text-xs sm:text-sm text-gray-600 font-medium whitespace-nowrap">
-          {filteredReviews.length} review{filteredReviews.length !== 1 ? "s" : ""} found
+          {filteredReviews.length} review
+          {filteredReviews.length !== 1 ? "s" : ""} found
         </div>
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-md">
         <div className="mb-4 sm:mb-6">
-          <h3 className="text-base sm:text-lg font-bold text-gray-900">
-            Reviews List
-          </h3>
+          <h3 className="text-base sm:text-lg font-bold text-gray-900">Reviews List</h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            {filteredReviews.length} review{filteredReviews.length !== 1 ? "s" : ""} found.
+            {filteredReviews.length} review
+            {filteredReviews.length !== 1 ? "s" : ""} found.
             {searchQuery && ` (filtered from ${reviews.length} total)`}
           </p>
         </div>
@@ -241,15 +151,7 @@ export default function AdminReviews() {
             <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  {[
-                    "User",
-                    "Product",
-                    "Rating",
-                    "Comment",
-                    "Status",
-                    "Date",
-                    "Actions",
-                  ].map((header) => (
+                  {["User", "Product", "Rating", "Comment", "Date", "Actions"].map((header) => (
                     <th
                       key={header}
                       scope="col"
@@ -262,80 +164,67 @@ export default function AdminReviews() {
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
                 {paginatedReviews.map((review) => (
-                <tr 
-                  key={review._id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="min-w-0">
-                      <div className="font-semibold text-gray-900 truncate max-w-[150px] sm:max-w-none">
-                        {typeof review.user === "object" && review.user
-                          ? review.user.fullname || review.user.email || "—"
-                          : "—"}
+                  <tr key={review._id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-gray-900 truncate max-w-[150px] sm:max-w-none">
+                          {typeof review.user === "object" && review.user
+                            ? review.user.fullname || review.user.email || "—"
+                            : "—"}
+                        </div>
+                        {typeof review.user === "object" &&
+                          review.user?.email &&
+                          review.user?.fullname && (
+                            <div className="text-xs text-gray-500 mt-1 truncate max-w-[150px] sm:max-w-none">
+                              {review.user.email}
+                            </div>
+                          )}
                       </div>
-                      {typeof review.user === "object" &&
-                        review.user?.email && review.user?.fullname && (
-                          <div className="text-xs text-gray-500 mt-1 truncate max-w-[150px] sm:max-w-none">
-                            {review.user.email}
-                          </div>
-                        )}
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="font-semibold text-gray-900 truncate max-w-[150px] sm:max-w-none">
-                      {typeof review.product === "object" && review.product
-                        ? review.product.title || "Deleted Product"
-                        : "Deleted Product"}
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="flex items-center gap-1">
-                      {renderStars(review.rating)}
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="max-w-[200px] sm:max-w-xs truncate text-gray-600">
-                      {review.comment || "—"}
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2 sm:px-2.5 py-0.5 text-xs font-semibold shadow-sm whitespace-nowrap ${
-                        statusColors[review.status] || statusColors.pending
-                      }`}
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="font-semibold text-gray-900 truncate max-w-[150px] sm:max-w-none">
+                        {typeof review.product === "object" && review.product
+                          ? review.product.title || "Deleted Product"
+                          : "Deleted Product"}
+                      </div>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="flex items-center gap-1">{renderStars(review.rating)}</div>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="max-w-[200px] sm:max-w-xs truncate text-gray-600">
+                        {review.comment || "—"}
+                      </div>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
+                      {formatDate(review.createdAt)}
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                      <button
+                        type="button"
+                        onClick={() => openModerateModal(review)}
+                        className="flex items-center gap-1 rounded-lg border border-orange-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-orange-600 transition hover:bg-orange-50"
+                        title="Moderate"
+                      >
+                        <FaEdit className="w-3 h-3" />
+                        <span className="hidden sm:inline">Moderate</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {paginatedReviews.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-3 sm:px-6 py-12 text-center text-xs sm:text-sm text-gray-500"
                     >
-                      {statusLabels[review.status] || review.status}
-                    </span>
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
-                    {formatDate(review.createdAt)}
-                  </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <button
-                      type="button"
-                      onClick={() => openModerateModal(review)}
-                      className="flex items-center gap-1 rounded-lg border border-orange-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-orange-600 transition hover:bg-orange-50"
-                      title="Moderate"
-                    >
-                      <FaEdit className="w-3 h-3" />
-                      <span className="hidden sm:inline">Moderate</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {paginatedReviews.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="px-3 sm:px-6 py-12 text-center text-xs sm:text-sm text-gray-500"
-                  >
-                    <FaComments className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
-                    <p>{searchQuery ? "No reviews match your search." : "No reviews found."}</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                      <FaComments className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300" />
+                      <p>{searchQuery ? "No reviews match your search." : "No reviews found."}</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -343,9 +232,9 @@ export default function AdminReviews() {
         {totalPages > 1 && (
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
             <div className="text-xs sm:text-sm text-gray-600">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, filteredReviews.length)} of{" "}
-              {filteredReviews.length} reviews
+              Showing {(currentPage - 1) * 10 + 1} to{" "}
+              {Math.min(currentPage * 10, filteredReviews.length)} of {filteredReviews.length}{" "}
+              reviews
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -357,7 +246,7 @@ export default function AdminReviews() {
                 <FaChevronLeft className="w-3 h-3" />
                 <span className="hidden sm:inline">Previous</span>
               </button>
-              
+
               <div className="flex items-center gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter((page) => {
@@ -408,15 +297,11 @@ export default function AdminReviews() {
       {isModerateModalOpen && selectedReview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4 overflow-y-auto">
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-xl my-auto">
-            <h3 className="text-lg font-bold text-gray-900">
-              Moderate Review
-            </h3>
+            <h3 className="text-lg font-bold text-gray-900">Moderate Review</h3>
 
             <div className="mt-4 space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  User:
-                </span>
+                <span className="text-xs font-medium text-gray-500">User:</span>
                 <p className="text-sm font-semibold text-gray-900 mt-1">
                   {typeof selectedReview.user === "object" && selectedReview.user
                     ? selectedReview.user.fullname || selectedReview.user.email
@@ -424,12 +309,9 @@ export default function AdminReviews() {
                 </p>
               </div>
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  Product:
-                </span>
+                <span className="text-xs font-medium text-gray-500">Product:</span>
                 <p className="text-sm font-semibold text-gray-900 mt-1">
-                  {typeof selectedReview.product === "object" &&
-                  selectedReview.product
+                  {typeof selectedReview.product === "object" && selectedReview.product
                     ? selectedReview.product.title
                     : "Deleted Product"}
                 </p>
@@ -441,52 +323,43 @@ export default function AdminReviews() {
                 </div>
               </div>
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  Comment:
-                </span>
+                <span className="text-xs font-medium text-gray-500">Comment:</span>
                 <p className="mt-1 text-sm text-gray-900">
                   {selectedReview.comment || "No comment"}
                 </p>
               </div>
               <div>
-                <span className="text-xs font-medium text-gray-500">
-                  Current Status:
-                </span>
+                <span className="text-xs font-medium text-gray-500">Current Status:</span>
                 <div className="mt-1">
                   <span
                     className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold shadow-sm ${
-                      statusColors[selectedReview.status] ||
-                      statusColors.pending
+                      statusColors[selectedReview.status] || statusColors.pending
                     }`}
                   >
                     {statusLabels[selectedReview.status] || selectedReview.status}
                   </span>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700">
-                New Status
-              </label>
-              <select
-                value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-                className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              >
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-2">
+                  Change Status:
+                </label>
+                <select
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
             </div>
 
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => {
-                  if (moderating) return;
-                  closeModerateModal();
-                }}
+                onClick={closeModerateModal}
                 disabled={moderating}
                 className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70"
               >
@@ -495,14 +368,10 @@ export default function AdminReviews() {
               <button
                 type="button"
                 onClick={handleModerate}
-                disabled={
-                  moderating ||
-                  !newStatus ||
-                  newStatus === selectedReview.status
-                }
+                disabled={moderating || !newStatus || newStatus === selectedReview.status}
                 className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-70 shadow-sm hover:shadow-md"
               >
-                {moderating ? "Moderating..." : "Confirm"}
+                {moderating ? "Moderating..." : "Save Changes"}
               </button>
             </div>
           </div>
@@ -511,5 +380,3 @@ export default function AdminReviews() {
     </section>
   );
 }
-
-

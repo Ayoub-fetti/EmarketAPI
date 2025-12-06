@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { productService } from "../services/productService";
 import { categoryService } from "../services/categoryService";
 import Loader from "../components/tools/Loader";
-import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
+import LazyImage from "../components/tools/LazyImage";
+import { Search, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
 import discountImage from "../../public/discount.png";
 import "../App.css";
 
@@ -20,6 +21,12 @@ export default function Products() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+
+  // determine backend base url for images
+  const BACKEND_BASE =
+    import.meta.env.VITE_BACKEND_BASE_URL ||
+    (import.meta.env.VITE_BACKEND_URL ? import.meta.env.VITE_BACKEND_URL.replace("/api", "") : "");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,9 +43,7 @@ export default function Products() {
           });
           setProducts(searchData.data);
         } else {
-          const productsData = await productService.getPublishedProducts(
-            currentPage
-          );
+          const productsData = await productService.getPublishedProducts(currentPage);
           setProducts(productsData.data);
           setTotalPages(productsData.pages);
         }
@@ -51,30 +56,43 @@ export default function Products() {
     fetchData();
   }, [searchParams, currentPage]);
 
-  const handleFilter = async () => {
-    try {
-      setLoading(true);
-      const filters = {
-        categories: selectedCategories,
-        minPrice: minPrice || undefined,
-        maxPrice: maxPrice || undefined,
-        title: searchQuery || undefined,
-      };
+  // Real-time filtering effect
+  useEffect(() => {
+    const applyFilters = async () => {
+      // Skip if initial load
+      if (loading) return;
 
-      const data = await productService.searchProducts(filters);
-      setProducts(data.data);
-    } catch {
-      setError("Erreur lors du filtrage");
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        setLoading(true);
+        const filters = {
+          categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+          minPrice: minPrice || undefined,
+          maxPrice: maxPrice || undefined,
+          title: searchQuery || undefined,
+        };
+
+        const data = await productService.searchProducts(filters);
+        setProducts(data.data);
+      } catch {
+        setError("Erreur lors du filtrage");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Debounce search query (wait 500ms after user stops typing)
+    const timeoutId = setTimeout(() => {
+      if (selectedCategories.length > 0 || minPrice || maxPrice || searchQuery) {
+        applyFilters();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [selectedCategories, minPrice, maxPrice, searchQuery]);
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
+      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
     );
   };
 
@@ -124,9 +142,7 @@ export default function Products() {
               {searchQuery ? `Résultats pour "${searchQuery}"` : "FastShop"}
             </h1>
             <p className="text-xl font-bold text-orange-700">
-              {searchQuery
-                ? "Produits trouvés"
-                : "Bienvenue sur FastShop - Découvrez nos produits"}
+              {searchQuery ? "Produits trouvés" : "Bienvenue sur FastShop - Découvrez nos produits"}
             </p>
           </div>
           {!searchQuery && (
@@ -143,13 +159,8 @@ export default function Products() {
           <aside className="lg:col-span-1">
             <div className="bg-card border border-orange-600 rounded-xl shadow-sm p-6 sticky top-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-foreground">
-                  Filtres
-                </h3>
-                {(selectedCategories.length > 0 ||
-                  minPrice ||
-                  maxPrice ||
-                  searchQuery) && (
+                <h3 className="text-lg font-semibold text-foreground">Filtres</h3>
+                {(selectedCategories.length > 0 || minPrice || maxPrice || searchQuery) && (
                   <button
                     onClick={clearFilters}
                     className="text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -161,9 +172,7 @@ export default function Products() {
 
               {/* Search Input */}
               <div className="mb-6">
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  Recherche
-                </label>
+                <label className="text-sm font-medium text-foreground mb-2 block">Recherche</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
@@ -190,9 +199,7 @@ export default function Products() {
                       onChange={(e) => setMinPrice(e.target.value)}
                       className="flex-1 px-3 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all text-sm w-25"
                     />
-                    <span className="self-center text-muted-foreground text-sm">
-                      -
-                    </span>
+                    <span className="self-center text-muted-foreground text-sm">-</span>
                     <input
                       type="number"
                       placeholder="Max"
@@ -206,11 +213,10 @@ export default function Products() {
 
               {/* Categories */}
               <div className="mb-6">
-                <label className="text-sm font-medium text-foreground mb-3 block">
-                  Catégories
-                </label>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {categories.map((category) => (
+                <label className="text-sm font-medium text-foreground mb-3 block">Catégories</label>
+                <div className="space-y-2">
+                  {/* Show first 3 categories */}
+                  {categories.slice(0, 3).map((category) => (
                     <label
                       key={category._id}
                       className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
@@ -221,25 +227,54 @@ export default function Products() {
                         onChange={() => handleCategoryChange(category._id)}
                         className="w-4 h-4 rounded border-input bg-background text-primary cursor-pointer"
                       />
-                      <span className="text-sm text-foreground">
-                        {category.name}
-                      </span>
+                      <span className="text-sm text-foreground">{category.name}</span>
                     </label>
                   ))}
+
+                  {/* Collapsible section for remaining categories */}
+                  {showAllCategories &&
+                    categories.slice(3).map((category) => (
+                      <label
+                        key={category._id}
+                        className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(category._id)}
+                          onChange={() => handleCategoryChange(category._id)}
+                          className="w-4 h-4 rounded border-input bg-background text-primary cursor-pointer"
+                        />
+                        <span className="text-sm text-foreground">{category.name}</span>
+                      </label>
+                    ))}
+
+                  {/* Show More/Less button */}
+                  {categories.length > 3 && (
+                    <button
+                      onClick={() => setShowAllCategories(!showAllCategories)}
+                      className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors mt-2 font-medium"
+                    >
+                      {showAllCategories ? (
+                        <>
+                          <ChevronUp className="w-4 h-4" />
+                          Voir moins
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4" />
+                          Voir plus ({categories.length - 3} autres)
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Filter Buttons */}
+              {/* Filter Buttons - Remove since it's real-time now */}
               <div className="flex gap-2 pt-4 border-t border-border">
                 <button
-                  onClick={handleFilter}
-                  className="flex-1 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                >
-                  Filtrer
-                </button>
-                <button
                   onClick={clearFilters}
-                  className="flex-1 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg font-medium hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all"
+                  className="w-full bg-secondary text-secondary-foreground px-4 py-2 rounded-lg font-medium hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all"
                 >
                   Réinitialiser
                 </button>
@@ -259,22 +294,21 @@ export default function Products() {
                   >
                     {/* Image Container */}
                     <div className="relative w-full h-48 bg-muted overflow-hidden">
-                      <img
+                      <LazyImage
                         src={
                           product.primaryImage
-                            ? `${import.meta.env.VITE_BACKEND_BASE_URL}${
-                                product.primaryImage
-                              }`
+                            ? product.primaryImage.startsWith("http")
+                              ? product.primaryImage
+                              : `${BACKEND_BASE}${product.primaryImage}`
                             : "/placeholder.jpg"
                         }
                         alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        placeholderClassName="rounded-t-xl"
                       />
                       {product.stock === 0 && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="text-white font-semibold text-sm">
-                            Rupture de stock
-                          </span>
+                          <span className="text-white font-semibold text-sm">Rupture de stock</span>
                         </div>
                       )}
                     </div>
@@ -291,18 +325,14 @@ export default function Products() {
                       {/* Footer */}
                       <div className="flex items-end justify-between pt-4 border-t border-border">
                         <div>
-                          <p className="text-2xl font-bold text-primary">
-                            {product.price}
-                          </p>
+                          <p className="text-2xl font-bold text-primary">{product.price}</p>
                           <p className="text-xs text-muted-foreground">MAD</p>
                         </div>
                         <div className="text-right">
                           <p className="text-xs text-muted-foreground">Stock</p>
                           <p
                             className={`text-sm font-semibold ${
-                              product.stock > 0
-                                ? "text-green-600"
-                                : "text-destructive"
+                              product.stock > 0 ? "text-green-600" : "text-destructive"
                             }`}
                           >
                             {product.stock}
@@ -321,9 +351,7 @@ export default function Products() {
                       ? `Aucun produit trouvé pour "${searchQuery}"`
                       : "Aucun produit trouvé"}
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    Essayez de modifier vos filtres
-                  </p>
+                  <p className="text-sm text-muted-foreground">Essayez de modifier vos filtres</p>
                 </div>
               </div>
             )}
@@ -339,26 +367,22 @@ export default function Products() {
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium ${
-                      currentPage === page
-                        ? "bg-gray-300 text-primary-foreground"
-                        : "bg-background border border-input hover:bg-accent"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                    currentPage === page
+                      ? "bg-gray-300 text-primary-foreground"
+                      : "bg-background border border-input hover:bg-accent"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
 
               <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
                 className="p-2 rounded-lg border border-input bg-background hover:bg-accent disabled:opacity-50"
               >

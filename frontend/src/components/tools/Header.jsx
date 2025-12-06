@@ -5,7 +5,7 @@ import { useCart } from "../../context/CartContext";
 import { Search, Menu, X } from "lucide-react";
 import Button from "./Button";
 import Cart from "./Cart";
-import Image from '../../../public/logo.png'
+import Image from "../../../public/logo.png";
 
 export default function Header() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -105,10 +105,7 @@ export default function Header() {
           <Cart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
           {isAuthenticated() ? (
-            <Link
-              to="/profile/user"
-              className="p-2 hover:text-[#D43601] transition relative"
-            >
+            <Link to="/profile/user" className="p-2 hover:text-[#D43601] transition relative">
               <i className="fa-solid fa-user"></i>
             </Link>
           ) : (
@@ -148,9 +145,7 @@ export default function Header() {
                     <i className="fa-solid fa-clock-rotate-left mr-2"></i>
                     History
                   </Link>
-                  <span className="px-4 text-sm text-gray-600">
-                    Welcome, {user.fullname}
-                  </span>
+                  <span className="px-4 text-sm text-gray-600">Welcome, {user.fullname}</span>
                   <div className="px-4">
                     <Button variant="danger" size="sm" onClick={handleLogout}>
                       <i className="fa-solid fa-right-from-bracket mr-1"></i>

@@ -1,11 +1,4 @@
-
-
-export default function FilterSelect({
-  options,
-  placeholder,
-  value,
-  onChange,
-}) {
+export default function FilterSelect({ options, placeholder, value, onChange }) {
   return (
     <select
       value={value}

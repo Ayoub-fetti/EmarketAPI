@@ -1,8 +1,8 @@
-import api from './axios';
+import api from "./axios";
 
 export const categoryService = {
-    getCategories: async  () => {
-        const response = await api.get('/categories');
-        return response.data;
-    }
-}
+  getCategories: async () => {
+    const response = await api.get("/categories");
+    return response.data;
+  },
+};

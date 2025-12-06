@@ -11,4 +11,3 @@ export const adminReviewsService = {
     return response.data?.data ?? response.data;
   },
 };
-

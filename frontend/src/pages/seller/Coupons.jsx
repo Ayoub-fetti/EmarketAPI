@@ -1,49 +1,39 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../../components/seller/SearchBar";
 import FilterSelect from "../../components/seller/FilterSelect";
 import ActionButton from "../../components/seller/ActionButton";
 import CouponsTable from "../../components/seller/CouponsTable";
 import DeleteConfirmModal from "../../components/seller/DeleteConfirmModal";
-import { couponService } from "../../services/couponService";
+import { useSellerCoupons } from "../../hooks/seller/useSellerCoupons";
 
 export default function Coupons() {
   const navigate = useNavigate();
+  const {
+    filteredCoupons,
+    loading,
+    error,
+    filters,
+    deleteModal,
+    deleteCoupon,
+    resetFilters,
+  } = useSellerCoupons();
 
-  // États pour la recherche et les filtres
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
-  const [selectedType, setSelectedType] = useState("");
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedStatus,
+    setSelectedStatus,
+    selectedType,
+    setSelectedType,
+  } = filters;
 
-  // États pour les données
-  const [coupons, setCoupons] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // États pour le modal de suppression
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [couponToDelete, setCouponToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  // Charger les coupons
-  useEffect(() => {
-    fetchCoupons();
-  }, []);
-
-  const fetchCoupons = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await couponService.getAllCoupons();
-      setCoupons(response.data || []);
-    } catch (error) {
-      console.error("Erreur lors du chargement des coupons:", error);
-      setError(
-        error.response?.data?.message || "Erreur lors du chargement des coupons"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    isOpen: isDeleteModalOpen,
+    itemToDelete: couponToDelete,
+    isDeleting,
+    openDeleteModal,
+    closeDeleteModal,
+  } = deleteModal;
 
   // Options pour les filtres
   const statusOptions = [
@@ -56,62 +46,11 @@ export default function Coupons() {
     { value: "fixed", label: "Montant fixe" },
   ];
 
-  // Filtrer les coupons
-  const filteredCoupons = coupons.filter((coupon) => {
-    const matchesSearch = coupon.code
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesStatus = selectedStatus
-      ? coupon.status === selectedStatus
-      : true;
-    const matchesType = selectedType ? coupon.type === selectedType : true;
-    return matchesSearch && matchesStatus && matchesType;
-  });
-
-  // Ouvrir le modal de suppression
-  const handleDelete = (coupon) => {
-    setCouponToDelete(coupon);
-    setIsDeleteModalOpen(true);
-  };
-
-  // Confirmer la suppression
-  const confirmDelete = async () => {
-    if (!couponToDelete) return;
-
-    try {
-      setIsDeleting(true);
-      await couponService.deleteCoupon(couponToDelete._id);
-
-      // Recharger les coupons
-      await fetchCoupons();
-
-      // Fermer le modal
-      setIsDeleteModalOpen(false);
-      setCouponToDelete(null);
-    } catch (error) {
-      console.error("Erreur lors de la suppression du coupon:", error);
-      setError(
-        error.response?.data?.message ||
-          "Erreur lors de la suppression du coupon"
-      );
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  // Annuler la suppression
-  const cancelDelete = () => {
-    setIsDeleteModalOpen(false);
-    setCouponToDelete(null);
-  };
-
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Page Header */}
       <div className="mb-12">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Gestion des Coupons
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gestion des Coupons</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-1">
           Créez et gérez vos codes promotionnels
         </p>
@@ -158,11 +97,7 @@ export default function Coupons() {
           {filteredCoupons.length} coupon(s) trouvé(s)
           {(searchQuery || selectedStatus || selectedType) && (
             <button
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedStatus("");
-                setSelectedType("");
-              }}
+              onClick={resetFilters}
               className="ml-4 text-orange-700 hover:text-orange-800 font-medium"
             >
               Réinitialiser les filtres
@@ -204,15 +139,11 @@ export default function Coupons() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Aucun coupon trouvé
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Commencez par créer votre premier coupon
-              </p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun coupon trouvé</h3>
+              <p className="text-gray-600 mb-6">Commencez par créer votre premier coupon</p>
             </div>
           ) : (
-            <CouponsTable coupons={filteredCoupons} onDelete={handleDelete} />
+            <CouponsTable coupons={filteredCoupons} onDelete={openDeleteModal} />
           )}
         </>
       )}
@@ -220,8 +151,8 @@ export default function Coupons() {
       {/* Modal de confirmation de suppression */}
       <DeleteConfirmModal
         isOpen={isDeleteModalOpen}
-        onClose={cancelDelete}
-        onConfirm={confirmDelete}
+        onClose={closeDeleteModal}
+        onConfirm={deleteCoupon}
         itemName={couponToDelete?.code}
         itemType="coupon"
         loading={isDeleting}
