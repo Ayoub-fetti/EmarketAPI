@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import app from "../server.js";
 import { userFactory } from "../factories/userFactory.js";
 import { cartFactory } from "../factories/cartFactory.js";
+import { productFactory } from "../factories/productFactory.js";
+import { categoryFactory } from "../factories/categoryFactory.js";
 import Cart from "../models/Cart.js";
 import Order from "../models/Order.js";
 
@@ -12,7 +14,7 @@ const { expect } = chai;
 describe("Order API", function () {
   let testConnection;
   let token;
-  let user, cart;
+  let user, cart, seller, category, product;
 
   before(async () => {
     // Connect to test DB
@@ -24,11 +26,19 @@ describe("Order API", function () {
       email: "testuser@test.com",
       password: "123456",
     });
-    // creat a seller
-    await userFactory(1, {
+    // create a seller
+    [seller] = await userFactory(1, {
       email: "selleruser@test.com",
       password: "123456",
       role: "seller",
+    });
+
+    // Create category and product for order tests
+    [category] = await categoryFactory(1);
+    [product] = await productFactory(1, {
+      seller_id: seller._id,
+      categories: [category._id],
+      stock: 10,
     });
 
     // Seed a cart for the user
@@ -145,7 +155,7 @@ describe("Order API", function () {
       order = await Order.create({
         userId: user._id,
         items: [
-          { productId: new mongoose.Types.ObjectId(), quantity: 1, price: 100 },
+          { productId: product._id, quantity: 1, price: 100 },
         ],
         totalAmount: 100,
         discount: 0,
