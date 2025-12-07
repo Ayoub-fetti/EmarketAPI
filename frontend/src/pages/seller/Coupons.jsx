@@ -8,15 +8,8 @@ import { useSellerCoupons } from "../../hooks/seller/useSellerCoupons";
 
 export default function Coupons() {
   const navigate = useNavigate();
-  const {
-    filteredCoupons,
-    loading,
-    error,
-    filters,
-    deleteModal,
-    deleteCoupon,
-    resetFilters,
-  } = useSellerCoupons();
+  const { filteredCoupons, loading, error, filters, deleteModal, deleteCoupon, resetFilters } =
+    useSellerCoupons();
 
   const {
     searchQuery,

@@ -86,7 +86,7 @@ describe("Cart Component", () => {
     });
 
     // When isOpen is false, the drawer should have translate-x-full class
-    const drawer = container.querySelector('.translate-x-full');
+    const drawer = container.querySelector(".translate-x-full");
     expect(drawer).toBeInTheDocument();
   });
 
@@ -146,7 +146,7 @@ describe("Cart Component", () => {
         // Check for "Sous-total" label and "250.00" value
         expect(screen.getByText(/sous-total/i)).toBeInTheDocument();
         // Find the value near "Sous-total"
-        const subtotalSection = screen.getByText(/sous-total/i).closest('div');
+        const subtotalSection = screen.getByText(/sous-total/i).closest("div");
         expect(subtotalSection?.textContent).toMatch(/250\.00/i);
       },
       { timeout: 3000 }

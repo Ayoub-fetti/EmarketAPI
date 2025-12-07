@@ -36,7 +36,6 @@ const navLinks = [
   },
 ];
 
-
 export default function Sidebar() {
   const { logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
