@@ -1,0 +1,39 @@
+{
+  "products": [
+    {
+      "_id": "test-product-1",
+      "title": "Produit Test 1",
+      "description": "Description du produit test 1",
+      "price": 100,
+      "stock": 10,
+      "published": true,
+      "primaryImage": "/placeholder.jpg",
+      "categories": [],
+      "seller_id": {
+        "fullname": "Test Seller"
+      },
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "_id": "test-product-2",
+      "title": "Produit Test 2",
+      "description": "Description du produit test 2",
+      "price": 200,
+      "stock": 5,
+      "published": true,
+      "primaryImage": "/placeholder.jpg",
+      "categories": [],
+      "seller_id": {
+        "fullname": "Test Seller"
+      },
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "categories": [
+    {
+      "_id": "test-category-1",
+      "name": "Catégorie Test 1"
+    }
+  ]
+}
+
