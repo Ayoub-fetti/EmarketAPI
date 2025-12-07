@@ -134,6 +134,51 @@ Cypress.Commands.add('setupProductMocks', () => {
       statusCode: 200,
       body: { success: true, message: 'Quantité mise à jour' }
     }).as('updateCartQuantity');
+    
+    // Mock clear cart API
+    cy.intercept('DELETE', '**/api/cart/clear', {
+      statusCode: 200,
+      body: { success: true, message: 'Panier vidé' }
+    }).as('clearCart');
+    
+    // Mock order creation API
+    cy.intercept('POST', '**/api/orders', {
+      statusCode: 201,
+      body: { 
+        success: true, 
+        message: 'Commande créée avec succès!', 
+        data: { 
+          order: { 
+            _id: 'order-123', 
+            items: [], 
+            totalAmount: 100, 
+            finalAmount: 100, 
+            status: 'pending',
+            createdAt: new Date().toISOString()
+          } 
+        } 
+      }
+    }).as('createOrder');
+    
+    // Mock user orders API - intercepte /orders/{userId}
+    cy.intercept('GET', '**/api/orders/*', {
+      statusCode: 200,
+      body: { 
+        success: true, 
+        data: [{ 
+          _id: 'order-123', 
+          items: [{ 
+            productId: 'test-product-1', 
+            quantity: 1, 
+            price: 100 
+          }], 
+          totalAmount: 100, 
+          finalAmount: 100, 
+          status: 'pending', 
+          createdAt: new Date().toISOString() 
+        }] 
+      }
+    }).as('getUserOrders');
   });
 });
 
