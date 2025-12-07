@@ -13,6 +13,8 @@ Une plateforme e-commerce complète avec API REST (Node.js/Express) et interface
 - [API Documentation](#api-documentation)
 - [Tests](#tests)
 - [Déploiement](#déploiement)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Gestion des Environnements](#gestion-des-environnements)
 - [Structure du projet](#structure-du-projet)
 - [Contribution](#contribution)
 
@@ -30,8 +32,11 @@ Une plateforme e-commerce complète avec API REST (Node.js/Express) et interface
 - 📊 **Logging avancé** avec Winston
 - 🔒 **Rate limiting** et sécurité
 - 📚 **Documentation Swagger**
-- ✅ **Tests unitaires et d'intégration**
+- ✅ **Tests unitaires et d'intégration** (Backend & Frontend)
 - 🎨 **Interface utilisateur moderne** (React)
+- 📱 **Design responsive** (Mobile-first)
+- 🎯 **Dashboard Admin** complet avec statistiques
+- 🏪 **Dashboard Seller** pour la gestion des produits
 
 ## 🛠️ Technologies utilisées
 
@@ -50,6 +55,10 @@ Une plateforme e-commerce complète avec API REST (Node.js/Express) et interface
 - **Vite** - Build tool
 - **Tailwind CSS** - Framework CSS
 - **Axios** - Client HTTP
+- **React Hook Form** - Gestion de formulaires
+- **Recharts** - Graphiques et visualisations
+- **React Icons** - Bibliothèque d'icônes
+- **React Toastify** - Notifications toast
 
 ### Authentification & Sécurité
 
@@ -67,10 +76,16 @@ Une plateforme e-commerce complète avec API REST (Node.js/Express) et interface
 
 ### Tests
 
+**Backend:**
 - **Mocha** - Framework de test
 - **Chai** - Assertions
 - **Supertest** - Tests HTTP
 - **C8** - Couverture de code
+
+**Frontend:**
+- **Jest** - Framework de test
+- **React Testing Library** - Tests de composants React
+- **MSW** - Mock Service Worker pour mocker les APIs
 
 ## 📋 Prérequis
 
@@ -163,6 +178,8 @@ sudo systemctl enable redis-server
 
 ```bash
 cd backend
+npm run dev
+# ou
 npm run devStart
 ```
 
@@ -186,25 +203,66 @@ cd backend
 npm run seed
 ```
 
+## 🎨 Interface Utilisateur
+
+### Page d'accueil - Hero Section
+
+La page d'accueil présente une **Hero Section** moderne et attrayante avec une image inspirante :
+
+![Hero Section - FastShop](frontend/public/image.png)
+
+**Caractéristiques de la Hero Section :**
+
+**Fichiers associés :**
+- Image Hero : `frontend/public/image.png`
+- Composant : `frontend/src/pages/Home.jsx`
+
 ## 📁 Structure du projet
 
 ```
 E-Market/
-├── backend/          # API REST (Node.js/Express)
-│   ├── controllers/
-│   ├── models/
-│   ├── routes/
-│   └── ...
-└── frontend/         # Interface utilisateur (React)
+├── backend/                    # API REST (Node.js/Express)
+│   ├── config/                 # Configuration (DB, Logger, Swagger, etc.)
+│   ├── controllers/            # Contrôleurs pour chaque ressource
+│   ├── models/                 # Modèles Mongoose avec plugins
+│   ├── routes/                 # Routes API
+│   ├── services/               # Services métier
+│   ├── middlewares/            # Middlewares (auth, validation, cache, etc.)
+│   ├── validations/            # Schémas de validation Yup
+│   ├── factories/              # Factories pour les tests
+│   ├── events/                 # Event emitters/listeners
+│   ├── jobs/                   # Tâches cron (notifications stock)
+│   ├── seeders/                # Scripts de seeding
+│   ├── test/                   # Tests (unitaires et intégration)
+│   ├── uploads/                # Fichiers uploadés
+│   └── server.js               # Point d'entrée
+│
+└── frontend/                   # Interface utilisateur (React)
     ├── src/
-    │   ├── components/
-    │   ├── pages/
-    │   ├── services/
-    │   └── routes/
-    └── ...
+    │   ├── components/         # Composants réutilisables
+    │   │   ├── admin/          # Composants Admin Dashboard
+    │   │   ├── seller/         # Composants Seller Dashboard
+    │   │   └── tools/          # Composants utilitaires
+    │   ├── pages/              # Pages de l'application
+    │   │   ├── admin/          # Pages Admin Dashboard
+    │   │   └── seller/         # Pages Seller Dashboard
+    │   ├── layouts/            # Layouts (Admin, Seller)
+    │   ├── services/           # Services API
+    │   │   └── admin/          # Services Admin
+    │   ├── routes/             # Configuration des routes
+    │   ├── context/            # Context API (Auth, Cart)
+    │   ├── tests/              # Tests (unitaires et intégration)
+    │   │   ├── admin/          # Tests Admin Dashboard
+    │   │   ├── forms/          # Tests formulaires
+    │   │   ├── hooks/          # Tests hooks
+    │   │   └── logic/          # Tests logique métier
+    │   └── main.jsx            # Point d'entrée
+    └── package.json
 ```
 
 ## 🧪 Tests
+
+### Backend Tests
 
 ```bash
 cd backend
@@ -222,9 +280,114 @@ npm run test:all
 npm run coverage
 ```
 
+### Frontend Tests
+
+```bash
+cd frontend
+
+# Tous les tests
+npm test
+
+# Tests en mode watch
+npm run test:watch
+
+# Tests avec couverture de code
+npm run test:coverage
+
+# Tests spécifiques (ex: Admin Dashboard)
+npm test -- --testPathPatterns="admin"
+
+# Tests d'intégration
+npm test -- --testPathPatterns="integration"
+```
+
+### Types de tests
+
+**Backend:**
+- Tests unitaires (Mocha + Chai)
+- Tests d'intégration (Supertest)
+- Couverture de code (C8)
+
+**Frontend:**
+- Tests unitaires (Jest + React Testing Library)
+- Tests d'intégration (Admin Dashboard)
+- Tests de composants
+- Tests de hooks et logique métier
+
+## 🚀 Déploiement
+
+### Frontend (Vercel)
+
+Le frontend peut être déployé sur Vercel automatiquement via GitHub Actions ou manuellement.
+
+**Déploiement manuel :**
+1. Créez un projet sur [Vercel](https://vercel.com)
+2. Importez votre repository GitHub
+3. Configurez les variables d'environnement :
+   - `VITE_BACKEND_URL` : URL de l'API backend
+   - `VITE_BACKEND_BASE_URL` : URL de base du backend
+   - `VITE_ENV` : `production`
+4. Déployez
+
+**Déploiement automatique :**
+Le workflow `.github/workflows/deploy.yml` déploie automatiquement lors d'un push vers `main`, `master`, ou `front`.
+
+Pour plus de détails, consultez [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)
+
+### Backend (Azure)
+
+Le backend est déployé sur Azure. Consultez la documentation Azure pour les détails de configuration.
+
+## 🔄 CI/CD Pipeline
+
+Le projet utilise GitHub Actions pour l'intégration et le déploiement continus.
+
+### Workflows disponibles
+
+1. **CI Pipeline** (`.github/workflows/ci.yml`)
+   - Exécute les tests (Frontend & Backend)
+   - Vérifie le code avec ESLint
+   - Build le projet
+   - Génère les rapports de couverture
+
+2. **Deploy Pipeline** (`.github/workflows/deploy.yml`)
+   - Déploie automatiquement sur Vercel
+   - S'exécute sur push vers `main`, `master`, ou `front`
+
+Pour plus de détails, consultez [.github/workflows/README.md](./.github/workflows/README.md)
+
+## ⚙️ Gestion des Environnements
+
+Le projet utilise des fichiers `.env` séparés pour chaque environnement.
+
+### Frontend
+
+- `.env.development` : Variables pour le développement local
+- `.env.production` : Variables pour la production
+- `.env.test` : Variables pour les tests
+
+**Variables disponibles :**
+- `VITE_BACKEND_URL` : URL de l'API backend
+- `VITE_BACKEND_BASE_URL` : URL de base pour les images
+- `VITE_ENV` : Environnement actuel
+
+### Backend
+
+- `.env.development` : Variables pour le développement
+- `.env.production` : Variables pour la production
+- `.env.test` : Variables pour les tests
+
+**Variables disponibles :**
+- `PORT` : Port du serveur
+- `DB_URI` : URI de connexion MongoDB
+- `JWT_SECRET` : Secret pour JWT
+- `NODE_ENV` : Environnement Node.js
+- `LOG_LEVEL` : Niveau de logging
+- `REDIS_URL` : URL Redis (optionnel)
+- `MAIL_*` : Configuration email
+
 ## 👥 Auteurs
 
-- **ElFirdaous28**
-- **Ayoub-fetti**
-- **samirakibous**
-- **wassim205**
+- **Ibrahim Lmlilas**
+- **Ayoub Fetti**
+- **Mohamed Boukab**

@@ -9,12 +9,19 @@ class OrderService {
       .populate("items.productId")
       .session(session);
 
-    if (!cart || !cart.items.length) throw new Error("Cart is empty");
-
+    if (!cart) {
+      throw new Error("Cart not found for user");
+    }
+    
+    if (!cart.items.length) {
+      throw new Error("Cart is empty");
+    }
     // Check & decrease stock
     for (const item of cart.items) {
+      if (!item.productId) {
+        throw new Error("Product not found in cart item");
+      }
       await StockService.checkStock(item.productId._id, item.quantity);
-      await StockService.decreaseStock(item.productId._id, item.quantity);
     }
 
     // Calculate total

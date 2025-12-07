@@ -1,24 +1,25 @@
-// frontend/src/components/ProtectedRoute.jsx
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedRoute({ children, allowedRoles }) {
-    const { isAuthenticated, loading, user } = useAuth();
-    const location = useLocation();
+  const { isAuthenticated, loading, user } = useAuth();
+  const location = useLocation();
 
-    if (loading) {
-        return <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>;
-    }
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
-    if (!isAuthenticated()) {
-        return <Navigate to="/login" state={{ from: location }} replace />;
-    }
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-    if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-        return <Navigate to="/" replace />;
-    }
+  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
 
-    return children;
+  return children;
 }

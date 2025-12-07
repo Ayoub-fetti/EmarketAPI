@@ -11,31 +11,29 @@ services:
       - NODE_ENV=production
       - DB_URI=mongodb://mongo:27017/emarket_db
       - JWT_SECRET=8cc10252c3b380e9714e77c9791a175199073d684a1255ab7be96160141c17c3370c3a34e3fc6d776741b3da7b033e9a4192b0d97e42ef69905e318218005638
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - mongo
+      - redis
     networks:
       - app-network
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - ./backend/uploads:/app/uploads
 
   # Frontend React
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   container_name: emarket_frontend
-  #   ports:
-  #     - "3001:3000"
-  #   environment:
-  #     - REACT_APP_API_URL=http://localhost:3000/api
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - app-network
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: emarket_frontend
+    ports:
+      - "3001:80"
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+    networks:
+      - app-network
 
   # MongoDB
   mongo:
@@ -50,14 +48,14 @@ services:
     restart: always
 
   # Redis
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: emarket_redis
-  #   ports:
-  #     - "6379:6379"
-  #   networks:
-  #     - app-network
-  #   restart: always
+  redis:
+    image: redis:7-alpine
+    container_name: emarket_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    restart: always
 
   # MongoDB Admin Interface
   mongo-express:
