@@ -12,7 +12,7 @@ export default function Home() {
           {/* Left Content Section - positioned behind image */}
           <div className="flex-1 relative z-0">
             <h1 className="absolute top-1/8 left-0 text-4xl md:text-5xl lg:text-6xl font-bold text-gray-300 whitespace-nowrap">
-              test Your Inspiration
+               Your Inspiration
             </h1>
 
             <p className="mt-32 text-lg text-white mb-8 leading-relaxed max-w-md">
